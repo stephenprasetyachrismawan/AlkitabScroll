@@ -1,0 +1,347 @@
+# Selah verse catalog
+# Format: TB/BIMK reference | KJV reference ("-" = same) | categories (comma separated)
+# TB/BIMK follow Hebrew numbering in Psalms, so KJV refs differ there.
+# Curated from widely used Protestant devotional lists (GotQuestions Indonesia,
+# CNN Indonesia, Bisnis.com, Tithe.ly, Parade) and classic Reformation-era favourites.
+
+# --- Comfort / Penghiburan
+Mzm 23:1-4 | - | comfort,protection,rest
+Mat 5:4 | - | comfort
+2Kor 1:3-4 | - | comfort
+Mzm 34:19 | Ps 34:18 | comfort
+Mzm 147:3 | - | comfort
+Why 21:4 | - | comfort,hope
+Yes 66:13 | - | comfort
+Yoh 14:1-3 | - | comfort,hope
+Yoh 14:18 | - | comfort
+Mzm 30:6 | Ps 30:5 | comfort,joy
+Rat 3:22-23 | - | comfort,hope
+Yes 43:2 | - | comfort,protection
+Mzm 94:19 | - | comfort,peace
+Rm 8:18 | - | comfort,hope,perseverance
+2Kor 4:16-18 | - | comfort,perseverance
+Mzm 73:26 | - | comfort,strength
+Yes 49:15-16 | - | comfort,love
+Mzm 56:9 | Ps 56:8 | comfort
+Yoh 16:33 | - | comfort,peace,courage
+1Tes 4:13-14 | - | comfort,hope
+Mzm 9:10 | Ps 9:9 | comfort,protection
+Yes 61:1-3 | - | comfort,joy
+
+# --- Hope / Pengharapan
+Yer 29:11 | - | hope,guidance
+Rm 15:13 | - | hope,joy,peace
+Rm 5:3-5 | - | hope,perseverance
+Ibr 6:19 | - | hope
+Mzm 42:12 | Ps 42:11 | hope
+Mzm 62:6 | Ps 62:5 | hope,rest
+Rm 8:24-25 | - | hope,perseverance
+1Ptr 1:3 | - | hope,salvation
+Ibr 10:23 | - | hope,faith
+Yes 40:31 | - | hope,strength
+Mzm 31:25 | Ps 31:24 | hope,courage
+Rm 12:12 | - | hope,joy,prayer
+Ams 23:18 | - | hope
+Mi 7:7 | - | hope,prayer
+Ams 24:14 | - | hope,wisdom
+Ul 31:8 | - | hope,courage
+Flp 1:6 | - | hope,perseverance
+Mzm 130:5 | - | hope
+
+# --- Strength / Kekuatan
+Flp 4:13 | - | strength
+Yes 41:10 | - | strength,courage,protection
+Yes 40:29 | - | strength,rest
+2Kor 12:9-10 | - | strength
+Mzm 46:2 | Ps 46:1 | strength,protection
+Neh 8:11 | Neh 8:10 | strength,joy
+Mzm 28:7 | - | strength,gratitude
+Ef 6:10 | - | strength,courage
+Hab 3:19 | - | strength
+Mzm 18:3 | Ps 18:2 | strength,protection
+Kel 15:2 | - | strength,joy
+Mzm 27:1 | - | strength,courage,protection
+Mzm 29:11 | - | strength,peace
+1Kor 16:13 | - | strength,courage,faith
+Yes 12:2 | - | strength,salvation,courage
+2Tes 3:3 | - | strength,protection
+
+# --- Peace & anxiety / Damai & kecemasan
+Flp 4:6-7 | - | peace,prayer
+1Ptr 5:7 | - | peace,rest
+Yoh 14:27 | - | peace
+Yes 26:3 | - | peace,faith
+Mat 6:34 | - | peace
+Mat 6:25-26 | - | peace,provision
+Mzm 55:23 | Ps 55:22 | peace,strength
+Mzm 4:9 | Ps 4:8 | peace,rest
+Kol 3:15 | - | peace,gratitude
+2Tes 3:16 | - | peace
+Bil 6:24-26 | - | peace,protection
+Mzm 56:4 | Ps 56:3 | peace,faith,courage
+Rm 8:6 | - | peace
+Yes 32:17 | - | peace
+Mat 6:27 | - | peace
+Luk 12:25-26 | - | peace
+
+# --- Rest / Perhentian
+Mat 11:28-30 | - | rest,comfort
+Mzm 46:11 | Ps 46:10 | rest,peace
+Kel 33:14 | - | rest,guidance
+Mzm 62:2-3 | Ps 62:1-2 | rest,salvation
+Ibr 4:9-10 | - | rest
+Yes 30:15 | - | rest,strength
+Mzm 116:7 | - | rest
+Yer 31:25 | - | rest,strength
+Mrk 6:31 | - | rest
+
+# --- Love / Kasih
+Yoh 3:16 | - | love,salvation
+Rm 8:38-39 | - | love,hope
+1Kor 13:4-7 | - | love,relationships
+1Yoh 4:18 | - | love,courage
+1Yoh 4:19 | - | love
+1Yoh 4:7-8 | - | love,relationships
+Rm 5:8 | - | love,salvation
+Yer 31:3 | - | love
+Zef 3:17 | - | love,joy
+Ef 3:17-19 | - | love
+Yoh 15:12-13 | - | love,relationships
+1Ptr 4:8 | - | love,forgiveness,relationships
+Kol 3:14 | - | love,relationships
+Mzm 136:1 | - | love,gratitude
+1Yoh 3:1 | - | love,identity
+Rm 13:10 | - | love
+Gal 2:20 | - | love,identity,faith
+Ul 7:9 | - | love,faith
+
+# --- Faith / Iman
+Ibr 11:1 | - | faith
+Ibr 11:6 | - | faith
+Ams 3:5-6 | - | faith,guidance
+Mrk 11:24 | - | faith,prayer
+Rm 10:17 | - | faith
+2Kor 5:7 | - | faith
+Mat 17:20 | - | faith
+Yak 1:6 | - | faith,prayer
+Mrk 9:23 | - | faith
+Ef 2:8-9 | - | faith,salvation
+Rm 1:16-17 | - | faith,salvation
+Mzm 37:5 | - | faith,guidance
+Yer 17:7-8 | - | faith,perseverance
+Mzm 9:11 | Ps 9:10 | faith,protection
+Yoh 11:25-26 | - | faith,hope,salvation
+Luk 1:37 | - | faith
+
+# --- Wisdom / Hikmat
+Yak 1:5 | - | wisdom,prayer
+Ams 1:7 | - | wisdom
+Ams 9:10 | - | wisdom
+Mzm 119:105 | - | wisdom,guidance
+Ams 2:6 | - | wisdom
+Ams 4:23 | - | wisdom
+Mzm 90:12 | - | wisdom
+Yak 3:17 | - | wisdom,peace
+Ams 16:3 | - | wisdom,work
+Ams 16:9 | - | wisdom,guidance
+Ams 19:21 | - | wisdom,guidance
+Kol 3:16 | - | wisdom,gratitude
+Pkh 3:1 | - | wisdom,perseverance
+Ams 15:1 | - | wisdom,relationships
+Ams 18:10 | - | wisdom,protection
+2Tim 3:16-17 | - | wisdom
+Mzm 119:11 | - | wisdom
+Yak 1:19-20 | - | wisdom,relationships
+Rm 12:2 | - | wisdom,identity
+
+# --- Forgiveness / Pengampunan
+1Yoh 1:9 | - | forgiveness
+Mzm 103:12 | - | forgiveness,love
+Ef 4:32 | - | forgiveness,relationships
+Kol 3:13 | - | forgiveness,relationships
+Yes 1:18 | - | forgiveness
+Mat 6:14-15 | - | forgiveness
+Mi 7:18-19 | - | forgiveness,love
+Mzm 51:12 | Ps 51:10 | forgiveness,prayer
+2Kor 5:17 | - | forgiveness,identity
+Rm 8:1 | - | forgiveness,identity
+Yes 43:25 | - | forgiveness
+Mzm 103:2-4 | - | forgiveness,gratitude
+Ef 1:7 | - | forgiveness,salvation
+Mat 18:21-22 | - | forgiveness,relationships
+Luk 6:37 | - | forgiveness,relationships
+Ibr 8:12 | - | forgiveness
+
+# --- Gratitude / Syukur
+1Tes 5:16-18 | - | gratitude,joy,prayer
+Mzm 107:1 | - | gratitude,love
+Mzm 118:24 | - | gratitude,joy
+Mzm 100:4-5 | - | gratitude,joy
+Kol 3:17 | - | gratitude,work
+Mzm 103:1-2 | - | gratitude
+Yak 1:17 | - | gratitude,provision
+Mzm 9:2 | Ps 9:1 | gratitude
+Ef 5:20 | - | gratitude
+Mzm 95:2-3 | - | gratitude,joy
+2Kor 9:15 | - | gratitude
+Flp 4:11-12 | - | gratitude,provision
+Mzm 126:3 | - | gratitude,joy
+
+# --- Protection / Perlindungan
+Mzm 91:1-2 | - | protection,rest
+Mzm 91:11 | - | protection
+Mzm 121:1-2 | - | protection,strength
+Mzm 121:7-8 | - | protection
+Ams 18:10 | - | protection
+Yes 54:17 | - | protection
+Mzm 32:7 | - | protection
+Ul 31:6 | - | protection,courage
+Mzm 34:8 | Ps 34:7 | protection
+Yoh 10:28-29 | - | protection,salvation,identity
+Mzm 3:4 | Ps 3:3 | protection,hope
+Mzm 61:3-4 | Ps 61:2-3 | protection,prayer
+Kel 14:14 | - | protection,rest
+Rm 8:31 | - | protection,courage
+
+# --- Provision / Pemeliharaan
+Flp 4:19 | - | provision
+Mat 6:33 | - | provision,guidance
+Mzm 37:25 | - | provision
+Mat 7:7-8 | - | provision,prayer
+Mzm 84:12 | Ps 84:11 | provision,protection
+2Kor 9:8 | - | provision
+Mzm 145:15-16 | - | provision
+Luk 12:24 | - | provision,peace
+Mzm 37:4 | - | provision,joy
+Kej 22:14 | - | provision
+Mzm 34:11 | Ps 34:10 | provision
+Rm 8:32 | - | provision,love
+
+# --- Courage / Keberanian
+Yos 1:9 | - | courage,strength
+2Tim 1:7 | - | courage,strength,love
+Mzm 27:14 | - | courage,hope,perseverance
+Ibr 13:6 | - | courage,faith
+Ul 31:6 | - | courage
+Yes 43:1 | - | courage,identity
+Mzm 118:6 | - | courage
+Yes 35:4 | - | courage,salvation
+1Taw 28:20 | - | courage,work
+Mat 14:27 | - | courage
+
+# --- Perseverance / Ketekunan
+Gal 6:9 | - | perseverance,work
+Yak 1:2-4 | - | perseverance,joy
+Yak 1:12 | - | perseverance
+Ibr 12:1-2 | - | perseverance,faith
+2Tim 4:7 | - | perseverance,faith
+1Kor 15:58 | - | perseverance,work
+Rm 8:28 | - | perseverance,hope
+Flp 3:13-14 | - | perseverance
+1Kor 10:13 | - | perseverance,strength
+Ibr 10:36 | - | perseverance
+Why 2:10 | - | perseverance,courage
+2Kor 4:8-9 | - | perseverance,strength
+
+# --- Joy / Sukacita
+Flp 4:4 | - | joy
+Mzm 16:11 | - | joy,guidance
+Yoh 15:11 | - | joy
+Ams 17:22 | - | joy
+Mzm 126:5 | - | joy,hope
+Yes 55:12 | - | joy,peace
+Gal 5:22-23 | - | joy,love,peace
+Luk 15:10 | - | joy,forgiveness
+Rm 14:17 | - | joy,peace
+Yoh 16:22 | - | joy,comfort
+
+# --- Guidance / Pimpinan
+Mzm 32:8 | - | guidance
+Yes 30:21 | - | guidance
+Mzm 37:23 | - | guidance
+Yes 58:11 | - | guidance,provision
+Yoh 10:27 | - | guidance,identity
+Mzm 25:4-5 | - | guidance,prayer
+Mzm 143:8 | - | guidance,prayer
+Yes 42:16 | - | guidance
+Yoh 8:12 | - | guidance
+Mzm 48:15 | Ps 48:14 | guidance
+Yoh 14:6 | - | guidance,salvation
+
+# --- Relationships & family / Relasi & keluarga
+Yos 24:15 | - | relationships,faith
+Ef 4:2-3 | - | relationships,love
+Rm 12:10 | - | relationships,love
+Pkh 4:9-10 | - | relationships
+Ams 17:17 | - | relationships,love
+Ef 6:1-3 | - | relationships
+Ams 22:6 | - | relationships,wisdom
+Mzm 133:1 | - | relationships,joy
+Ef 5:25 | - | relationships,love
+Kej 2:24 | - | relationships
+Gal 6:2 | - | relationships,love
+Rm 15:7 | - | relationships
+Ams 27:17 | - | relationships,wisdom
+Ibr 10:24-25 | - | relationships,faith
+1Tes 5:11 | - | relationships,comfort
+Mat 7:12 | - | relationships,love
+
+# --- Work / Pekerjaan
+Kol 3:23-24 | - | work
+Ams 16:3 | - | work
+Mzm 90:17 | - | work,prayer
+Ams 12:11 | - | work,wisdom
+Ams 14:23 | - | work
+1Kor 10:31 | - | work
+Mat 5:16 | - | work,identity
+Ef 2:10 | - | work,identity
+Pkh 9:10 | - | work
+2Tes 3:10 | - | work
+Ams 22:29 | - | work,wisdom
+Gal 6:4-5 | - | work
+
+# --- Identity / Identitas di dalam Kristus
+Mzm 139:14 | - | identity,gratitude
+1Ptr 2:9 | - | identity
+Yoh 1:12 | - | identity,salvation
+Yer 1:5 | - | identity
+Rm 8:16-17 | - | identity
+Gal 3:26 | - | identity,faith
+Kol 3:12 | - | identity,love
+Ef 1:4-5 | - | identity,love
+Mat 5:14 | - | identity
+1Kor 6:19-20 | - | identity
+Flp 3:20 | - | identity,hope
+Yes 62:3 | - | identity
+
+# --- Prayer / Doa
+Yer 33:3 | - | prayer
+Mat 6:6 | - | prayer
+1Yoh 5:14-15 | - | prayer,faith
+Mzm 145:18 | - | prayer,comfort
+Rm 8:26 | - | prayer,comfort
+Yak 5:16 | - | prayer,forgiveness
+Mat 18:20 | - | prayer,relationships
+Mzm 66:19-20 | - | prayer,gratitude
+Yoh 15:7 | - | prayer
+Ibr 4:16 | - | prayer,forgiveness
+Mzm 141:2 | - | prayer
+Kol 4:2 | - | prayer,gratitude
+Ef 6:18 | - | prayer
+Mzm 19:15 | Ps 19:14 | prayer
+Mat 7:11 | - | prayer,provision
+2Taw 7:14 | - | prayer,forgiveness
+
+# --- Salvation / Keselamatan
+Rm 10:9-10 | - | salvation,faith
+Kis 4:12 | - | salvation
+Rm 6:23 | - | salvation
+Tit 3:5 | - | salvation
+Yoh 5:24 | - | salvation,hope
+Why 3:20 | - | salvation,love
+1Tim 1:15 | - | salvation,forgiveness
+Luk 19:10 | - | salvation,love
+Rm 3:23-24 | - | salvation,forgiveness
+Yoh 10:10 | - | salvation,joy
+2Kor 5:21 | - | salvation,forgiveness
+Kis 16:31 | - | salvation,faith,relationships
