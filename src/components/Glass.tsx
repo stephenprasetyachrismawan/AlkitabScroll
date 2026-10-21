@@ -23,11 +23,11 @@ export function Glass({ children, style, dark, strength = 0.6, radius = 24 }: Pr
   return (
     <View style={[{ borderRadius: radius, overflow: 'hidden', borderWidth: StyleSheet.hairlineWidth * 2, borderColor: border }, style]}>
       {Platform.OS === 'android' ? (
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: tint }]} />
+        <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: tint }]} />
       ) : (
         <>
-          <BlurView intensity={40 + strength * 50} tint={dark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: tint, opacity: 0.55 }]} />
+          <BlurView pointerEvents="none" intensity={40 + strength * 50} tint={dark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
+          <View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: tint, opacity: 0.55 }]} />
         </>
       )}
       {/* sheen: light catching the top edge */}

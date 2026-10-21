@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type ComponentRef } from 'react';
-import { Alert, FlatList, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Alert, FlatList, Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
@@ -61,7 +62,7 @@ export default function CreateStatus() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16, gap: 14, alignItems: 'center' }}>
+    <KeyboardAwareScrollView bottomOffset={24} style={{ backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16, gap: 14, alignItems: 'center' }}>
       <Stack.Screen options={{ title: t('status') }} />
       <View ref={shotRef} collapsable={false} style={{ borderRadius: 18, overflow: 'hidden' }}>
         <VerseCard verse={verse} width={previewW} height={previewH} translation={translation} lang={lang} dark={dark} variant={variant} badge="Selah" />
@@ -109,7 +110,7 @@ export default function CreateStatus() {
       <Pressable onPress={exportImage} style={[styles.btn, { borderWidth: 1, borderColor: colors.border }]}>
         <Text style={[styles.btnText, { color: colors.text }]}>{t('exportImage')}</Text>
       </Pressable>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 }
 

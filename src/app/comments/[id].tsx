@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { useHeaderHeight } from 'expo-router/react-navigation';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../../components/Avatar';
 import * as api from '../../lib/api';
 import { useAuth } from '../../lib/auth';
@@ -8,12 +11,15 @@ import { UI_FONT } from '../../lib/fonts';
 import { timeAgo } from '../../lib/i18n';
 import { cleanText } from '../../lib/moderation';
 import { useSettings } from '../../lib/settings';
+import { supabase } from '../../lib/supabase';
 import { passageText, VERSE_MAP } from '../../lib/verses';
 
 export default function Comments() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t, colors, lang, translation } = useSettings();
   const { userId } = useAuth();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
   const [list, setList] = useState<api.Comment[]>([]);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -23,6 +29,17 @@ export default function Comments() {
     api.listComments(id).then(setList).catch(() => {});
   }, [id]);
   useEffect(load, [load]);
+
+  // New comments from anyone appear live.
+  useEffect(() => {
+    const channel = supabase
+      .channel(`comments-${id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments', filter: `verse_id=eq.${id}` }, () => load())
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, load]);
 
   const send = async () => {
     if (!userId || !text.trim()) return;
@@ -51,7 +68,7 @@ export default function Comments() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior="padding" keyboardVerticalOffset={headerHeight}>
       <Stack.Screen options={{ title: t('comments') }} />
       <FlatList
         data={list}
@@ -79,7 +96,7 @@ export default function Comments() {
           </Pressable>
         )}
       />
-      <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
+      <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card, paddingBottom: Math.max(insets.bottom, 12) }]}>
         <TextInput
           value={text}
           onChangeText={setText}
@@ -105,7 +122,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingVertical: 10 },
   name: { fontFamily: UI_FONT.bold, fontSize: 13 },
   body: { fontFamily: UI_FONT.regular, fontSize: 15, lineHeight: 21, marginTop: 2 },
-  inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: 1, paddingHorizontal: 14, paddingVertical: 10, paddingBottom: 24 },
+  inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: 1, paddingHorizontal: 14, paddingVertical: 10, paddingBottom: 12 },
   input: { flex: 1, fontFamily: UI_FONT.regular, fontSize: 15, maxHeight: 100 },
   send: { fontFamily: UI_FONT.bold, fontSize: 15 },
 });

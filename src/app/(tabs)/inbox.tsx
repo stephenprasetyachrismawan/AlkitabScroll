@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { Aurora } from '../../components/Aurora';
 import { useTabBarSpace } from '../../components/GlassTabBar';
 import { PressableScale } from '../../components/PressableScale';
-import { DURATION, EASE_OUT_EXPO } from '../../lib/motion';
+import { FadeInView } from '../../components/FadeInView';
 import { router, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../../components/Avatar';
@@ -40,7 +39,7 @@ export default function Inbox() {
             ? `📖 ${VERSE_MAP[item.last_verse_id]?.text.tb.title ?? t('sentVerse')}`
             : item.last_body ?? '';
           return (
-            <Animated.View entering={FadeInDown.duration(DURATION.enter).delay(Math.min(index, 8) * 50).easing(EASE_OUT_EXPO)}>
+            <FadeInView delay={Math.min(index, 8) * 50}>
             <PressableScale scaleTo={0.98} style={styles.row} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.partner_id } })}>
               <Avatar profile={item.profile} size={52} />
               <View style={{ flex: 1 }}>
@@ -54,7 +53,7 @@ export default function Inbox() {
               </View>
               {item.unread ? <View style={[styles.dot, { backgroundColor: colors.primary }]} /> : null}
             </PressableScale>
-            </Animated.View>
+            </FadeInView>
           );
         }}
       />

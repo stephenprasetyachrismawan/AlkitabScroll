@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, t
 import {
   FlatList,
   Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -18,6 +19,7 @@ import { CATEGORY_MAP } from '../lib/categories';
 import { useEngagement } from '../lib/engagement';
 import { UI_FONT } from '../lib/fonts';
 import { useSettings } from '../lib/settings';
+import { supabase } from '../lib/supabase';
 import { VERSE_MAP, VERSES, type Verse } from '../lib/verses';
 import { SelahBreak } from './SelahBreak';
 import { ShareSheet } from './ShareSheet';
@@ -56,15 +58,35 @@ class FeedSession {
   }
 }
 
+function initialItems(session: FeedSession, routes: Route[], startVerseId: string | undefined, category: string | undefined, votdBadge: string): Item[] {
+  const first: Item[] = [];
+  const start = startVerseId ? VERSE_MAP[startVerseId] : undefined;
+  if (start) {
+    session.engine.markSeen(start.id);
+    first.push({ key: `${start.id}-start`, kind: 'verse', verse: start, reason: start.categories[0] });
+  } else if (!category) {
+    const votd = verseOfTheDay(VERSES, todayKey());
+    session.engine.markSeen(votd.id);
+    first.push({ key: `${votd.id}-votd`, kind: 'verse', verse: votd, reason: votd.categories[0], badge: votdBadge });
+  }
+  return [...first, ...session.batch(BATCH, routes)];
+}
+
+const STATS_POLL_MS = 15_000;
+
 type FeedProps = {
   /** Open this verse first, then continue with the algorithm. */
   startVerseId?: string;
   /** Limit the feed to one category (Explore). */
   category?: string;
   header?: ReactElement;
+  /** Tells the parent when the quiet-time break is on screen (music pauses for it). */
+  onSelahVisible?: (visible: boolean) => void;
+  /** Pull-to-refresh also refreshes things above the feed (e.g. statuses). */
+  onRefresh?: () => void;
 };
 
-export function Feed({ startVerseId, category, header }: FeedProps) {
+export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh }: FeedProps) {
   const { viewMode, translation, lang, dark, colors, t } = useSettings();
   const { routes, liked, saved, toggleLike, toggleSave, recordDwell } = useEngagement();
   const { width } = useWindowDimensions();
@@ -78,26 +100,71 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
   const listRef = useRef<FlatList<Item>>(null);
 
   // One feed session per mount: holds the engine, counters and latest routes.
-  const [session] = useState(() => new FeedSession(category));
+  const [session, setSession] = useState(() => new FeedSession(category));
+  const [refreshing, setRefreshing] = useState(false);
   const routesRef = useRef(routes);
   useEffect(() => {
     routesRef.current = routes;
   }, [routes]);
 
   // First the opened verse (from profile/DM) or the verse of the day, then the algorithm.
-  const [items, setItems] = useState<Item[]>(() => {
-    const first: Item[] = [];
-    const start = startVerseId ? VERSE_MAP[startVerseId] : undefined;
-    if (start) {
-      session.engine.markSeen(start.id);
-      first.push({ key: `${start.id}-start`, kind: 'verse', verse: start, reason: start.categories[0] });
-    } else if (!category) {
-      const votd = verseOfTheDay(VERSES, todayKey());
-      session.engine.markSeen(votd.id);
-      first.push({ key: `${votd.id}-votd`, kind: 'verse', verse: votd, reason: votd.categories[0], badge: t('verseOfDay') });
-    }
-    return [...first, ...session.batch(BATCH, routes)];
-  });
+  const [items, setItems] = useState<Item[]>(() => initialItems(session, routes, startVerseId, category, t('verseOfDay')));
+  const itemsRef = useRef(items);
+  const activeRef = useRef<string | null>(null);
+  useEffect(() => {
+    itemsRef.current = items;
+    activeRef.current = activeKey;
+  }, [items, activeKey]);
+
+  const refreshStats = useCallback((ids: string[]) => {
+    if (ids.length === 0) return;
+    api
+      .verseStats([...new Set(ids)])
+      .then((s) => setStats((prev) => ({ ...prev, ...s })))
+      .catch(() => {});
+  }, []);
+
+  /** Verse ids around the card on screen. */
+  const nearbyIds = useCallback(() => {
+    const list = itemsRef.current;
+    const i = Math.max(0, list.findIndex((x) => x.key === activeRef.current));
+    return list.slice(Math.max(0, i - 3), i + 5).flatMap((x) => (x.kind === 'verse' ? [x.verse.id] : []));
+  }, []);
+
+  // Live counts: Supabase realtime pushes like/comment changes; a slow poll covers gaps.
+  useEffect(() => {
+    const channel = supabase
+      .channel(`feed-stats-${Math.random().toString(36).slice(2)}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, (p) => {
+        const id = ((p.new as { verse_id?: string })?.verse_id ?? (p.old as { verse_id?: string })?.verse_id) as string | undefined;
+        if (id && itemsRef.current.some((x) => x.kind === 'verse' && x.verse.id === id)) refreshStats([id]);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, (p) => {
+        const id = (p.new as { verse_id?: string })?.verse_id;
+        refreshStats(id ? [id] : nearbyIds());
+      })
+      .subscribe();
+    const poll = setInterval(() => refreshStats(nearbyIds()), STATS_POLL_MS);
+    return () => {
+      clearInterval(poll);
+      supabase.removeChannel(channel);
+    };
+  }, [refreshStats, nearbyIds]);
+
+  const refresh = useCallback(() => {
+    setRefreshing(true);
+    const next = new FeedSession(category);
+    const fresh = initialItems(next, routesRef.current, startVerseId, category, t('verseOfDay'));
+    setSession(next);
+    setItems(fresh);
+    setEnded(false);
+    onRefresh?.();
+    api
+      .verseStats(fresh.flatMap((x) => (x.kind === 'verse' ? [x.verse.id] : [])))
+      .then((s) => setStats((prev) => ({ ...prev, ...s })))
+      .catch(() => {})
+      .finally(() => setRefreshing(false));
+  }, [category, startVerseId, t, onRefresh]);
 
   // Fetch like/comment counts for newly shown verses.
   useEffect(() => {
@@ -114,6 +181,11 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
     setItems((prev) => [...prev, ...session.batch(BATCH, routesRef.current)]);
   }, [ended, session]);
 
+  const selahCb = useRef(onSelahVisible);
+  useEffect(() => {
+    selahCb.current = onSelahVisible;
+  }, [onSelahVisible]);
+
   // Dwell tracking: a post that stays on screen long enough becomes a signal.
   const dwell = useRef<{ timer: ReturnType<typeof setTimeout> | null; record: (id: string) => void }>({ timer: null, record: recordDwell });
   useEffect(() => {
@@ -124,6 +196,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
     if (d.timer) clearTimeout(d.timer);
     const top = viewableItems[0]?.item;
     if (top) setActiveKey(top.key);
+    selahCb.current?.(top?.kind === 'selah');
     if (top?.kind === 'verse') d.timer = setTimeout(() => d.record(top.verse.id), DWELL_THRESHOLD_MS);
   }, []);
   useEffect(() => {
@@ -277,6 +350,11 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
           initialNumToRender={3}
           maxToRenderPerBatch={4}
           onScrollToIndexFailed={() => {}}
+          refreshControl={
+            reels ? undefined : (
+              <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={colors.primary} colors={[colors.primary]} progressViewOffset={8} />
+            )
+          }
         />
       ) : null}
       <ShareSheet verse={shareVerse} onClose={() => setShareVerse(null)} />

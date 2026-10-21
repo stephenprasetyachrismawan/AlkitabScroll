@@ -91,6 +91,28 @@ const dict = {
   errorGeneric: { id: 'Terjadi kesalahan. Coba lagi.', en: 'Something went wrong. Try again.' },
   justNow: { id: 'baru saja', en: 'just now' },
   sentVerse: { id: 'mengirim ayat', en: 'sent a verse' },
+  people: { id: 'Orang', en: 'People' },
+  versesTab: { id: 'Ayat', en: 'Verses' },
+  searchVerses: { id: 'Cari ayat… (mis. damai, Yohanes 3)', en: 'Search verses… (e.g. peace, John 3)' },
+  noResults: { id: 'Tidak ditemukan.', en: 'No results.' },
+  suggested: { id: 'Saran untuk diikuti', en: 'Suggested for you' },
+  typeToSearch: { id: 'Ketik minimal 2 huruf.', en: 'Type at least 2 letters.' },
+  notifications: { id: 'Notifikasi', en: 'Notifications' },
+  notifAllow: { id: 'Izinkan notifikasi', en: 'Allow notifications' },
+  notifDenied: {
+    id: 'Notifikasi diblokir. Buka Pengaturan HP untuk mengizinkan.',
+    en: 'Notifications are blocked. Open phone settings to allow them.',
+  },
+  openSettings: { id: 'Buka pengaturan', en: 'Open settings' },
+  dailyReminder: { id: 'Pengingat harian', en: 'Daily reminder' },
+  reminderTime: { id: 'Jam pengingat', en: 'Reminder time' },
+  messageNotif: { id: 'Notifikasi pesan baru', en: 'New message alerts' },
+  testNotif: { id: 'Kirim notifikasi uji', en: 'Send test notification' },
+  testNotifBody: { id: 'Notifikasi Selah berfungsi. Tuhan memberkati! 🕊️', en: 'Selah notifications work. God bless! 🕊️' },
+  reminderTitle: { id: 'Saatnya Selah sejenak 🕊️', en: 'Time for a Selah pause 🕊️' },
+  newMessageFrom: { id: 'Pesan baru dari', en: 'New message from' },
+  music: { id: 'Musik latar', en: 'Background music' },
+  musicHint: { id: 'Instrumental tenang saat menggulir ayat', en: 'Calm instrumentals while you scroll' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type StringKey = keyof typeof dict;

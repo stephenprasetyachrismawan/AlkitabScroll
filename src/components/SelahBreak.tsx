@@ -54,7 +54,7 @@ export function SelahBreak({ width, height, bottomInset = 0, index, verse, onCon
       <Text style={styles.title}>{t('selahTitle')}</Text>
       <Text style={styles.body}>{t('selahBody')}</Text>
       <Glass dark radius={22} strength={0.3} style={{ padding: 8 }}>
-        <YouTubeEmbed videoId={SELAH_VIDEOS[index % SELAH_VIDEOS.length]} width={videoW} height={(videoW * 9) / 16} />
+        <YouTubeEmbed videoIds={[SELAH_VIDEOS[index % SELAH_VIDEOS.length]]} width={videoW} height={(videoW * 9) / 16} style={{ borderRadius: 16 }} />
       </Glass>
       <View style={styles.verse}>
         <Text style={styles.verseText} numberOfLines={5}>

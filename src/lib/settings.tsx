@@ -14,6 +14,14 @@ type Settings = {
   translation: Translation;
   theme: ThemePref;
   viewMode: ViewMode;
+  /** calm instrumental audio while scrolling the feed */
+  music: boolean;
+  reminder: boolean;
+  reminderHour: number;
+  reminderMinute: number;
+  messageAlerts: boolean;
+  /** we asked for notification permission once already */
+  askedNotif: boolean;
 };
 
 export type Palette = {
@@ -71,6 +79,12 @@ function load(): Settings {
     translation: deviceLang === 'id' ? 'tb' : 'kjv',
     theme: 'system',
     viewMode: 'reels',
+    music: true,
+    reminder: true,
+    reminderHour: 7,
+    reminderMinute: 0,
+    messageAlerts: true,
+    askedNotif: false,
   };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

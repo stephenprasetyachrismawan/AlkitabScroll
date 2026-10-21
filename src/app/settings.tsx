@@ -1,4 +1,6 @@
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { notifyNow, permissionState, requestPermission, type PermissionState } from '../lib/notifications';
 import { Stack } from 'expo-router';
 import * as api from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -11,6 +13,22 @@ export default function Settings() {
   const { t, colors } = s;
   const { signOut } = useAuth();
 
+  const [perm, setPerm] = useState<PermissionState>('undetermined');
+  const refreshPerm = useCallback(() => {
+    permissionState().then(setPerm).catch(() => {});
+  }, []);
+  useEffect(refreshPerm, [refreshPerm]);
+
+  const allow = async () => {
+    setPerm(await requestPermission());
+  };
+
+  const shiftReminder = (mins: number) => {
+    const total = (s.reminderHour * 60 + s.reminderMinute + mins + 24 * 60) % (24 * 60);
+    s.update({ reminderHour: Math.floor(total / 60), reminderMinute: total % 60 });
+  };
+  const hhmm = `${String(s.reminderHour).padStart(2, '0')}:${String(s.reminderMinute).padStart(2, '0')}`;
+
   const confirmDelete = () =>
     Alert.alert(t('deleteAccount'), t('deleteConfirm'), [
       { text: t('cancel'), style: 'cancel' },
@@ -20,6 +38,73 @@ export default function Settings() {
   return (
     <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16, gap: 22 }}>
       <Stack.Screen options={{ title: t('settings') }} />
+      <Group title={t('notifications')} colors={colors}>
+        {perm !== 'granted' && perm !== 'unsupported' ? (
+          <View style={{ paddingVertical: 12, gap: 8 }}>
+            {perm === 'denied' ? <Text style={[styles.note, { color: colors.muted, paddingBottom: 0 }]}>{t('notifDenied')}</Text> : null}
+            <Pressable onPress={perm === 'denied' ? () => Linking.openSettings() : allow} style={[styles.pill, { backgroundColor: colors.primary }]}>
+              <Text style={styles.pillText}>{perm === 'denied' ? t('openSettings') : t('notifAllow')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
+        <Row label={t('dailyReminder')} colors={colors}>
+          <Switch value={s.reminder} onValueChange={(reminder) => s.update({ reminder })} trackColor={{ true: colors.primary }} />
+        </Row>
+        {s.reminder ? (
+          <View style={{ paddingBottom: 12, gap: 10 }}>
+            <View style={styles.timeRow}>
+              <Pressable onPress={() => shiftReminder(-15)} style={[styles.step, { borderColor: colors.border }]} hitSlop={6}>
+                <Text style={[styles.stepText, { color: colors.text }]}>−15</Text>
+              </Pressable>
+              <Text style={[styles.time, { color: colors.text }]}>{hhmm}</Text>
+              <Pressable onPress={() => shiftReminder(15)} style={[styles.step, { borderColor: colors.border }]} hitSlop={6}>
+                <Text style={[styles.stepText, { color: colors.text }]}>+15</Text>
+              </Pressable>
+            </View>
+            <View style={styles.chips}>
+              {[
+                [5, 30],
+                [6, 0],
+                [7, 0],
+                [12, 0],
+                [18, 0],
+                [21, 0],
+              ].map(([h, m]) => {
+                const on = s.reminderHour === h && s.reminderMinute === m;
+                return (
+                  <Pressable
+                    key={`${h}${m}`}
+                    onPress={() => s.update({ reminderHour: h, reminderMinute: m })}
+                    style={[styles.chip, { borderColor: on ? colors.primary : colors.border, backgroundColor: on ? colors.primarySoft : 'transparent' }]}
+                  >
+                    <Text style={{ color: colors.text, fontFamily: UI_FONT.semibold }}>{`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+        <Row label={t('messageNotif')} colors={colors}>
+          <Switch value={s.messageAlerts} onValueChange={(messageAlerts) => s.update({ messageAlerts })} trackColor={{ true: colors.primary }} />
+        </Row>
+        <Pressable
+          onPress={async () => {
+            if ((await permissionState()) !== 'granted') {
+              await allow();
+              refreshPerm();
+            }
+            await notifyNow('Selah', t('testNotifBody'), { url: '/' });
+          }}
+          style={styles.option}
+        >
+          <Text style={[styles.optionText, { color: colors.primary }]}>{t('testNotif')}</Text>
+        </Pressable>
+      </Group>
+      <Group title={t('music')} colors={colors}>
+        <Row label={t('musicHint')} colors={colors}>
+          <Switch value={s.music} onValueChange={(music) => s.update({ music })} trackColor={{ true: colors.primary }} />
+        </Row>
+      </Group>
       <Group title={t('language')} colors={colors}>
         <Choice<'id' | 'en'> value={s.lang} onChange={(lang) => s.update({ lang })} options={[['id', 'Bahasa Indonesia'], ['en', 'English']]} colors={colors} />
       </Group>
@@ -69,6 +154,15 @@ function Group({ title, children, colors }: { title: string; children: React.Rea
   );
 }
 
+function Row({ label, children, colors }: { label: string; children: React.ReactNode; colors: Colors }) {
+  return (
+    <View style={styles.option}>
+      <Text style={[styles.optionText, { color: colors.text, flex: 1 }]}>{label}</Text>
+      {children}
+    </View>
+  );
+}
+
 function Choice<T extends string>({
   value,
   onChange,
@@ -95,7 +189,15 @@ function Choice<T extends string>({
 const styles = StyleSheet.create({
   title: { fontFamily: UI_FONT.bold, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' },
   box: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 14 },
-  option: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 13 },
+  option: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 48 },
+  pill: { borderRadius: 999, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  pillText: { color: '#fff', fontFamily: UI_FONT.bold },
+  timeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18 },
+  time: { fontFamily: UI_FONT.title, fontSize: 30, minWidth: 100, textAlign: 'center' },
+  step: { borderWidth: 1, borderRadius: 14, minWidth: 56, minHeight: 40, alignItems: 'center', justifyContent: 'center' },
+  stepText: { fontFamily: UI_FONT.bold },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
+  chip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, minHeight: 36, justifyContent: 'center' },
   optionText: { fontFamily: UI_FONT.semibold, fontSize: 15 },
   note: { fontFamily: UI_FONT.regular, fontSize: 11, paddingBottom: 12, lineHeight: 16 },
   action: { borderWidth: 1, borderRadius: 12, alignItems: 'center', paddingVertical: 13 },

@@ -62,15 +62,25 @@ export async function updateProfile(id: string, patch: Partial<Pick<Profile, 'di
 }
 
 export async function searchProfiles(q: string): Promise<Profile[]> {
-  const term = q.trim().replace(/[%_,()]/g, '');
-  if (!term) return [];
+  // Strip PostgREST filter syntax characters, then quote the pattern.
+  const term = q.trim().replace(/[%_,()"\\*]/g, '').slice(0, 40);
+  if (term.length < 2) return [];
   return check(
     await supabase
       .from('profiles')
       .select(PROFILE_COLS)
-      .or(`display_name.ilike.%${term}%,username.ilike.%${term}%`)
-      .limit(20),
+      .or(`display_name.ilike."%${term}%",username.ilike."%${term}%"`)
+      .limit(25),
   ) as Profile[];
+}
+
+/** Newest people the user does not follow yet. */
+export async function suggestedProfiles(me: string): Promise<Profile[]> {
+  const following = new Set(await followingIds(me));
+  const rows = check(
+    await supabase.from('profiles').select(PROFILE_COLS).neq('id', me).order('created_at', { ascending: false }).limit(40),
+  ) as Profile[];
+  return rows.filter((p) => !following.has(p.id)).slice(0, 15);
 }
 
 // ---------- Likes & saves ----------

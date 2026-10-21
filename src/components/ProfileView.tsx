@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { DURATION, EASE_OUT_EXPO, timing } from '../lib/motion';
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { timing } from '../lib/motion';
+import { FadeInView } from './FadeInView';
 import { Aurora } from './Aurora';
 import { Glass } from './Glass';
 import { useTabBarSpace } from './GlassTabBar';
@@ -188,7 +189,7 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
         const s = dark ? cat.dark : cat.light;
         const p = passageText(v, translation);
         return (
-          <Animated.View entering={FadeIn.duration(DURATION.enter).easing(EASE_OUT_EXPO)}>
+          <FadeInView distance={0}>
           <PressableScale scaleTo={0.95} onPress={() => router.push({ pathname: '/post/[id]', params: { id: v.id } })}>
             <LinearGradient colors={s.gradient} style={{ width: cell, height: cell * 1.33, padding: 8, justifyContent: 'space-between' }}>
               <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 11, lineHeight: 15 }} numberOfLines={6}>
@@ -199,7 +200,7 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
               </Text>
             </LinearGradient>
           </PressableScale>
-          </Animated.View>
+          </FadeInView>
         );
       }}
     />

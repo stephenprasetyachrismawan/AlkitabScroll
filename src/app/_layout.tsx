@@ -1,20 +1,23 @@
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { Stack, router, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { EngagementProvider, useEngagement } from '../lib/engagement';
 import { FONT_ASSETS } from '../lib/fonts';
 import { SettingsProvider, useSettings } from '../lib/settings';
 import { isSupabaseConfigured } from '../lib/supabase';
+import { NotificationsManager } from '../components/NotificationsManager';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts(FONT_ASSETS);
   if (!fontsLoaded) return null;
   return (
     <SafeAreaProvider>
+      <KeyboardProvider>
       <SettingsProvider>
         <AuthProvider>
           <EngagementProvider>
@@ -22,6 +25,7 @@ export default function RootLayout() {
           </EngagementProvider>
         </AuthProvider>
       </SettingsProvider>
+      </KeyboardProvider>
     </SafeAreaProvider>
   );
 }
@@ -57,6 +61,7 @@ function Gate() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style={dark ? 'light' : 'dark'} />
+      {isSupabaseConfigured && Platform.OS !== 'web' ? <NotificationsManager /> : null}
       <Stack
         screenOptions={{
           headerShown: false,
