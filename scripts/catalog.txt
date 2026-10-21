@@ -1,6 +1,8 @@
 # Selah verse catalog
-# Format: TB/BIMK reference | KJV reference ("-" = same) | categories (comma separated)
-# TB/BIMK follow Hebrew numbering in Psalms, so KJV refs differ there.
+# Format: reference | KJV reference ("-" = same) | categories (comma separated)
+# References use sabda.org numbering (English/KJV verse numbers). For Psalms,
+# sabda marks the printed TB/BIMK number as "(46-11)"; the fetch script uses that
+# marker so the app shows the reference exactly as printed in the LAI Bible.
 # Curated from widely used Protestant devotional lists (GotQuestions Indonesia,
 # CNN Indonesia, Bisnis.com, Tithe.ly, Parade) and classic Reformation-era favourites.
 
@@ -8,13 +10,13 @@
 Mzm 23:1-4 | - | comfort,protection,rest
 Mat 5:4 | - | comfort
 2Kor 1:3-4 | - | comfort
-Mzm 34:19 | Ps 34:18 | comfort
+Mzm 34:18 | - | comfort
 Mzm 147:3 | - | comfort
 Why 21:4 | - | comfort,hope
 Yes 66:13 | - | comfort
 Yoh 14:1-3 | - | comfort,hope
 Yoh 14:18 | - | comfort
-Mzm 30:6 | Ps 30:5 | comfort,joy
+Mzm 30:5 | - | comfort,joy
 Rat 3:22-23 | - | comfort,hope
 Yes 43:2 | - | comfort,protection
 Mzm 94:19 | - | comfort,peace
@@ -22,10 +24,10 @@ Rm 8:18 | - | comfort,hope,perseverance
 2Kor 4:16-18 | - | comfort,perseverance
 Mzm 73:26 | - | comfort,strength
 Yes 49:15-16 | - | comfort,love
-Mzm 56:9 | Ps 56:8 | comfort
+Mzm 56:8 | - | comfort
 Yoh 16:33 | - | comfort,peace,courage
 1Tes 4:13-14 | - | comfort,hope
-Mzm 9:10 | Ps 9:9 | comfort,protection
+Mzm 9:9 | - | comfort,protection
 Yes 61:1-3 | - | comfort,joy
 
 # --- Hope / Pengharapan
@@ -33,13 +35,13 @@ Yer 29:11 | - | hope,guidance
 Rm 15:13 | - | hope,joy,peace
 Rm 5:3-5 | - | hope,perseverance
 Ibr 6:19 | - | hope
-Mzm 42:12 | Ps 42:11 | hope
-Mzm 62:6 | Ps 62:5 | hope,rest
+Mzm 42:11 | - | hope
+Mzm 62:5 | - | hope,rest
 Rm 8:24-25 | - | hope,perseverance
 1Ptr 1:3 | - | hope,salvation
 Ibr 10:23 | - | hope,faith
 Yes 40:31 | - | hope,strength
-Mzm 31:25 | Ps 31:24 | hope,courage
+Mzm 31:24 | - | hope,courage
 Rm 12:12 | - | hope,joy,prayer
 Ams 23:18 | - | hope
 Mi 7:7 | - | hope,prayer
@@ -53,12 +55,12 @@ Flp 4:13 | - | strength
 Yes 41:10 | - | strength,courage,protection
 Yes 40:29 | - | strength,rest
 2Kor 12:9-10 | - | strength
-Mzm 46:2 | Ps 46:1 | strength,protection
-Neh 8:11 | Neh 8:10 | strength,joy
+Mzm 46:1 | - | strength,protection
+Neh 8:10 | - | strength,joy
 Mzm 28:7 | - | strength,gratitude
 Ef 6:10 | - | strength,courage
 Hab 3:19 | - | strength
-Mzm 18:3 | Ps 18:2 | strength,protection
+Mzm 18:2 | - | strength,protection
 Kel 15:2 | - | strength,joy
 Mzm 27:1 | - | strength,courage,protection
 Mzm 29:11 | - | strength,peace
@@ -73,12 +75,12 @@ Yoh 14:27 | - | peace
 Yes 26:3 | - | peace,faith
 Mat 6:34 | - | peace
 Mat 6:25-26 | - | peace,provision
-Mzm 55:23 | Ps 55:22 | peace,strength
-Mzm 4:9 | Ps 4:8 | peace,rest
+Mzm 55:22 | - | peace,strength
+Mzm 4:8 | - | peace,rest
 Kol 3:15 | - | peace,gratitude
 2Tes 3:16 | - | peace
 Bil 6:24-26 | - | peace,protection
-Mzm 56:4 | Ps 56:3 | peace,faith,courage
+Mzm 56:3 | - | peace,faith,courage
 Rm 8:6 | - | peace
 Yes 32:17 | - | peace
 Mat 6:27 | - | peace
@@ -86,9 +88,9 @@ Luk 12:25-26 | - | peace
 
 # --- Rest / Perhentian
 Mat 11:28-30 | - | rest,comfort
-Mzm 46:11 | Ps 46:10 | rest,peace
+Mzm 46:10 | - | rest,peace
 Kel 33:14 | - | rest,guidance
-Mzm 62:2-3 | Ps 62:1-2 | rest,salvation
+Mzm 62:1-2 | - | rest,salvation
 Ibr 4:9-10 | - | rest
 Yes 30:15 | - | rest,strength
 Mzm 116:7 | - | rest
@@ -129,7 +131,7 @@ Ef 2:8-9 | - | faith,salvation
 Rm 1:16-17 | - | faith,salvation
 Mzm 37:5 | - | faith,guidance
 Yer 17:7-8 | - | faith,perseverance
-Mzm 9:11 | Ps 9:10 | faith,protection
+Mzm 9:10 | - | faith,protection
 Yoh 11:25-26 | - | faith,hope,salvation
 Luk 1:37 | - | faith
 
@@ -162,7 +164,7 @@ Kol 3:13 | - | forgiveness,relationships
 Yes 1:18 | - | forgiveness
 Mat 6:14-15 | - | forgiveness
 Mi 7:18-19 | - | forgiveness,love
-Mzm 51:12 | Ps 51:10 | forgiveness,prayer
+Mzm 51:10 | - | forgiveness,prayer
 2Kor 5:17 | - | forgiveness,identity
 Rm 8:1 | - | forgiveness,identity
 Yes 43:25 | - | forgiveness
@@ -180,7 +182,7 @@ Mzm 100:4-5 | - | gratitude,joy
 Kol 3:17 | - | gratitude,work
 Mzm 103:1-2 | - | gratitude
 Yak 1:17 | - | gratitude,provision
-Mzm 9:2 | Ps 9:1 | gratitude
+Mzm 9:1 | - | gratitude
 Ef 5:20 | - | gratitude
 Mzm 95:2-3 | - | gratitude,joy
 2Kor 9:15 | - | gratitude
@@ -196,10 +198,10 @@ Ams 18:10 | - | protection
 Yes 54:17 | - | protection
 Mzm 32:7 | - | protection
 Ul 31:6 | - | protection,courage
-Mzm 34:8 | Ps 34:7 | protection
+Mzm 34:7 | - | protection
 Yoh 10:28-29 | - | protection,salvation,identity
-Mzm 3:4 | Ps 3:3 | protection,hope
-Mzm 61:3-4 | Ps 61:2-3 | protection,prayer
+Mzm 3:3 | - | protection,hope
+Mzm 61:2-3 | - | protection,prayer
 Kel 14:14 | - | protection,rest
 Rm 8:31 | - | protection,courage
 
@@ -208,13 +210,13 @@ Flp 4:19 | - | provision
 Mat 6:33 | - | provision,guidance
 Mzm 37:25 | - | provision
 Mat 7:7-8 | - | provision,prayer
-Mzm 84:12 | Ps 84:11 | provision,protection
+Mzm 84:11 | - | provision,protection
 2Kor 9:8 | - | provision
 Mzm 145:15-16 | - | provision
 Luk 12:24 | - | provision,peace
 Mzm 37:4 | - | provision,joy
 Kej 22:14 | - | provision
-Mzm 34:11 | Ps 34:10 | provision
+Mzm 34:10 | - | provision
 Rm 8:32 | - | provision,love
 
 # --- Courage / Keberanian
@@ -265,7 +267,7 @@ Mzm 25:4-5 | - | guidance,prayer
 Mzm 143:8 | - | guidance,prayer
 Yes 42:16 | - | guidance
 Yoh 8:12 | - | guidance
-Mzm 48:15 | Ps 48:14 | guidance
+Mzm 48:14 | - | guidance
 Yoh 14:6 | - | guidance,salvation
 
 # --- Relationships & family / Relasi & keluarga
@@ -328,7 +330,7 @@ Ibr 4:16 | - | prayer,forgiveness
 Mzm 141:2 | - | prayer
 Kol 4:2 | - | prayer,gratitude
 Ef 6:18 | - | prayer
-Mzm 19:15 | Ps 19:14 | prayer
+Mzm 19:14 | - | prayer
 Mat 7:11 | - | prayer,provision
 2Taw 7:14 | - | prayer,forgiveness
 

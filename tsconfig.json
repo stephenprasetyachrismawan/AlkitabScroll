@@ -3,5 +3,15 @@
   "compilerOptions": {
     "strict": true
   },
-  "exclude": ["node_modules", "tests", "scripts"]
+  "exclude": [
+    "node_modules",
+    "tests",
+    "scripts"
+  ],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }

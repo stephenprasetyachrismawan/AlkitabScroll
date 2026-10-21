@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DWELL_THRESHOLD_MS, FeedEngine, POSTS_BEFORE_SELAH, todayKey, verseOfTheDay, type Route } from '../lib/algorithm';
 import * as api from '../lib/api';
 import { CATEGORY_MAP } from '../lib/categories';
@@ -63,6 +64,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
   const { viewMode, translation, lang, dark, colors, t } = useSettings();
   const { routes, liked, saved, toggleLike, toggleSave, recordDwell } = useEngagement();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [height, setHeight] = useState(0);
   const [stats, setStats] = useState<Record<string, { likes: number; comments: number }>>({});
   const [shareVerse, setShareVerse] = useState<Verse | null>(null);
@@ -179,6 +181,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
               badge={item.badge}
               bottomInset={16}
               rightInset={44}
+              topInset={insets.top + 56}
             />
             <View style={styles.reelActions}>
               <ActionColumn {...actions} color={dark ? '#fff' : '#1F1B16'} />
@@ -207,7 +210,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
         </View>
       );
     },
-    [width, height, reels, category, items.length, stats, liked, saved, like, toggleSave, translation, lang, dark, colors, postH, t],
+    [width, height, insets.top, reels, category, items.length, stats, liked, saved, like, toggleSave, translation, lang, dark, colors, postH, t],
   );
 
   const onLayout = (e: LayoutChangeEvent) => setHeight(Math.round(e.nativeEvent.layout.height));

@@ -11,7 +11,7 @@ export default function Login() {
   const { t, lang, update } = useSettings();
   const { signInWithGoogle } = useAuth();
   const [busy, setBusy] = useState(false);
-  const still = VERSE_MAP['Mzm46.11'];
+  const still = VERSE_MAP['Mzm46.10'];
   const stillVerse = still ? passageText(still, lang === 'id' ? 'tb' : 'kjv') : null;
 
   const go = async () => {
