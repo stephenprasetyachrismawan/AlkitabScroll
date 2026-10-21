@@ -1,0 +1,65 @@
+name: Android APK release
+
+# Push a tag like v1.0.0 (or run manually) to build an APK and attach it to a GitHub Release.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Both values are public by design (Supabase RLS protects the data).
+      EXPO_PUBLIC_SUPABASE_URL: https://yepkpeidgmwjsfggnhbw.supabase.co
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_BQ-ey5WMoIoypR-bhc7RWQ_K6feCRVc
+      RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v1.0.{0}', github.run_number) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Checks
+        run: |
+          npx tsc --noEmit
+          npm test
+
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Build release APK
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon -Dorg.gradle.jvmargs="-Xmx4g -XX:MaxMetaspaceSize=1g"
+
+      - name: Rename APK
+        run: cp android/app/build/outputs/apk/release/app-release.apk "Selah-${RELEASE_TAG}.apk"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: Selah ${{ env.RELEASE_TAG }}
+          files: Selah-${{ env.RELEASE_TAG }}.apk
+          body: |
+            ## Cara pasang
+            1. Unduh **Selah-${{ env.RELEASE_TAG }}.apk** di bawah (dari HP Android).
+            2. Buka file-nya. Jika diminta, izinkan "Instal aplikasi tidak dikenal" untuk browser/File Manager.
+            3. Buka Selah, lalu masuk dengan Google.
+
+            Jika versi lama terpasang dan pemasangan gagal, hapus dulu versi lama.
