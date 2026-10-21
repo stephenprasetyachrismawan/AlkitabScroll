@@ -1,5 +1,10 @@
 import { useCallback, useState } from 'react';
-import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { Aurora } from '../../components/Aurora';
+import { useTabBarSpace } from '../../components/GlassTabBar';
+import { PressableScale } from '../../components/PressableScale';
+import { DURATION, EASE_OUT_EXPO } from '../../lib/motion';
 import { router, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../../components/Avatar';
@@ -12,6 +17,7 @@ import { VERSE_MAP } from '../../lib/verses';
 export default function Inbox() {
   const { t, colors, lang } = useSettings();
   const insets = useSafeAreaInsets();
+  const tabSpace = useTabBarSpace();
   const [rows, setRows] = useState<api.InboxRow[]>([]);
 
   useFocusEffect(
@@ -21,18 +27,21 @@ export default function Inbox() {
   );
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg, paddingTop: insets.top + 8 }}>
+    <View style={{ flex: 1, paddingTop: insets.top + 8 }}>
+      <Aurora />
       <Text style={[styles.h, { color: colors.text }]}>{t('messages')}</Text>
       <FlatList
         data={rows}
         keyExtractor={(r) => r.partner_id}
+        contentContainerStyle={{ paddingBottom: tabSpace }}
         ListEmptyComponent={<Text style={[styles.empty, { color: colors.muted }]}>{t('noMessages')}</Text>}
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
           const preview = item.last_verse_id
             ? `📖 ${VERSE_MAP[item.last_verse_id]?.text.tb.title ?? t('sentVerse')}`
             : item.last_body ?? '';
           return (
-            <Pressable style={styles.row} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.partner_id } })}>
+            <Animated.View entering={FadeInDown.duration(DURATION.enter).delay(Math.min(index, 8) * 50).easing(EASE_OUT_EXPO)}>
+            <PressableScale scaleTo={0.98} style={styles.row} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.partner_id } })}>
               <Avatar profile={item.profile} size={52} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.name, { color: colors.text }]}>{item.profile?.display_name ?? '…'}</Text>
@@ -44,7 +53,8 @@ export default function Inbox() {
                 </Text>
               </View>
               {item.unread ? <View style={[styles.dot, { backgroundColor: colors.primary }]} /> : null}
-            </Pressable>
+            </PressableScale>
+            </Animated.View>
           );
         }}
       />

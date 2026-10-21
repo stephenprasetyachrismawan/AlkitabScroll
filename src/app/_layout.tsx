@@ -60,20 +60,23 @@ function Gate() {
       <Stack
         screenOptions={{
           headerShown: false,
+          animation: 'fade_from_bottom',
           contentStyle: { backgroundColor: colors.bg },
           headerStyle: { backgroundColor: colors.card },
           headerTintColor: colors.text,
           headerTitleStyle: { fontFamily: 'Nunito_700Bold' },
         }}
       >
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="comments/[id]" options={{ presentation: 'modal', headerShown: true }} />
+        <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />
+        <Stack.Screen name="login" options={{ animation: 'fade' }} />
+        <Stack.Screen name="mood" options={{ animation: 'fade' }} />
+        <Stack.Screen name="comments/[id]" options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: true }} />
         <Stack.Screen name="chat/[id]" options={{ headerShown: true }} />
         <Stack.Screen name="user/[id]" options={{ headerShown: true, title: '' }} />
         <Stack.Screen name="post/[id]" options={{ headerShown: true, title: '' }} />
         <Stack.Screen name="category/[key]" options={{ headerShown: true }} />
-        <Stack.Screen name="status/create" options={{ presentation: 'modal', headerShown: true }} />
-        <Stack.Screen name="status/view" options={{ presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="status/create" options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: true }} />
+        <Stack.Screen name="status/view" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
         <Stack.Screen name="settings" options={{ headerShown: true }} />
         <Stack.Screen name="edit-profile" options={{ headerShown: true }} />
       </Stack>

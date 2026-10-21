@@ -1,5 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { DURATION, EASE_OUT_EXPO, timing } from '../lib/motion';
+import { Aurora } from './Aurora';
+import { Glass } from './Glass';
+import { useTabBarSpace } from './GlassTabBar';
+import { PressableScale } from './PressableScale';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
@@ -19,6 +25,8 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
   const engagement = useEngagement();
   const { width } = useWindowDimensions();
   const isMe = targetId === me;
+  const tabSpace = useTabBarSpace();
+  const underlineX = useSharedValue(0);
 
   const [profile, setProfile] = useState<api.Profile | null>(null);
   const [counts, setCounts] = useState({ followers: 0, following: 0 });
@@ -56,6 +64,11 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
       };
     }, [targetId, isMe, me]),
   );
+
+  useEffect(() => {
+    underlineX.value = withTiming(tab === 'liked' ? 0 : width / 2, timing());
+  }, [tab, width, underlineX]);
+  const underline = useAnimatedStyle(() => ({ transform: [{ translateX: underlineX.value }] }));
 
   const ids = isMe ? (tab === 'liked' ? engagement.likedOrder : engagement.savedOrder) : otherLists[tab];
   const data = ids.filter((id) => VERSE_MAP[id]);
@@ -96,9 +109,11 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
           <Stat n={counts.following} label={t('following')} color={colors.text} muted={colors.muted} />
         </View>
         {isMe ? (
-          <Pressable onPress={() => router.push('/settings')} hitSlop={10} style={{ position: 'absolute', right: 16, top: 0 }}>
-            <Ionicons name="settings-outline" size={24} color={colors.text} />
-          </Pressable>
+          <PressableScale onPress={() => router.push('/settings')} style={{ position: 'absolute', right: 12, top: 0 }} accessibilityRole="button" accessibilityLabel={t('settings')}>
+            <Glass dark={dark} radius={22} strength={0.6} style={styles.roundBtn}>
+              <Ionicons name="settings-outline" size={20} color={colors.text} />
+            </Glass>
+          </PressableScale>
         ) : null}
       </View>
       <View style={styles.info}>
@@ -113,7 +128,7 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
             <Btn label={t('editProfile')} onPress={() => router.push('/edit-profile')} colors={colors} />
           </View>
           {moods.length ? (
-            <View style={[styles.moodBox, { borderColor: colors.border, backgroundColor: colors.card }]}>
+            <Glass dark={dark} radius={20} strength={0.6} style={styles.moodBox}>
               <Text style={[styles.moodTitle, { color: colors.muted }]}>{t('moodHistory')}</Text>
               <View style={styles.moodRow}>
                 {[...moods].reverse().map((m) => (
@@ -123,7 +138,7 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
                   </View>
                 ))}
               </View>
-            </View>
+            </Glass>
           ) : null}
         </>
       ) : (
@@ -136,15 +151,18 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
           ) : (
             <Text style={{ color: colors.danger, fontFamily: UI_FONT.semibold, flex: 1 }}>{t('block')} ✓</Text>
           )}
-          <Pressable onPress={more} style={[styles.moreBtn, { borderColor: colors.border }]}>
-            <Ionicons name="ellipsis-horizontal" size={18} color={colors.text} />
-          </Pressable>
+          <PressableScale onPress={more} accessibilityRole="button" accessibilityLabel="more">
+            <Glass dark={dark} radius={14} strength={0.6} style={styles.moreBtn}>
+              <Ionicons name="ellipsis-horizontal" size={18} color={colors.text} />
+            </Glass>
+          </PressableScale>
         </View>
       )}
 
       <View style={[styles.tabs, { borderColor: colors.border }]}>
+        <Animated.View style={[styles.underline, { width: width / 2, backgroundColor: colors.primary }, underline]} />
         {(['liked', 'saved'] as const).map((k) => (
-          <Pressable key={k} onPress={() => setTab(k)} style={[styles.tab, tab === k && { borderBottomColor: colors.text }]}>
+          <Pressable key={k} onPress={() => setTab(k)} style={styles.tab} accessibilityRole="tab" accessibilityState={{ selected: tab === k }}>
             <Ionicons name={k === 'liked' ? (tab === k ? 'heart' : 'heart-outline') : tab === k ? 'bookmark' : 'bookmark-outline'} size={22} color={tab === k ? colors.text : colors.muted} />
           </Pressable>
         ))}
@@ -153,14 +171,16 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
   );
 
   return (
+    <View style={{ flex: 1 }}>
+    <Aurora />
     <FlatList
-      style={{ backgroundColor: colors.bg }}
+      key={tab}
       data={data}
       numColumns={3}
       keyExtractor={(id) => id}
       ListHeaderComponent={header}
       columnWrapperStyle={{ gap: 2 }}
-      contentContainerStyle={{ gap: 2, paddingBottom: 40 }}
+      contentContainerStyle={{ gap: 2, paddingBottom: tabSpace + 20 }}
       ListEmptyComponent={<Text style={[styles.empty, { color: colors.muted }]}>{tab === 'liked' ? t('emptyLiked') : t('emptySaved')}</Text>}
       renderItem={({ item }) => {
         const v = VERSE_MAP[item];
@@ -168,19 +188,22 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
         const s = dark ? cat.dark : cat.light;
         const p = passageText(v, translation);
         return (
-          <Pressable onPress={() => router.push({ pathname: '/post/[id]', params: { id: v.id } })}>
+          <Animated.View entering={FadeIn.duration(DURATION.enter).easing(EASE_OUT_EXPO)}>
+          <PressableScale scaleTo={0.95} onPress={() => router.push({ pathname: '/post/[id]', params: { id: v.id } })}>
             <LinearGradient colors={s.gradient} style={{ width: cell, height: cell * 1.33, padding: 8, justifyContent: 'space-between' }}>
               <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 11, lineHeight: 15 }} numberOfLines={6}>
                 {p.body}
               </Text>
               <Text style={{ color: s.text, fontFamily: UI_FONT.bold, fontSize: 10 }} numberOfLines={1}>
-                {cat.emoji} {p.title}
+                {p.title}
               </Text>
             </LinearGradient>
-          </Pressable>
+          </PressableScale>
+          </Animated.View>
         );
       }}
     />
+    </View>
   );
 }
 
@@ -195,12 +218,16 @@ function Stat({ n, label, color, muted }: { n: number; label: string; color: str
 
 function Btn({ label, onPress, primary, colors }: { label: string; onPress: () => void; primary?: boolean; colors: { primary: string; border: string; text: string; card: string } }) {
   return (
-    <Pressable
-      onPress={onPress}
-      style={[styles.btn, primary ? { backgroundColor: colors.primary } : { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1 }]}
-    >
-      <Text style={{ color: primary ? '#fff' : colors.text, fontFamily: UI_FONT.bold, fontSize: 14 }}>{label}</Text>
-    </Pressable>
+    <PressableScale onPress={onPress} haptic style={{ flex: 1 }} accessibilityRole="button">
+      <View
+        style={[
+          styles.btn,
+          primary ? { backgroundColor: colors.primary } : { backgroundColor: colors.card + 'B3', borderColor: 'rgba(255,255,255,0.7)', borderWidth: 1 },
+        ]}
+      >
+        <Text style={{ color: primary ? '#fff' : colors.text, fontFamily: UI_FONT.bold, fontSize: 14 }}>{label}</Text>
+      </View>
+    </PressableScale>
   );
 }
 
@@ -212,13 +239,15 @@ const styles = StyleSheet.create({
   username: { fontFamily: UI_FONT.regular, fontSize: 13 },
   bio: { fontFamily: UI_FONT.regular, fontSize: 14, marginTop: 4, lineHeight: 20 },
   buttons: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 12, alignItems: 'center' },
-  btn: { flex: 1, alignItems: 'center', paddingVertical: 9, borderRadius: 10 },
-  moreBtn: { borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, paddingVertical: 8 },
-  moodBox: { marginHorizontal: 16, marginTop: 12, borderWidth: 1, borderRadius: 14, padding: 12, gap: 8 },
+  btn: { alignItems: 'center', justifyContent: 'center', minHeight: 44, borderRadius: 14 },
+  moreBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  roundBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  moodBox: { marginHorizontal: 16, marginTop: 12, padding: 12, gap: 8 },
+  underline: { position: 'absolute', bottom: 0, left: 0, height: 2.5, borderRadius: 2 },
   moodTitle: { fontFamily: UI_FONT.semibold, fontSize: 12 },
   moodRow: { flexDirection: 'row', justifyContent: 'space-between' },
   moodDay: { fontFamily: UI_FONT.regular, fontSize: 10 },
   tabs: { flexDirection: 'row', marginTop: 14, borderTopWidth: StyleSheet.hairlineWidth },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 10, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  tab: { flex: 1, alignItems: 'center', minHeight: 48, justifyContent: 'center' },
   empty: { textAlign: 'center', padding: 30, fontFamily: UI_FONT.regular },
 });
