@@ -12,7 +12,9 @@ export default function Login() {
   const { signInWithGoogle } = useAuth();
   const [busy, setBusy] = useState(false);
   const still = VERSE_MAP['Mzm46.10'];
-  const stillVerse = still ? passageText(still, lang === 'id' ? 'tb' : 'kjv') : null;
+  const stillPassage = still ? passageText(still, lang === 'id' ? 'tb' : 'kjv') : null;
+  // TB already quotes God's speech; strip those so we don't show “"…"”.
+  const stillVerse = stillPassage ? { ...stillPassage, body: stillPassage.body.replace(/^["“]|["”]$/g, '') } : null;
 
   const go = async () => {
     try {
