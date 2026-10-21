@@ -1,9 +1,11 @@
 name: Android APK release
 
-# Push a tag like v1.0.0 (or run manually) to build an APK and attach it to a GitHub Release.
+# Every push to main (or a v* tag, or a manual run) builds an APK and attaches it to a GitHub Release.
 on:
   push:
+    branches: [main]
     tags: ['v*']
+    paths-ignore: ['**.md', 'docs/**']
   workflow_dispatch:
 
 permissions:
