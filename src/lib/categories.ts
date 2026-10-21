@@ -14,9 +14,35 @@ export type CategoryStyle = {
 export type Category = {
   key: string;
   emoji: string;
+  /** Ionicons glyph name (icons, not emoji, in the interface) */
+  icon: string;
   label: { id: string; en: string };
   light: CategoryStyle;
   dark: CategoryStyle;
+};
+
+const ICONS: Record<string, string> = {
+  comfort: 'cloud-outline',
+  hope: 'sunny-outline',
+  strength: 'barbell-outline',
+  peace: 'leaf-outline',
+  rest: 'moon-outline',
+  love: 'heart-outline',
+  faith: 'star-outline',
+  wisdom: 'book-outline',
+  forgiveness: 'water-outline',
+  gratitude: 'gift-outline',
+  protection: 'shield-outline',
+  provision: 'basket-outline',
+  courage: 'flame-outline',
+  perseverance: 'trending-up-outline',
+  joy: 'happy-outline',
+  guidance: 'compass-outline',
+  relationships: 'people-outline',
+  work: 'briefcase-outline',
+  identity: 'finger-print-outline',
+  prayer: 'chatbubbles-outline',
+  salvation: 'sparkles-outline',
 };
 
 const c = (
@@ -32,6 +58,7 @@ const c = (
 ): Category => ({
   key,
   emoji,
+  icon: ICONS[key] ?? 'book-outline',
   label: { id, en },
   light: { gradient: light, text: lightText, accent, fonts },
   dark: { gradient: dark, text: '#F7F3EC', accent, fonts },

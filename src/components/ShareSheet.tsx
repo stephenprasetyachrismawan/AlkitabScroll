@@ -8,7 +8,10 @@ import { useAuth } from '../lib/auth';
 import { UI_FONT } from '../lib/fonts';
 import { useSettings } from '../lib/settings';
 import type { Verse } from '../lib/verses';
+import { Ionicons } from '@expo/vector-icons';
 import { Avatar } from './Avatar';
+import { Glass } from './Glass';
+import { PressableScale } from './PressableScale';
 import { VerseCard } from './VerseCard';
 
 type Props = { verse: Verse | null; onClose: () => void };
@@ -75,20 +78,22 @@ export function ShareSheet({ verse, onClose }: Props) {
   return (
     <Modal transparent animationType="slide" visible onRequestClose={close}>
       <Pressable style={styles.backdrop} onPress={close} />
-      <View style={[styles.sheet, { backgroundColor: colors.card }]}>
+      <Glass dark={dark} radius={28} strength={0.95} style={styles.sheet}>
         <View style={[styles.handle, { backgroundColor: colors.border }]} />
         {mode === 'menu' ? (
           <View style={{ gap: 6 }}>
-            <Item label={`📨  ${t('sendToFriend')}`} onPress={() => setMode('friends')} color={colors.text} />
+            <Item icon="paper-plane-outline" label={t('sendToFriend')} onPress={() => setMode('friends')} color={colors.text} accent={colors.primary} />
             <Item
-              label={`🟢  ${t('makeStatus')}`}
+              icon="radio-button-on-outline"
+              accent={colors.primary}
+              label={t('makeStatus')}
               onPress={() => {
                 close();
                 router.push({ pathname: '/status/create', params: { verse: verse.id } });
               }}
               color={colors.text}
             />
-            <Item label={`🖼️  ${t('exportImage')}`} onPress={exportImage} color={colors.text} />
+            <Item icon="image-outline" label={t('exportImage')} onPress={exportImage} color={colors.text} accent={colors.primary} />
             {busy ? <ActivityIndicator color={colors.primary} /> : null}
           </View>
         ) : (
@@ -121,7 +126,7 @@ export function ShareSheet({ verse, onClose }: Props) {
             />
           </View>
         )}
-      </View>
+      </Glass>
 
       {/* Off-screen 9:16 card used for image export */}
       <View style={styles.offscreen} pointerEvents="none">
@@ -133,11 +138,12 @@ export function ShareSheet({ verse, onClose }: Props) {
   );
 }
 
-function Item({ label, onPress, color }: { label: string; onPress: () => void; color: string }) {
+function Item({ icon, label, onPress, color, accent }: { icon: keyof typeof Ionicons.glyphMap; label: string; onPress: () => void; color: string; accent: string }) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.item, pressed && { opacity: 0.6 }]}>
+    <PressableScale onPress={onPress} scaleTo={0.97} haptic style={styles.item} accessibilityRole="button">
+      <Ionicons name={icon} size={22} color={accent} />
       <Text style={[styles.itemText, { color }]}>{label}</Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -145,7 +151,7 @@ const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: '#0006' },
   sheet: { maxHeight: '70%', minHeight: 240, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
   handle: { width: 44, height: 5, borderRadius: 3, alignSelf: 'center', marginBottom: 14 },
-  item: { paddingVertical: 14 },
+  item: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 52 },
   itemText: { fontFamily: UI_FONT.semibold, fontSize: 16 },
   input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, fontFamily: UI_FONT.regular, marginBottom: 10 },
   friend: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 },

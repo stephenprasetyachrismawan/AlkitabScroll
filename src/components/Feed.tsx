@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import {
   FlatList,
   Pressable,
@@ -22,6 +22,10 @@ import { VERSE_MAP, VERSES, type Verse } from '../lib/verses';
 import { SelahBreak } from './SelahBreak';
 import { ShareSheet } from './ShareSheet';
 import { VerseCard } from './VerseCard';
+import { Glass } from './Glass';
+import { useTabBarSpace } from './GlassTabBar';
+import { DoubleTapLike, GlassAction, LIKE_RED, PopIcon } from './Interactions';
+import { PressableScale } from './PressableScale';
 
 type Item =
   | { key: string; kind: 'verse'; verse: Verse; reason: string; badge?: string }
@@ -65,6 +69,8 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
   const { routes, liked, saved, toggleLike, toggleSave, recordDwell } = useEngagement();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const tabSpace = useTabBarSpace();
+  const [activeKey, setActiveKey] = useState<string | null>(null);
   const [height, setHeight] = useState(0);
   const [stats, setStats] = useState<Record<string, { likes: number; comments: number }>>({});
   const [shareVerse, setShareVerse] = useState<Verse | null>(null);
@@ -88,7 +94,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
     } else if (!category) {
       const votd = verseOfTheDay(VERSES, todayKey());
       session.engine.markSeen(votd.id);
-      first.push({ key: `${votd.id}-votd`, kind: 'verse', verse: votd, reason: votd.categories[0], badge: `☀️ ${t('verseOfDay')}` });
+      first.push({ key: `${votd.id}-votd`, kind: 'verse', verse: votd, reason: votd.categories[0], badge: t('verseOfDay') });
     }
     return [...first, ...session.batch(BATCH, routes)];
   });
@@ -117,6 +123,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
     const d = dwell.current;
     if (d.timer) clearTimeout(d.timer);
     const top = viewableItems[0]?.item;
+    if (top) setActiveKey(top.key);
     if (top?.kind === 'verse') d.timer = setTimeout(() => d.record(top.verse.id), DWELL_THRESHOLD_MS);
   }, []);
   useEffect(() => {
@@ -135,9 +142,14 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
     },
     [liked, toggleLike],
   );
+  // Double-tap only ever likes (never un-likes), like every photo app.
+  const likeOnly = useCallback((v: Verse) => {
+    if (!liked.has(v.id)) like(v);
+  }, [liked, like]);
 
   const reels = viewMode === 'reels';
-  const postH = Math.round((width * 4) / 3);
+  const cardW = width - 24;
+  const postH = Math.round((cardW * 4) / 3);
 
   const renderItem = useCallback(
     ({ item, index }: { item: Item; index: number }) => {
@@ -146,6 +158,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
           <SelahBreak
             width={width}
             height={reels ? height : Math.round(width * 1.5)}
+            bottomInset={reels ? tabSpace : 0}
             index={item.n}
             verse={item.verse}
             onContinue={() => listRef.current?.scrollToIndex({ index: Math.min(index + 1, items.length - 1), animated: true })}
@@ -155,62 +168,70 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
       }
       const v = item.verse;
       const s = stats[v.id];
-      const actions = {
+      const actions: ActionProps = {
         liked: liked.has(v.id),
         saved: saved.has(v.id),
         likes: s?.likes ?? 0,
         comments: s?.comments ?? 0,
         onLike: () => like(v),
-        onSave: () => toggleSave(v.id),
+        onSave: () => {
+          Haptics.selectionAsync().catch(() => {});
+          toggleSave(v.id);
+        },
         onComment: () => router.push({ pathname: '/comments/[id]', params: { id: v.id } }),
         onShare: () => setShareVerse(v),
       };
       const reasonCat = CATEGORY_MAP[item.reason];
+      const active = item.key === activeKey;
 
       if (reels) {
         return (
-          <Pressable onLongPress={() => like(v)} delayLongPress={350} style={{ width, height }}>
-            <VerseCard
-              verse={v}
-              width={width}
-              height={height}
-              translation={translation}
-              lang={lang}
-              dark={dark}
-              category={category ?? item.reason}
-              badge={item.badge}
-              bottomInset={16}
-              rightInset={44}
-              topInset={insets.top + 56}
-            />
-            <View style={styles.reelActions}>
-              <ActionColumn {...actions} color={dark ? '#fff' : '#1F1B16'} />
+          <View style={{ width, height }}>
+            <DoubleTapLike onDoubleTap={() => likeOnly(v)} style={{ width, height }}>
+              <VerseCard
+                verse={v}
+                width={width}
+                height={height}
+                translation={translation}
+                lang={lang}
+                dark={dark}
+                category={category ?? item.reason}
+                badge={item.badge}
+                bottomInset={tabSpace}
+                rightInset={56}
+                topInset={insets.top + 56}
+                active={active}
+              />
+            </DoubleTapLike>
+            <View style={[styles.reelActions, { bottom: tabSpace + 28 }]}>
+              <GlassAction icon={actions.liked ? 'heart' : 'heart-outline'} on={actions.liked} onColor={LIKE_RED} label={actions.likes} onPress={actions.onLike} dark={dark} />
+              <GlassAction icon="chatbubble-outline" label={actions.comments} onPress={actions.onComment} dark={dark} />
+              <GlassAction icon={actions.saved ? 'bookmark' : 'bookmark-outline'} on={actions.saved} onColor={colors.primary} onPress={actions.onSave} dark={dark} />
+              <GlassAction icon="paper-plane-outline" onPress={actions.onShare} dark={dark} />
             </View>
-          </Pressable>
+          </View>
         );
       }
 
       return (
-        <View style={{ backgroundColor: colors.bg, marginBottom: 10 }}>
+        <View style={styles.post}>
           <View style={styles.postHeader}>
-            <View style={[styles.postIcon, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Text>{reasonCat?.emoji ?? '📖'}</Text>
-            </View>
+            <Glass dark={dark} radius={20} strength={0.6} style={styles.postIcon}>
+              <Ionicons name={(reasonCat?.icon ?? 'sparkles-outline') as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
+            </Glass>
             <View>
               <Text style={[styles.postTitle, { color: colors.text }]}>{item.badge ?? 'Selah'}</Text>
-              <Text style={[styles.postSub, { color: colors.muted }]}>
-                {reasonCat ? `#${reasonCat.label[lang]}` : item.reason === 'random' ? '✨' : ''}
-              </Text>
+              <Text style={[styles.postSub, { color: colors.muted }]}>{reasonCat ? reasonCat.label[lang] : t('explore')}</Text>
             </View>
           </View>
-          <Pressable onLongPress={() => like(v)} delayLongPress={350}>
-            <VerseCard verse={v} width={width} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} />
-          </Pressable>
-          <ActionRow {...actions} color={colors.text} muted={colors.muted} t={t} />
+          <DoubleTapLike onDoubleTap={() => likeOnly(v)} style={[styles.postCard, { width: cardW, height: postH }]}>
+            <VerseCard verse={v} width={cardW} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} active={active} />
+          </DoubleTapLike>
+          <ActionRow {...actions} color={colors.text} muted={colors.muted} primary={colors.primary} t={t} />
         </View>
       );
     },
-    [width, height, insets.top, reels, category, items.length, stats, liked, saved, like, toggleSave, translation, lang, dark, colors, postH, t],
+    [width, height, cardW, tabSpace, insets.top, reels, category, items.length, stats, liked, saved, like, likeOnly, toggleSave, translation, lang, dark, colors, postH, t, activeKey],
   );
 
   const onLayout = (e: LayoutChangeEvent) => setHeight(Math.round(e.nativeEvent.layout.height));
@@ -233,7 +254,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bg }} onLayout={onLayout}>
+    <View style={{ flex: 1 }} onLayout={onLayout}>
       {height > 0 ? (
         <FlatList
           ref={listRef}
@@ -242,6 +263,7 @@ export function Feed({ startVerseId, category, header }: FeedProps) {
           keyExtractor={(i) => i.key}
           renderItem={renderItem}
           ListHeaderComponent={reels ? undefined : header}
+          ListFooterComponent={reels ? undefined : <View style={{ height: tabSpace }} />}
           pagingEnabled={reels}
           snapToInterval={reels ? height : undefined}
           decelerationRate={reels ? 'fast' : 'normal'}
@@ -273,30 +295,27 @@ type ActionProps = {
   onShare: () => void;
 };
 
-function ActionColumn({ color, ...a }: ActionProps & { color: string }) {
-  return (
-    <View style={{ gap: 18, alignItems: 'center' }}>
-      <IconBtn name={a.liked ? 'heart' : 'heart-outline'} color={a.liked ? '#E0245E' : color} label={a.likes} onPress={a.onLike} />
-      <IconBtn name="chatbubble-outline" color={color} label={a.comments} onPress={a.onComment} />
-      <IconBtn name={a.saved ? 'bookmark' : 'bookmark-outline'} color={color} onPress={a.onSave} />
-      <IconBtn name="paper-plane-outline" color={color} onPress={a.onShare} />
-    </View>
-  );
-}
-
-function ActionRow({ color, muted, t, ...a }: ActionProps & { color: string; muted: string; t: (k: 'comments') => string }) {
+function ActionRow({ color, muted, primary, t, ...a }: ActionProps & { color: string; muted: string; primary: string; t: (k: 'comments') => string }) {
   return (
     <View style={styles.actionRow}>
-      <View style={{ flexDirection: 'row', gap: 18 }}>
-        <IconBtn name={a.liked ? 'heart' : 'heart-outline'} color={a.liked ? '#E0245E' : color} onPress={a.onLike} />
-        <IconBtn name="chatbubble-outline" color={color} onPress={a.onComment} />
-        <IconBtn name="paper-plane-outline" color={color} onPress={a.onShare} />
+      <View style={{ flexDirection: 'row', gap: 6 }}>
+        <IconBtn onPress={a.onLike} label="like">
+          <PopIcon name={a.liked ? 'heart' : 'heart-outline'} on={a.liked} color={a.liked ? LIKE_RED : color} />
+        </IconBtn>
+        <IconBtn onPress={a.onComment} label="comment">
+          <Ionicons name="chatbubble-outline" size={25} color={color} />
+        </IconBtn>
+        <IconBtn onPress={a.onShare} label="share">
+          <Ionicons name="paper-plane-outline" size={25} color={color} />
+        </IconBtn>
       </View>
-      <IconBtn name={a.saved ? 'bookmark' : 'bookmark-outline'} color={color} onPress={a.onSave} />
-      <View style={{ width: '100%', marginTop: 4 }}>
-        {a.likes > 0 ? <Text style={[styles.countText, { color }]}>❤ {a.likes}</Text> : null}
+      <IconBtn onPress={a.onSave} label="save">
+        <PopIcon name={a.saved ? 'bookmark' : 'bookmark-outline'} on={a.saved} color={a.saved ? primary : color} />
+      </IconBtn>
+      <View style={{ width: '100%', paddingHorizontal: 8 }}>
+        {a.likes > 0 ? <Text style={[styles.countText, { color }]}>{a.likes} ♥</Text> : null}
         {a.comments > 0 ? (
-          <Pressable onPress={a.onComment}>
+          <Pressable onPress={a.onComment} hitSlop={8}>
             <Text style={[styles.countText, { color: muted }]}>
               {a.comments} {t('comments').toLowerCase()}
             </Text>
@@ -307,33 +326,34 @@ function ActionRow({ color, muted, t, ...a }: ActionProps & { color: string; mut
   );
 }
 
-function IconBtn({
-  name,
-  color,
-  label,
-  onPress,
-}: {
-  name: keyof typeof Ionicons.glyphMap;
-  color: string;
-  label?: number;
-  onPress: () => void;
-}) {
+/** 48dp touch target around each icon (Android guideline). */
+function IconBtn({ children, onPress, label }: { children: ReactNode; onPress: () => void; label: string }) {
   return (
-    <Pressable onPress={onPress} hitSlop={10} style={{ alignItems: 'center' }}>
-      <Ionicons name={name} size={28} color={color} />
-      {label !== undefined ? <Text style={[styles.iconLabel, { color }]}>{label}</Text> : null}
-    </Pressable>
+    <PressableScale onPress={onPress} scaleTo={0.86} accessibilityRole="button" accessibilityLabel={label} style={styles.iconBtn}>
+      {children}
+    </PressableScale>
   );
 }
 
 const styles = StyleSheet.create({
-  reelActions: { position: 'absolute', right: 12, bottom: 70 },
-  iconLabel: { fontFamily: UI_FONT.bold, fontSize: 12, marginTop: 2 },
-  postHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, paddingVertical: 10 },
-  postIcon: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  reelActions: { position: 'absolute', right: 12, gap: 14, alignItems: 'center' },
+  post: { marginBottom: 18 },
+  postHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 10 },
+  postIcon: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
   postTitle: { fontFamily: UI_FONT.bold, fontSize: 14 },
   postSub: { fontFamily: UI_FONT.regular, fontSize: 12 },
-  actionRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 14, paddingVertical: 10 },
+  postCard: {
+    marginHorizontal: 12,
+    borderRadius: 28,
+    overflow: 'hidden',
+    shadowColor: '#3A2A1A',
+    shadowOpacity: 0.14,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 5,
+  },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 8, paddingTop: 6 },
+  iconBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   countText: { fontFamily: UI_FONT.semibold, fontSize: 13, marginTop: 2 },
   end: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 16 },
   endEmoji: { fontSize: 56 },

@@ -1,6 +1,9 @@
-import { memo } from 'react';
+import { memo, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming, type SharedValue } from 'react-native-reanimated';
+import { DURATION, timing } from '../lib/motion';
 import { CATEGORY_MAP, hashString, type FontKey } from '../lib/categories';
 import { UI_FONT, VERSE_FONTS } from '../lib/fonts';
 import type { Lang } from '../lib/i18n';
@@ -22,7 +25,20 @@ type Props = {
   rightInset?: number;
   /** Space reserved at the top (e.g. overlay header in reels). */
   topInset?: number;
+  /**
+   * Feed only: the card on screen. Its parts arrive in reading order
+   * (tags, verse, reference) each time it becomes active. Omit for static cards.
+   */
+  active?: boolean;
 };
+
+/** One part of the card rising into place; `p` goes 0 → 1. */
+function useRise(p: SharedValue<number>, distance: number) {
+  return useAnimatedStyle(() => ({
+    opacity: p.value,
+    transform: [{ translateY: (1 - p.value) * distance }],
+  }));
+}
 
 const LAYOUTS = 3;
 
@@ -58,7 +74,29 @@ function VerseCardBase({
   bottomInset = 0,
   rightInset = 0,
   topInset = 0,
+  active,
 }: Props) {
+  const animate = active !== undefined;
+  const pTags = useSharedValue(animate ? 0 : 1);
+  const pBody = useSharedValue(animate ? 0 : 1);
+  const pRef = useSharedValue(animate ? 0 : 1);
+  useEffect(() => {
+    if (!animate) return;
+    if (active) {
+      pTags.value = withTiming(1, timing(DURATION.enter));
+      pBody.value = withDelay(DURATION.stagger, withTiming(1, timing(DURATION.enter + 120)));
+      pRef.value = withDelay(DURATION.stagger * 3, withTiming(1, timing(DURATION.enter)));
+    } else {
+      // reset quietly while off-screen so the next arrival plays again
+      pTags.value = 0.001;
+      pBody.value = 0.001;
+      pRef.value = 0.001;
+    }
+  }, [active, animate, pTags, pBody, pRef]);
+  const tagsStyle = useRise(pTags, 12);
+  const bodyStyle = useRise(pBody, 22);
+  const refStyle = useRise(pRef, 10);
+
   const seed = hashString(verse.id);
   const cat = CATEGORY_MAP[category && verse.categories.includes(category) ? category : verse.categories[0]];
   const style = dark ? cat.dark : cat.light;
@@ -101,10 +139,19 @@ function VerseCardBase({
         ]}
       />
 
+      {/* glossy sheen: light falling across the top-left of the card */}
+      <LinearGradient
+        pointerEvents="none"
+        colors={dark ? ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)'] : ['rgba(255,255,255,0.55)', 'rgba(255,255,255,0)']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0.7, y: 0.45 }}
+        style={StyleSheet.absoluteFill}
+      />
+
       <View style={[styles.inner, { paddingHorizontal: padX, paddingTop: padTop, paddingBottom: bottomInset + 24, paddingRight: padX + rightInset }]}>
-        <View style={styles.tags}>
+        <Animated.View style={[styles.tags, tagsStyle]}>
           {badge ? (
-            <View style={[styles.tag, { backgroundColor: style.accent }]}>
+            <View style={[styles.tag, { backgroundColor: style.accent, borderColor: 'rgba(255,255,255,0.5)' }]}>
               <Text style={[styles.tagText, { color: '#fff' }]}>{badge}</Text>
             </View>
           ) : null}
@@ -112,16 +159,23 @@ function VerseCardBase({
             const cc = CATEGORY_MAP[k];
             if (!cc) return null;
             return (
-              <View key={k} style={[styles.tag, { borderColor: style.accent + '88', backgroundColor: style.accent + '1F' }]}>
-                <Text style={[styles.tagText, { color: style.text }]}>
-                  {cc.emoji} #{cc.label[lang]}
-                </Text>
+              <View
+                key={k}
+                style={[
+                  styles.tag,
+                  dark
+                    ? { backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.16)' }
+                    : { backgroundColor: 'rgba(255,255,255,0.55)', borderColor: 'rgba(255,255,255,0.9)' },
+                ]}
+              >
+                <Ionicons name={cc.icon as keyof typeof Ionicons.glyphMap} size={13} color={style.accent} />
+                <Text style={[styles.tagText, { color: style.text }]}>{cc.label[lang]}</Text>
               </View>
             );
           })}
-        </View>
+        </Animated.View>
 
-        <View style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '66' }]]}>
+        <Animated.View style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '66' }], bodyStyle]}>
           {layout === 1 ? (
             <Text style={[styles.quoteMark, { color: style.accent, fontSize: 64, lineHeight: 64 }]}>“</Text>
           ) : null}
@@ -144,11 +198,11 @@ function VerseCardBase({
                 ))
               : body}
           </Text>
-          <View style={[styles.refRow, { justifyContent: align === 'left' ? 'flex-start' : 'center' }]}>
+          <Animated.View style={[styles.refRow, { justifyContent: align === 'left' ? 'flex-start' : 'center' }, refStyle]}>
             <View style={[styles.rule, { backgroundColor: style.accent }]} />
             <Text style={[styles.ref, { color: style.text }]}>{title}</Text>
-          </View>
-        </View>
+          </Animated.View>
+        </Animated.View>
 
         <Text style={[styles.copyright, { color: style.text }]}>{copyright}</Text>
       </View>
@@ -162,7 +216,7 @@ const styles = StyleSheet.create({
   glow: { position: 'absolute', opacity: 0.12 },
   inner: { flex: 1 },
   tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  tag: { borderWidth: 1, borderColor: 'transparent', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4 },
+  tag: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: 'transparent', borderRadius: 999, paddingHorizontal: 11, paddingVertical: 5 },
   tagText: { fontFamily: UI_FONT.semibold, fontSize: 12 },
   body: { flex: 1, justifyContent: 'center' },
   framed: { borderWidth: 1.5, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 22, marginVertical: 16 },

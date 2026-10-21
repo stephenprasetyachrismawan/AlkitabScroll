@@ -24,26 +24,34 @@ export type Palette = {
   border: string;
   primary: string;
   danger: string;
+  /** soft background gradient behind glass surfaces */
+  aurora: [string, string, string];
+  /** tinted wash used for selected / active states */
+  primarySoft: string;
 };
 
 const LIGHT: Palette = {
-  bg: '#FAF7F2',
+  bg: '#FBF7F2',
   card: '#FFFFFF',
-  text: '#1F1B16',
-  muted: '#7A7064',
-  border: '#E8E1D6',
-  primary: '#8B5E34',
+  text: '#1E1A16',
+  muted: '#6F665C',
+  border: '#ECE3D8',
+  primary: '#9A6A3A',
   danger: '#C0392B',
+  aurora: ['#FDF8F1', '#F5EEF8', '#EAF2FB'],
+  primarySoft: 'rgba(154,106,58,0.12)',
 };
 
 const DARK: Palette = {
-  bg: '#12100E',
-  card: '#1C1916',
-  text: '#F3EEE6',
-  muted: '#A39A8E',
-  border: '#2E2924',
-  primary: '#D9A86C',
-  danger: '#E5675A',
+  bg: '#100E14',
+  card: '#1B1820',
+  text: '#F4EFE8',
+  muted: '#A69C92',
+  border: '#2C2730',
+  primary: '#E2B47C',
+  danger: '#EC6F62',
+  aurora: ['#120F18', '#1A1426', '#0E1820'],
+  primarySoft: 'rgba(226,180,124,0.16)',
 };
 
 type Ctx = Settings & {
