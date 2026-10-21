@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { useHeaderHeight } from 'expo-router/react-navigation';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../../components/Avatar';
 import * as api from '../../lib/api';
 import { useAuth } from '../../lib/auth';
@@ -10,16 +13,27 @@ import { UI_FONT } from '../../lib/fonts';
 import { cleanText } from '../../lib/moderation';
 import { useSettings } from '../../lib/settings';
 import { supabase } from '../../lib/supabase';
+import { openChat } from '../../lib/notifications';
 import { passageText, VERSE_MAP } from '../../lib/verses';
 
 export default function Chat() {
   const { id: other } = useLocalSearchParams<{ id: string }>();
   const { t, colors, dark, translation } = useSettings();
   const { userId: me } = useAuth();
+  const headerHeight = useHeaderHeight();
+  const insets = useSafeAreaInsets();
   const [partner, setPartner] = useState<api.Profile | null>(null);
   const [messages, setMessages] = useState<api.Message[]>([]);
   const [text, setText] = useState('');
   const listRef = useRef<FlatList<api.Message>>(null);
+
+  // Silence alerts for the conversation on screen.
+  useEffect(() => {
+    openChat.partnerId = other;
+    return () => {
+      openChat.partnerId = null;
+    };
+  }, [other]);
 
   useEffect(() => {
     if (!me) return;
@@ -55,7 +69,7 @@ export default function Chat() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.bg }} behavior="padding" keyboardVerticalOffset={headerHeight}>
       <Stack.Screen
         options={{
           headerTitle: () => (
@@ -105,7 +119,7 @@ export default function Chat() {
           );
         }}
       />
-      <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
+      <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card, paddingBottom: Math.max(insets.bottom, 12) }]}>
         <TextInput
           value={text}
           onChangeText={setText}
@@ -127,6 +141,6 @@ const styles = StyleSheet.create({
   title: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bubble: { maxWidth: '80%', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 9 },
   verseBubble: { width: 240, borderRadius: 18, padding: 14 },
-  inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: 1, paddingHorizontal: 14, paddingVertical: 10, paddingBottom: 24 },
+  inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: 1, paddingHorizontal: 14, paddingVertical: 10, paddingBottom: 12 },
   input: { flex: 1, fontFamily: UI_FONT.regular, fontSize: 15, maxHeight: 100 },
 });
