@@ -27,12 +27,6 @@ function parseCatalog() {
   return [...byRef.values()];
 }
 
-function expectedCount(ref) {
-  const m = ref.match(/:(\d+)(?:-(\d+))?$/);
-  if (!m) throw new Error(`bad ref ${ref}`);
-  return m[2] ? Number(m[2]) - Number(m[1]) + 1 : 1;
-}
-
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function fetchXml(ref, version) {
@@ -59,23 +53,67 @@ function decode(s) {
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 }
 
-function clean(text, version) {
-  let t = decode(text);
-  t = t.replace(/<[^>]+>/g, '');
+// Psalm superscriptions ("Mazmur Daud.", "Untuk pemimpin biduan.") are headings in
+// the printed Bible, not verse text. sabda puts them inside verse 1.
+const SUPERSCRIPTION = /^(?:(?:Mazmur|Dari|Nyanyian|Untuk|Doa|Pengajaran|Miktam|Maskil|Syair|Kepada|Pada|Menurut|Bagi)\b[^.]*\.\s*)+/;
+
+function clean(text, version, isPsalm, n) {
+  let t = decode(text).replace(/<[^>]+>/g, '');
+  let printed = null;
   if (version === 'kjv') {
-    t = t.replace(/\(\d+\)/g, '').replace(/[@_]/g, ' ');
+    t = t
+      .replace(/\(\d+\)/g, '') // Strong's numbers
+      .replace(/[@_]/g, ' ')
+      .replace(/\{[^}]*\}/g, '') // translators' footnotes
+      .replace(/[[\]]/g, ''); // italics markers
+    if (isPsalm) t = t.trim().replace(/^[A-Z]{2,}\.\s+/, ''); // Psalm 119 acrostic letters (NUN.)
+  } else {
+    // "(46-11)" = the verse number as printed in the LAI Bible (sabda uses English numbering).
+    const m = t.match(/\((\d+)-(\d+)\)\s*/);
+    if (m) {
+      printed = Number(m[2]);
+      t = t.slice(m.index + m[0].length); // heading before the marker is a superscription
+    } else if (isPsalm && n === 1) {
+      t = t.replace(SUPERSCRIPTION, '');
+    }
   }
-  return t.replace(/\s+/g, ' ').replace(/\s+([,.;:?!])/g, '$1').trim();
+  t = t.replace(/\s+/g, ' ').replace(/\s+([,.;:?!])/g, '$1').trim();
+  return { text: t, printed };
 }
 
-function parse(xml, version) {
-  const title = (xml.match(/<title>([^<]*)<\/title>/) ?? [])[1] ?? '';
+function parse(xml, version, ref) {
+  const isPsalm = /^Mzm /.test(ref);
+  // BIMK sometimes merges verses; the merged one only says "(2:8)". Drop it after validation.
+  let title = decode((xml.match(/<title>([^<]*)<\/title>/) ?? [])[1] ?? '').replace(/^Psalms /, 'Psalm ');
   const verses = [...xml.matchAll(/<verse>([\s\S]*?)<\/verse>/g)].map((m) => {
     const num = Number((m[1].match(/<number>(\d+)<\/number>/) ?? [])[1]);
-    const text = (m[1].match(/<text>([\s\S]*?)<\/text>/) ?? [])[1] ?? '';
-    return { n: num, text: clean(text, version) };
+    const raw = (m[1].match(/<text>([\s\S]*?)<\/text>/) ?? [])[1] ?? '';
+    const { text, printed } = clean(raw, version, isPsalm, num);
+    return { n: num, text, printed };
   });
-  return { title: decode(title), verses };
+  const rawNumbers = verses.map((v) => v.n);
+  for (let i = verses.length - 1; i > 0; i--) {
+    if (/^\(\d+:\d+\)$/.test(verses[i].text)) verses.splice(i, 1);
+  }
+  // Show Psalm references the way the LAI Bible prints them.
+  if (verses.length && verses[0].printed) {
+    const first = verses[0].printed;
+    const last = verses[verses.length - 1].printed ?? first + verses.length - 1;
+    title = title.replace(/:\d+(-\d+)?$/, first === last ? `:${first}` : `:${first}-${last}`);
+    let k = first;
+    for (const v of verses) {
+      v.n = v.printed ?? k;
+      k = v.n + 1;
+    }
+  }
+  return { title, verses: verses.map(({ n, text }) => ({ n, text })), rawNumbers };
+}
+
+function expectedNumbers(ref) {
+  const m = ref.match(/:(\d+)(?:-(\d+))?$/);
+  const a = Number(m[1]);
+  const b = m[2] ? Number(m[2]) : a;
+  return Array.from({ length: b - a + 1 }, (_, i) => a + i);
 }
 
 const catalog = parseCatalog();
@@ -87,9 +125,10 @@ async function work(entry, i) {
   for (const [key, code] of Object.entries(VERSIONS)) {
     const ref = key === 'kjv' ? entry.kjvRef : entry.ref;
     try {
-      const { title, verses } = parse(await fetchXml(ref, code), key);
-      if (verses.length !== expectedCount(ref) || verses.some((v) => !v.text)) {
-        problems.push(`${key} ${ref}: got ${verses.length} verses`);
+      const { title, verses, rawNumbers } = parse(await fetchXml(ref, code), key, ref);
+      // sabda silently returns another verse for out-of-range refs, so check the numbers.
+      if (rawNumbers.join(',') !== expectedNumbers(ref).join(',') || verses.some((v) => !v.text)) {
+        problems.push(`${key} ${ref}: got verses ${rawNumbers.join(',')}`);
       }
       item.text[key] = { title, verses };
     } catch (e) {

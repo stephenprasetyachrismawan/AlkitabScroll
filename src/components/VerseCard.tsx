@@ -20,16 +20,29 @@ type Props = {
   /** Space reserved at the bottom (e.g. reels overlay / tab bar). */
   bottomInset?: number;
   rightInset?: number;
+  /** Space reserved at the top (e.g. overlay header in reels). */
+  topInset?: number;
 };
 
 const LAYOUTS = 3;
 
-/** Pick a font size so the passage fills the box but stays readable. */
-function fitFontSize(chars: number, w: number, h: number, font: { scale: number; lineHeight: number }) {
-  const area = w * h;
-  // average glyph ≈ 0.5em wide; line box = lineHeight em
-  const size = Math.sqrt(area / (chars * 0.52 * font.lineHeight)) * 0.86;
-  return Math.max(13, Math.min(34, size)) * Math.min(font.scale, 1.3);
+/** Largest font size at which the text, word-wrapped, fits the box. */
+function fitFontSize(text: string, w: number, h: number, font: { charWidth: number; lineHeight: number; max: number }) {
+  const words = text.split(' ');
+  for (let size = font.max; size > 12; size -= 1) {
+    const perLine = Math.floor(w / (size * font.charWidth * 1.08)); // 8% safety margin
+    let lines = 1;
+    let used = 0;
+    for (const word of words) {
+      const len = word.length + (used ? 1 : 0);
+      if (used + len > perLine) {
+        lines++;
+        used = word.length;
+      } else used += len;
+    }
+    if (lines * size * font.lineHeight <= h) return size;
+  }
+  return 12;
 }
 
 function VerseCardBase({
@@ -44,6 +57,7 @@ function VerseCardBase({
   badge,
   bottomInset = 0,
   rightInset = 0,
+  topInset = 0,
 }: Props) {
   const seed = hashString(verse.id);
   const cat = CATEGORY_MAP[category && verse.categories.includes(category) ? category : verse.categories[0]];
@@ -57,16 +71,20 @@ function VerseCardBase({
   if (fontKey === 'caveat' && body.length > 170) fontKey = 'lora';
   const font = VERSE_FONTS[fontKey];
 
-  const padX = Math.max(22, width * 0.08);
-  const padTop = Math.max(40, height * 0.1);
-  const boxW = width - padX * 2 - rightInset;
-  const boxH = height - padTop - bottomInset - 110;
-  const fontSize = fitFontSize(body.length + (multi ? parts.length * 3 : 0), boxW, boxH, font);
+  const padX = Math.max(22, width * 0.07);
+  const padTop = Math.max(24, height * 0.05) + topInset;
+  const framed = layout === 2;
+  const tagsH = 34 * (verse.categories.length > 2 || badge ? 2 : 1);
+  const boxW = width - padX * 2 - rightInset - (framed ? 40 : 0);
+  // reserved: tags, reference row, copyright line, frame padding, quote mark
+  const boxH = height - padTop - bottomInset - tagsH - 100 - (framed ? 76 : 0) - (layout === 1 ? 50 : 0);
+  const fitText = multi ? parts.map((p) => `${p.n} ${p.text}`).join(' ') : body;
+  const fontSize = fitFontSize(fitText, boxW, boxH, font);
   const align = layout === 1 ? 'left' : 'center';
   const copyright = TRANSLATIONS.find((x) => x.key === translation)?.copyright ?? '';
 
   return (
-    <LinearGradient colors={style.gradient} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={{ width, height }}>
+    <LinearGradient colors={style.gradient} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={{ width, height, overflow: 'hidden' }}>
       {/* soft decorative glow */}
       <View
         pointerEvents="none"
@@ -105,7 +123,7 @@ function VerseCardBase({
 
         <View style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '66' }]]}>
           {layout === 1 ? (
-            <Text style={[styles.quoteMark, { color: style.accent, fontSize: fontSize * 3, lineHeight: fontSize * 3 }]}>“</Text>
+            <Text style={[styles.quoteMark, { color: style.accent, fontSize: 64, lineHeight: 64 }]}>“</Text>
           ) : null}
           <Text
             style={{
