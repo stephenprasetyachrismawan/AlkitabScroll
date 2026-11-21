@@ -150,6 +150,6 @@ await Promise.all(
   }),
 );
 
-fs.writeFileSync(path.join(root, 'data', 'verses.json'), JSON.stringify(out, null, 1));
+fs.writeFileSync(path.join(root, 'data', 'verses.json'), JSON.stringify(out));
 console.log(`\nwrote ${out.length} entries`);
 if (problems.length) console.log('PROBLEMS:\n' + problems.join('\n'));

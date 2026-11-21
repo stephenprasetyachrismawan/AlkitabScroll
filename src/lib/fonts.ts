@@ -7,7 +7,6 @@ import { Nunito_400Regular } from '@expo-google-fonts/nunito/400Regular';
 import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
 import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
 import { Caveat_500Medium } from '@expo-google-fonts/caveat/500Medium';
-import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond/500Medium';
 import { CormorantGaramond_600SemiBold_Italic } from '@expo-google-fonts/cormorant-garamond/600SemiBold_Italic';
 import type { FontKey } from './categories';
 
@@ -21,7 +20,6 @@ export const FONT_ASSETS = {
   Nunito_600SemiBold,
   Nunito_700Bold,
   Caveat_500Medium,
-  CormorantGaramond_500Medium,
   CormorantGaramond_600SemiBold_Italic,
 };
 
