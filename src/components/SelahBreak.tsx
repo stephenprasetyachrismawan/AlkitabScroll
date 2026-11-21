@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Animated, { cancelAnimation, ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { UI_FONT } from '../lib/fonts';
 import { EASE_IN_OUT } from '../lib/motion';
 import { useSettings } from '../lib/settings';
@@ -30,31 +30,39 @@ type Props = {
   verse: Verse;
   onContinue: () => void;
   onEnough: () => void;
+  /** On screen right now. Off-screen breaks stay inert: no animation loop, no YouTube WebView. */
+  active: boolean;
 };
 
 /** A slow breathing glow: 4s in, 4s out. Still when the system asks for reduced motion. */
-function Breath() {
+function Breath({ running }: { running: boolean }) {
   const p = useSharedValue(0);
   useEffect(() => {
+    if (!running) return;
     p.value = withRepeat(withTiming(1, { duration: BREATH_MS, easing: EASE_IN_OUT, reduceMotion: ReduceMotion.System }), -1, true);
-  }, [p]);
+    return () => cancelAnimation(p);
+  }, [p, running]);
   const style = useAnimatedStyle(() => ({ opacity: 0.25 + p.value * 0.35, transform: [{ scale: 0.85 + p.value * 0.3 }] }));
   return <Animated.View pointerEvents="none" style={[styles.breath, style]} />;
 }
 
-export function SelahBreak({ width, height, bottomInset = 0, index, verse, onContinue, onEnough }: Props) {
+export function SelahBreak({ width, height, bottomInset = 0, index, verse, onContinue, onEnough, active }: Props) {
   const { t, translation } = useSettings();
   const videoW = Math.min(width - 56, 520);
   const { body, title } = passageText(verse, translation);
 
   return (
     <LinearGradient colors={['#1A1830', '#2A2242', '#3B2D52']} style={[styles.root, { width, height, paddingBottom: bottomInset }]}>
-      <Breath />
+      <Breath running={active} />
       <Text style={styles.kicker}>SELAH</Text>
       <Text style={styles.title}>{t('selahTitle')}</Text>
       <Text style={styles.body}>{t('selahBody')}</Text>
       <Glass dark radius={22} strength={0.3} style={{ padding: 8 }}>
-        <YouTubeEmbed videoIds={[SELAH_VIDEOS[index % SELAH_VIDEOS.length]]} width={videoW} height={(videoW * 9) / 16} style={{ borderRadius: 16 }} />
+        {active ? (
+          <YouTubeEmbed videoIds={[SELAH_VIDEOS[index % SELAH_VIDEOS.length]]} width={videoW} height={(videoW * 9) / 16} style={{ borderRadius: 16 }} />
+        ) : (
+          <View style={{ width: videoW, height: (videoW * 9) / 16, borderRadius: 16, backgroundColor: '#000' }} />
+        )}
       </Glass>
       <View style={styles.verse}>
         <Text style={styles.verseText} numberOfLines={5}>

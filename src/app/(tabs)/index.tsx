@@ -62,7 +62,8 @@ export default function Home() {
   return (
     <View style={{ flex: 1 }}>
       <Aurora />
-      <BackgroundMusic playing={musicPlaying} />
+      {/* Mounted only while music is on: an idle YouTube WebView still burns CPU and battery. */}
+      {music ? <BackgroundMusic playing={musicPlaying} /> : null}
       {!reels ? bar : null}
       <Feed header={<StatusRow key={statusKey} />} onSelahVisible={setSelahVisible} onRefresh={() => setStatusKey((k) => k + 1)} />
       {reels ? bar : null}

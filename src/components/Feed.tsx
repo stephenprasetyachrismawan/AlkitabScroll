@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import {
+  AppState,
   FlatList,
   Pressable,
   RefreshControl,
@@ -18,9 +19,10 @@ import * as api from '../lib/api';
 import { CATEGORY_MAP } from '../lib/categories';
 import { useEngagement } from '../lib/engagement';
 import { UI_FONT } from '../lib/fonts';
-import { useSettings } from '../lib/settings';
+import type { Lang } from '../lib/i18n';
+import { useSettings, type Palette as ThemeColors } from '../lib/settings';
 import { supabase } from '../lib/supabase';
-import { VERSE_MAP, VERSES, type Verse } from '../lib/verses';
+import { VERSE_MAP, VERSES, type Translation, type Verse } from '../lib/verses';
 import { SelahBreak } from './SelahBreak';
 import { ShareSheet } from './ShareSheet';
 import { VerseCard } from './VerseCard';
@@ -34,6 +36,7 @@ type Item =
   | { key: string; kind: 'selah'; n: number; verse: Verse };
 
 const BATCH = 10;
+const VIEWABILITY = { itemVisiblePercentThreshold: 70 };
 
 class FeedSession {
   engine: FeedEngine<Verse>;
@@ -72,7 +75,23 @@ function initialItems(session: FeedSession, routes: Route[], startVerseId: strin
   return [...first, ...session.batch(BATCH, routes)];
 }
 
-const STATS_POLL_MS = 15_000;
+// Realtime pushes changes; this slow poll only runs while the socket is down and the app is in the foreground.
+const STATS_POLL_MS = 60_000;
+// A burst of likes/comments from other users collapses into one request.
+const STATS_DEBOUNCE_MS = 1_200;
+
+type Stats = Record<string, { likes: number; comments: number }>;
+
+/** Merge fetched counts, returning the same object (no re-render) when nothing changed. */
+function mergeStats(prev: Stats, next: Stats): Stats {
+  let out: Stats | null = null;
+  for (const id in next) {
+    const a = prev[id];
+    const b = next[id];
+    if (!a || a.likes !== b.likes || a.comments !== b.comments) (out ??= { ...prev })[id] = b;
+  }
+  return out ?? prev;
+}
 
 type FeedProps = {
   /** Open this verse first, then continue with the algorithm. */
@@ -94,7 +113,7 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
   const tabSpace = useTabBarSpace();
   const [activeKey, setActiveKey] = useState<string | null>(null);
   const [height, setHeight] = useState(0);
-  const [stats, setStats] = useState<Record<string, { likes: number; comments: number }>>({});
+  const [stats, setStats] = useState<Stats>({});
   const [shareVerse, setShareVerse] = useState<Verse | null>(null);
   const [ended, setEnded] = useState(false);
   const listRef = useRef<FlatList<Item>>(null);
@@ -120,7 +139,7 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
     if (ids.length === 0) return;
     api
       .verseStats([...new Set(ids)])
-      .then((s) => setStats((prev) => ({ ...prev, ...s })))
+      .then((s) => setStats((prev) => mergeStats(prev, s)))
       .catch(() => {});
   }, []);
 
@@ -131,23 +150,60 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
     return list.slice(Math.max(0, i - 3), i + 5).flatMap((x) => (x.kind === 'verse' ? [x.verse.id] : []));
   }, []);
 
-  // Live counts: Supabase realtime pushes like/comment changes; a slow poll covers gaps.
+  // Live counts: Supabase realtime pushes like/comment changes (debounced). The socket is only
+  // open while the app is in the foreground; a slow poll covers the time it is not connected.
   useEffect(() => {
-    const channel = supabase
-      .channel(`feed-stats-${Math.random().toString(36).slice(2)}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, (p) => {
-        const id = ((p.new as { verse_id?: string })?.verse_id ?? (p.old as { verse_id?: string })?.verse_id) as string | undefined;
-        if (id && itemsRef.current.some((x) => x.kind === 'verse' && x.verse.id === id)) refreshStats([id]);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, (p) => {
-        const id = (p.new as { verse_id?: string })?.verse_id;
-        refreshStats(id ? [id] : nearbyIds());
-      })
-      .subscribe();
-    const poll = setInterval(() => refreshStats(nearbyIds()), STATS_POLL_MS);
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let connected = false;
+    let flush: ReturnType<typeof setTimeout> | null = null;
+    const pending = new Set<string>();
+    const queue = (id: string | undefined) => {
+      if (id) pending.add(id);
+      else nearbyIds().forEach((x) => pending.add(x));
+      if (flush) return;
+      flush = setTimeout(() => {
+        flush = null;
+        const ids = [...pending];
+        pending.clear();
+        refreshStats(ids);
+      }, STATS_DEBOUNCE_MS);
+    };
+    const onVerse = (id: string | undefined) => {
+      if (!id || itemsRef.current.some((x) => x.kind === 'verse' && x.verse.id === id)) queue(id);
+    };
+    const open = () => {
+      if (channel) return;
+      channel = supabase
+        .channel(`feed-stats-${Math.random().toString(36).slice(2)}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, (p) => {
+          const id = ((p.new as { verse_id?: string })?.verse_id ?? (p.old as { verse_id?: string })?.verse_id) as string | undefined;
+          if (id) onVerse(id);
+        })
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, (p) => onVerse((p.new as { verse_id?: string })?.verse_id))
+        .subscribe((status) => {
+          connected = status === 'SUBSCRIBED';
+        });
+    };
+    const close = () => {
+      connected = false;
+      if (channel) supabase.removeChannel(channel);
+      channel = null;
+    };
+    if (AppState.currentState === 'active') open();
+    const sub = AppState.addEventListener('change', (st) => {
+      if (st === 'active') {
+        open();
+        refreshStats(nearbyIds());
+      } else close();
+    });
+    const poll = setInterval(() => {
+      if (!connected && AppState.currentState === 'active') refreshStats(nearbyIds());
+    }, STATS_POLL_MS);
     return () => {
       clearInterval(poll);
-      supabase.removeChannel(channel);
+      if (flush) clearTimeout(flush);
+      sub.remove();
+      close();
     };
   }, [refreshStats, nearbyIds]);
 
@@ -161,7 +217,7 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
     onRefresh?.();
     api
       .verseStats(fresh.flatMap((x) => (x.kind === 'verse' ? [x.verse.id] : [])))
-      .then((s) => setStats((prev) => ({ ...prev, ...s })))
+      .then((s) => setStats((prev) => mergeStats(prev, s)))
       .catch(() => {})
       .finally(() => setRefreshing(false));
   }, [category, startVerseId, t, onRefresh]);
@@ -172,7 +228,7 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
     if (missing.length === 0) return;
     api
       .verseStats([...new Set(missing)])
-      .then((s) => setStats((prev) => ({ ...prev, ...s })))
+      .then((s) => setStats((prev) => mergeStats(prev, s)))
       .catch(() => {});
   }, [items, stats]);
 
@@ -206,19 +262,31 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
     };
   }, []);
 
-  const like = useCallback(
-    (v: Verse) => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-      const on = !liked.has(v.id);
-      setStats((s) => ({ ...s, [v.id]: { likes: Math.max(0, (s[v.id]?.likes ?? 0) + (on ? 1 : -1)), comments: s[v.id]?.comments ?? 0 } }));
-      toggleLike(v.id);
-    },
-    [liked, toggleLike],
-  );
+  // Handlers stay stable (they read the latest state through a ref) so memoized rows are not
+  // re-rendered every time the like set or the counts change.
+  const latest = useRef({ liked, toggleLike, toggleSave });
+  useEffect(() => {
+    latest.current = { liked, toggleLike, toggleSave };
+  }, [liked, toggleLike, toggleSave]);
+  const like = useCallback((v: Verse) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    const on = !latest.current.liked.has(v.id);
+    setStats((s) => ({ ...s, [v.id]: { likes: Math.max(0, (s[v.id]?.likes ?? 0) + (on ? 1 : -1)), comments: s[v.id]?.comments ?? 0 } }));
+    latest.current.toggleLike(v.id);
+  }, []);
   // Double-tap only ever likes (never un-likes), like every photo app.
-  const likeOnly = useCallback((v: Verse) => {
-    if (!liked.has(v.id)) like(v);
-  }, [liked, like]);
+  const likeOnly = useCallback(
+    (v: Verse) => {
+      if (!latest.current.liked.has(v.id)) like(v);
+    },
+    [like],
+  );
+  const save = useCallback((v: Verse) => {
+    Haptics.selectionAsync().catch(() => {});
+    latest.current.toggleSave(v.id);
+  }, []);
+  const openComments = useCallback((v: Verse) => router.push({ pathname: '/comments/[id]', params: { id: v.id } }), []);
+  const share = useCallback((v: Verse) => setShareVerse(v), []);
 
   const reels = viewMode === 'reels';
   const cardW = width - 24;
@@ -236,75 +304,41 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
             verse={item.verse}
             onContinue={() => listRef.current?.scrollToIndex({ index: Math.min(index + 1, items.length - 1), animated: true })}
             onEnough={() => setEnded(true)}
+            active={item.key === activeKey}
           />
         );
       }
-      const v = item.verse;
-      const s = stats[v.id];
-      const actions: ActionProps = {
-        liked: liked.has(v.id),
-        saved: saved.has(v.id),
-        likes: s?.likes ?? 0,
-        comments: s?.comments ?? 0,
-        onLike: () => like(v),
-        onSave: () => {
-          Haptics.selectionAsync().catch(() => {});
-          toggleSave(v.id);
-        },
-        onComment: () => router.push({ pathname: '/comments/[id]', params: { id: v.id } }),
-        onShare: () => setShareVerse(v),
-      };
-      const reasonCat = CATEGORY_MAP[item.reason];
-      const active = item.key === activeKey;
-
-      if (reels) {
-        return (
-          <View style={{ width, height }}>
-            <DoubleTapLike onDoubleTap={() => likeOnly(v)} style={{ width, height }}>
-              <VerseCard
-                verse={v}
-                width={width}
-                height={height}
-                translation={translation}
-                lang={lang}
-                dark={dark}
-                category={category ?? item.reason}
-                badge={item.badge}
-                bottomInset={tabSpace}
-                rightInset={56}
-                topInset={insets.top + 56}
-                active={active}
-              />
-            </DoubleTapLike>
-            <View style={[styles.reelActions, { bottom: tabSpace + 28 }]}>
-              <GlassAction icon={actions.liked ? 'heart' : 'heart-outline'} on={actions.liked} onColor={LIKE_RED} label={actions.likes} onPress={actions.onLike} dark={dark} />
-              <GlassAction icon="chatbubble-outline" label={actions.comments} onPress={actions.onComment} dark={dark} />
-              <GlassAction icon={actions.saved ? 'bookmark' : 'bookmark-outline'} on={actions.saved} onColor={colors.primary} onPress={actions.onSave} dark={dark} />
-              <GlassAction icon="paper-plane-outline" onPress={actions.onShare} dark={dark} />
-            </View>
-          </View>
-        );
-      }
-
+      const s = stats[item.verse.id];
       return (
-        <View style={styles.post}>
-          <View style={styles.postHeader}>
-            <Glass dark={dark} radius={20} strength={0.6} style={styles.postIcon}>
-              <Ionicons name={(reasonCat?.icon ?? 'sparkles-outline') as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
-            </Glass>
-            <View>
-              <Text style={[styles.postTitle, { color: colors.text }]}>{item.badge ?? 'Selah'}</Text>
-              <Text style={[styles.postSub, { color: colors.muted }]}>{reasonCat ? reasonCat.label[lang] : t('explore')}</Text>
-            </View>
-          </View>
-          <DoubleTapLike onDoubleTap={() => likeOnly(v)} style={[styles.postCard, { width: cardW, height: postH }]}>
-            <VerseCard verse={v} width={cardW} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} active={active} />
-          </DoubleTapLike>
-          <ActionRow {...actions} color={colors.text} muted={colors.muted} primary={colors.primary} t={t} />
-        </View>
+        <FeedRow
+          item={item}
+          reels={reels}
+          width={width}
+          height={height}
+          cardW={cardW}
+          postH={postH}
+          tabSpace={tabSpace}
+          topInset={insets.top + 56}
+          category={category}
+          translation={translation}
+          lang={lang}
+          dark={dark}
+          colors={colors}
+          t={t}
+          likes={s?.likes ?? 0}
+          comments={s?.comments ?? 0}
+          liked={liked.has(item.verse.id)}
+          saved={saved.has(item.verse.id)}
+          active={item.key === activeKey}
+          onLike={like}
+          onLikeOnly={likeOnly}
+          onSave={save}
+          onComment={openComments}
+          onShare={share}
+        />
       );
     },
-    [width, height, cardW, tabSpace, insets.top, reels, category, items.length, stats, liked, saved, like, likeOnly, toggleSave, translation, lang, dark, colors, postH, t, activeKey],
+    [width, height, cardW, tabSpace, insets.top, reels, category, items.length, stats, liked, saved, like, likeOnly, save, openComments, share, translation, lang, dark, colors, postH, t, activeKey],
   );
 
   const onLayout = (e: LayoutChangeEvent) => setHeight(Math.round(e.nativeEvent.layout.height));
@@ -345,8 +379,10 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
           onEndReached={loadMore}
           onEndReachedThreshold={3}
           onViewableItemsChanged={onViewable}
-          viewabilityConfig={{ itemVisiblePercentThreshold: 70 }}
+          viewabilityConfig={VIEWABILITY}
           windowSize={5}
+          removeClippedSubviews
+          updateCellsBatchingPeriod={80}
           initialNumToRender={3}
           maxToRenderPerBatch={4}
           onScrollToIndexFailed={() => {}}
@@ -361,6 +397,97 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
     </View>
   );
 }
+
+type RowProps = {
+  item: Extract<Item, { kind: 'verse' }>;
+  reels: boolean;
+  width: number;
+  height: number;
+  cardW: number;
+  postH: number;
+  tabSpace: number;
+  topInset: number;
+  category?: string;
+  translation: Translation;
+  lang: Lang;
+  dark: boolean;
+  colors: ThemeColors;
+  t: (k: 'comments' | 'explore') => string;
+  likes: number;
+  comments: number;
+  liked: boolean;
+  saved: boolean;
+  active: boolean;
+  onLike: (v: Verse) => void;
+  onLikeOnly: (v: Verse) => void;
+  onSave: (v: Verse) => void;
+  onComment: (v: Verse) => void;
+  onShare: (v: Verse) => void;
+};
+
+/** One verse post. Memoized: scrolling or a count change elsewhere does not re-render the other rows. */
+const FeedRow = memo(function FeedRow(p: RowProps) {
+  const { item, reels, width, height, cardW, postH, tabSpace, category, translation, lang, dark, colors, t } = p;
+  const v = item.verse;
+  const actions: ActionProps = {
+    liked: p.liked,
+    saved: p.saved,
+    likes: p.likes,
+    comments: p.comments,
+    onLike: () => p.onLike(v),
+    onSave: () => p.onSave(v),
+    onComment: () => p.onComment(v),
+    onShare: () => p.onShare(v),
+  };
+  const reasonCat = CATEGORY_MAP[item.reason];
+
+  if (reels) {
+    return (
+      <View style={{ width, height }}>
+        <DoubleTapLike onDoubleTap={() => p.onLikeOnly(v)} style={{ width, height }}>
+          <VerseCard
+            verse={v}
+            width={width}
+            height={height}
+            translation={translation}
+            lang={lang}
+            dark={dark}
+            category={category ?? item.reason}
+            badge={item.badge}
+            bottomInset={tabSpace}
+            rightInset={56}
+            topInset={p.topInset}
+            active={p.active}
+          />
+        </DoubleTapLike>
+        <View style={[styles.reelActions, { bottom: tabSpace + 28 }]}>
+          <GlassAction icon={actions.liked ? 'heart' : 'heart-outline'} on={actions.liked} onColor={LIKE_RED} label={actions.likes} onPress={actions.onLike} dark={dark} />
+          <GlassAction icon="chatbubble-outline" label={actions.comments} onPress={actions.onComment} dark={dark} />
+          <GlassAction icon={actions.saved ? 'bookmark' : 'bookmark-outline'} on={actions.saved} onColor={colors.primary} onPress={actions.onSave} dark={dark} />
+          <GlassAction icon="paper-plane-outline" onPress={actions.onShare} dark={dark} />
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.post}>
+      <View style={styles.postHeader}>
+        <Glass dark={dark} radius={20} strength={0.6} style={styles.postIcon}>
+          <Ionicons name={(reasonCat?.icon ?? 'sparkles-outline') as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
+        </Glass>
+        <View>
+          <Text style={[styles.postTitle, { color: colors.text }]}>{item.badge ?? 'Selah'}</Text>
+          <Text style={[styles.postSub, { color: colors.muted }]}>{reasonCat ? reasonCat.label[lang] : t('explore')}</Text>
+        </View>
+      </View>
+      <DoubleTapLike onDoubleTap={() => p.onLikeOnly(v)} style={[styles.postCard, { width: cardW, height: postH }]}>
+        <VerseCard verse={v} width={cardW} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} active={p.active} />
+      </DoubleTapLike>
+      <ActionRow {...actions} color={colors.text} muted={colors.muted} primary={colors.primary} t={t} />
+    </View>
+  );
+});
 
 type ActionProps = {
   liked: boolean;
