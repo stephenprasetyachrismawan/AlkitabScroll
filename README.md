@@ -30,7 +30,25 @@ Setiap ayat tampil sebagai postingan bergaya sesuai kategorinya, dengan mode **P
 - Penomoran Mazmur di TB/BIMK mengikuti teks Ibrani (sering beda 1–2 ayat dari KJV). Katalog menyimpan referensi KJV terpisah untuk kasus ini.
 - Hak cipta: TB & BIMK © Lembaga Alkitab Indonesia. Untuk rilis publik di Play Store, perlu izin tertulis dari LAI.
 
-Daftar & kategori: [`scripts/catalog.txt`](scripts/catalog.txt). Untuk menambah ayat: tambah baris di katalog, lalu `npm run fetch-verses`.
+Daftar & kategori: [`scripts/catalog.txt`](scripts/catalog.txt). Untuk menambah ayat: tambah baris di katalog, lalu `npm run fetch-verses`, lalu bangun ulang indeks pencarian (di bawah).
+
+## Pencarian ayat & Curhat
+
+Satu mesin (`src/lib/search.ts`) untuk kotak cari di Jelajah dan untuk Curhat. Semuanya offline.
+
+- **Kata** (BM25 di TB, BIMK, KJV sekaligus): imbuhan dilipat (mengasihi ~ kasih), slang dinormalkan (gak, capek, galau), salah ketik dikoreksi, kata yang berurutan di ayat dapat bonus frasa. Referensi seperti `yoh 3:16` atau `Mazmur 23` langsung ketemu.
+- **Makna**: model `multilingual-e5-small` menilai ~36 ribu kata sehari-hari terhadap tiap perikop saat build, bukan di HP. Hasilnya `data/search-semantic.ts` (~1,3 MB teks, dimuat saat pertama mencari). Jadi "pacarku selingkuh" menemukan Mazmur 147:3 walau tak ada kata yang sama.
+- **Tema**: kata yang sama juga memilih kategori, untuk chip "Selah menangkap" di Curhat.
+
+Catatan Curhat hanya disimpan di HP (`src/lib/curhat.ts`), tidak dikirim ke server.
+
+Bangun ulang indeks setelah mengubah katalog:
+
+```bash
+pip install onnxruntime tokenizers numpy wordfreq
+python scripts/build-search-index.py /path/ke/multilingual-e5-small   # berisi model_quantized.onnx + tokenizer.json (Xenova/multilingual-e5-small)
+npm test
+```
 
 ## Menjalankan
 
