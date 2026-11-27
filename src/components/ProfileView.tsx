@@ -118,7 +118,7 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
       </View>
       <View style={styles.info}>
         <Text style={[styles.name, { color: colors.text }]}>{profile?.display_name}</Text>
-        <Text style={[styles.username, { color: colors.muted }]} numberOfLines={1}>
+        <Text style={[styles.username, { color: colors.muted }]}>
           @{profile?.username}
         </Text>
         {profile?.bio ? <Text style={[styles.bio, { color: colors.text }]}>{profile.bio}</Text> : null}

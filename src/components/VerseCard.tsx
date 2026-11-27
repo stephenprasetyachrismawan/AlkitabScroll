@@ -142,7 +142,7 @@ function VerseCardBase({
         <Animated.View style={[styles.tags, { justifyContent: align === 'left' ? 'flex-start' : 'center' }, tagsStyle]}>
           {badge ? (
             <View style={[styles.stamp, { borderColor: style.accent }]}>
-              <Text style={[styles.stampText, { color: style.accent }]} maxFontSizeMultiplier={scale} numberOfLines={1}>
+              <Text style={[styles.stampText, { color: style.accent }]} maxFontSizeMultiplier={scale} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
                 {badge}
               </Text>
             </View>
@@ -183,14 +183,14 @@ function VerseCardBase({
           </Text>
           <Animated.View style={[styles.refRow, { justifyContent: align === 'left' ? 'flex-start' : 'center' }, refStyle]}>
             <View style={[styles.rule, { backgroundColor: style.accent }]} />
-            <Text style={[styles.ref, { color: style.text }]} maxFontSizeMultiplier={scale} numberOfLines={2}>
+            <Text style={[styles.ref, { color: style.text }]} maxFontSizeMultiplier={scale} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.7}>
               {title}
             </Text>
             {align === 'left' ? null : <View style={[styles.rule, { backgroundColor: style.accent }]} />}
           </Animated.View>
         </Animated.View>
 
-        <Text style={[styles.copyright, { color: style.text }]} maxFontSizeMultiplier={scale} numberOfLines={2}>
+        <Text style={[styles.copyright, { color: style.text }]} maxFontSizeMultiplier={scale} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.7}>
           {copyright}
         </Text>
       </View>

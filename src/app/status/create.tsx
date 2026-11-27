@@ -122,8 +122,8 @@ export default function CreateStatus() {
 const styles = StyleSheet.create({
   noteOverlay: { position: 'absolute', left: 12, right: 12, bottom: 34, backgroundColor: '#0008', borderRadius: 12, padding: 10 },
   noteText: { color: '#fff', fontFamily: UI_FONT.semibold, fontSize: 13, textAlign: 'center' },
-  variant: { width: 48, height: 40, borderWidth: 1.5, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  chip: { borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
+  variant: { width: 48, height: 44, borderWidth: 1.5, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  chip: { borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center' },
   input: { alignSelf: 'stretch', borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, fontFamily: UI_FONT.regular },
   btn: { alignSelf: 'stretch', borderRadius: 999, paddingVertical: 14, paddingHorizontal: 16, alignItems: 'center' },
   btnText: { color: '#fff', fontFamily: UI_FONT.bold, fontSize: 15 },

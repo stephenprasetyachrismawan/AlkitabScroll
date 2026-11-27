@@ -42,7 +42,7 @@ export default function Inbox() {
             <PressableScale scaleTo={0.98} style={styles.row} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.partner_id } })}>
               <Avatar profile={item.profile} size={52} />
               <View style={{ flex: 1 }}>
-                <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
+                <Text style={[styles.name, { color: colors.text }]}>
                   {item.profile?.display_name ?? '…'}
                 </Text>
                 <Text

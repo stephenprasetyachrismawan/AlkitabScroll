@@ -467,10 +467,10 @@ const FeedRow = memo(function FeedRow({
           <Ionicons name={(reasonCat?.icon ?? 'sparkles-outline') as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
         </Surface>
         <View style={styles.postHeadText}>
-          <Text style={[styles.postTitle, { color: colors.text }]} numberOfLines={1}>
+          <Text style={[styles.postTitle, { color: colors.text }]}>
             {item.badge ?? 'Selah'}
           </Text>
-          <Text style={[styles.postSub, { color: colors.muted }]} numberOfLines={1}>
+          <Text style={[styles.postSub, { color: colors.muted }]}>
             {reasonCat ? reasonCat.label[lang] : t('explore')}
           </Text>
         </View>

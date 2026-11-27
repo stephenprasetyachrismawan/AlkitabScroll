@@ -172,7 +172,7 @@ export default function Explore() {
                   accessibilityLabel={item.label[lang]}
                 >
                   <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={22} color={s.accent} style={styles.tileIcon} />
-                  <Text style={[styles.tileName, { color: s.text }]} numberOfLines={2}>
+                  <Text style={[styles.tileName, { color: s.text }]}>
                     {item.label[lang]}
                   </Text>
                   <Text style={[styles.tileCount, { color: s.text }]}>
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginHorizontal: 12 },
   search: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, minHeight: 48 },
   searchInput: { flex: 1, fontFamily: UI_FONT.regular, fontSize: 15, paddingVertical: 10 },
-  cancel: { paddingVertical: 10 },
+  cancel: { minHeight: 44, justifyContent: 'center' },
   h: { fontFamily: UI_FONT.title, fontSize: 28, letterSpacing: -0.6, marginBottom: 4, marginTop: 6 },
   sub: { fontFamily: UI_FONT.bold, fontSize: 13, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 6 },
   tile: { padding: 16, paddingTop: 46, minHeight: 116, justifyContent: 'flex-end' },
@@ -296,12 +296,12 @@ const styles = StyleSheet.create({
   tileName: { fontFamily: UI_FONT.bold, fontSize: 16 },
   tileCount: { fontFamily: UI_FONT.regular, fontSize: 12, opacity: 0.7 },
   segRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 12 },
-  seg: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, minHeight: 40, borderRadius: 20, borderWidth: 1.5 },
+  seg: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, minHeight: 44, borderRadius: 20, borderWidth: 1.5 },
   segText: { fontFamily: UI_FONT.bold, fontSize: 13 },
   person: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8 },
   personMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
   personName: { fontFamily: UI_FONT.bold, fontSize: 15 },
-  followBtn: { minWidth: 92, minHeight: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 },
+  followBtn: { minWidth: 92, minHeight: 44, borderRadius: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 },
   empty: { textAlign: 'center', marginTop: 30, fontFamily: UI_FONT.regular },
   verseRow: { borderRadius: 18, padding: 14, gap: 8, overflow: 'hidden' },
   verseMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },

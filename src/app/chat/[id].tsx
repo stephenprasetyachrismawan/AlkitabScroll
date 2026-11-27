@@ -75,7 +75,7 @@ export default function Chat() {
           headerTitle: () => (
             <Pressable style={styles.title} onPress={() => router.push({ pathname: '/user/[id]', params: { id: other } })}>
               <Avatar profile={partner} size={30} />
-              <Text style={{ color: colors.text, fontFamily: UI_FONT.bold, fontSize: 16, flexShrink: 1 }} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+              <Text style={{ color: colors.text, fontFamily: UI_FONT.bold, fontSize: 16, flexShrink: 1 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
                 {partner?.display_name ?? ''}
               </Text>
             </Pressable>

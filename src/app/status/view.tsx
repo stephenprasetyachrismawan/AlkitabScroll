@@ -76,7 +76,7 @@ export default function ViewStatus() {
         </View>
         <View style={styles.head}>
           <Avatar profile={owner} size={34} />
-          <Text style={styles.name} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+          <Text style={styles.name} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
             {owner?.display_name}
           </Text>
           <Text style={styles.time} numberOfLines={1} maxFontSizeMultiplier={1.3}>
