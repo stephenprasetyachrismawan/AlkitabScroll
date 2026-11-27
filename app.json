@@ -101,6 +101,26 @@
                 "resizeMode": "both",
                 "initialLayout": "./src/widgets/VerseWidget.android.tsx"
               }
+            },
+            {
+              "name": "GardenWidget",
+              "displayName": "Taman Iman",
+              "description": "Tanaman yang tumbuh setiap hari kamu membuka Selah.",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium"
+                ],
+                "initialLayout": "./src/widgets/GardenWidget.ios.tsx"
+              },
+              "android": {
+                "minWidth": 110,
+                "minHeight": 110,
+                "targetCellWidth": 2,
+                "targetCellHeight": 2,
+                "resizeMode": "both",
+                "initialLayout": "./src/widgets/GardenWidget.android.tsx"
+              }
             }
           ]
         }

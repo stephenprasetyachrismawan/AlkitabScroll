@@ -145,6 +145,8 @@ const dict = {
     en: 'The first time, Android asks to allow "Install unknown apps" for Selah. Turn it on, then come back.',
   },
   appVersion: { id: 'Versi', en: 'Version' },
+  characters: { id: 'Karakter', en: 'Characters' },
+  charactersHint: { id: 'Selo dan teman-teman beraksi sesuai isi ayat', en: 'Selo and friends act out each verse' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type StringKey = keyof typeof dict;
