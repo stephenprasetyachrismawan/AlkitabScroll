@@ -7,6 +7,7 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { DailyProvider } from '../lib/daily';
 import { EngagementProvider, useEngagement } from '../lib/engagement';
+import { JourneyProvider } from '../lib/journey/progress';
 import { SettingsProvider, useSettings } from '../lib/settings';
 import { useAppFonts } from '../lib/useAppFonts';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -25,10 +26,12 @@ export default function RootLayout() {
         <AuthProvider>
           <EngagementProvider>
             <DailyProvider>
-              <ToastProvider>
-                <Gate />
-                <Celebration />
-              </ToastProvider>
+              <JourneyProvider>
+                <ToastProvider>
+                  <Gate />
+                  <Celebration />
+                </ToastProvider>
+              </JourneyProvider>
             </DailyProvider>
           </EngagementProvider>
         </AuthProvider>
@@ -95,6 +98,9 @@ function Gate() {
         <Stack.Screen name="status/view" options={{ presentation: 'fullScreenModal', animation: 'fade' }} />
         <Stack.Screen name="settings" options={{ headerShown: true }} />
         <Stack.Screen name="edit-profile" options={{ headerShown: true }} />
+        <Stack.Screen name="lesson/[id]" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom', gestureEnabled: false }} />
+        <Stack.Screen name="practice" options={{ presentation: 'fullScreenModal', animation: 'slide_from_bottom', gestureEnabled: false }} />
+        <Stack.Screen name="memorize-add" options={{ presentation: 'modal', animation: 'slide_from_bottom', headerShown: true }} />
       </Stack>
       {waiting ? (
         <View style={{ position: 'absolute', inset: 0, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg }}>
