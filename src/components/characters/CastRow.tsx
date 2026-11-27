@@ -1,5 +1,6 @@
 // The whole cast side by side, each doing its signature move (Settings).
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../Text';
 import { CAST, type Scene } from '../../lib/characters';
 import { UI_FONT } from '../../lib/fonts';
 import { useSettings } from '../../lib/settings';

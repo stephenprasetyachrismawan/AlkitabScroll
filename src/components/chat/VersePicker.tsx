@@ -1,5 +1,6 @@
 import { useDeferredValue, useMemo, useState } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { FlatList, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { todayKey, verseOfTheDay } from '../../lib/algorithm';

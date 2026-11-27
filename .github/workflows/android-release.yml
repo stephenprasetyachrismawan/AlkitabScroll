@@ -15,6 +15,12 @@ on:
 permissions:
   contents: write
 
+# Pushes to main used to build side by side and publish out of order, so an older APK could end
+# up as "Latest". Releases now queue one at a time (newest push wins); PR builds stay parallel.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || 'release' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -91,6 +97,7 @@ jobs:
           tag_name: ${{ env.RELEASE_TAG }}
           name: Selah ${{ env.RELEASE_TAG }}
           files: Selah-${{ env.RELEASE_TAG }}.apk
+          make_latest: 'true'
           body: |
             ## Cara pasang
             1. Unduh **Selah-${{ env.RELEASE_TAG }}.apk** di bawah (dari HP Android).

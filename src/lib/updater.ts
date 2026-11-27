@@ -10,7 +10,7 @@ import * as Application from 'expo-application';
 import Constants from 'expo-constants';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as IntentLauncher from 'expo-intent-launcher';
-import { LATEST_RELEASE_URL, isNewer, parseRelease, type Release } from './releases';
+import { RECENT_RELEASES_URL, isNewer, pickNewest, type Release } from './releases';
 
 const FLAG_GRANT_READ_URI_PERMISSION = 1;
 const APK_MIME = 'application/vnd.android.package-archive';
@@ -35,12 +35,12 @@ export async function cleanupDownloads(): Promise<void> {
 /** The latest release if it is newer than the installed app, otherwise null. */
 export async function checkForUpdate(signal?: AbortSignal): Promise<Release | null> {
   if (!updaterEnabled) return null;
-  const res = await fetch(LATEST_RELEASE_URL, {
+  const res = await fetch(RECENT_RELEASES_URL, {
     headers: { Accept: 'application/vnd.github+json' },
     signal,
   });
   if (!res.ok) throw new Error(`GitHub ${res.status}`);
-  const release = parseRelease(await res.json());
+  const release = pickNewest(await res.json());
   if (!release || !isNewer(release.version, currentVersion())) {
     // Up to date: whatever we downloaded before has been installed (or is stale).
     cleanupDownloads();
