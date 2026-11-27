@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { CastRow } from '../components/characters/CastRow';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { notifyNow, permissionState, requestPermission, type PermissionState } from '../lib/notifications';
 import { Stack } from 'expo-router';
@@ -104,6 +105,12 @@ export default function Settings() {
         <Row label={t('musicHint')} colors={colors}>
           <Switch value={s.music} onValueChange={(music) => s.update({ music })} trackColor={{ true: colors.primary }} />
         </Row>
+      </Group>
+      <Group title={t('characters')} colors={colors}>
+        <Row label={t('charactersHint')} colors={colors}>
+          <Switch value={s.characters} onValueChange={(characters) => s.update({ characters })} trackColor={{ true: colors.primary }} />
+        </Row>
+        {s.characters ? <CastRow /> : null}
       </Group>
       <Group title={t('language')} colors={colors}>
         <Choice<'id' | 'en'> value={s.lang} onChange={(lang) => s.update({ lang })} options={[['id', 'Bahasa Indonesia'], ['en', 'English']]} colors={colors} />

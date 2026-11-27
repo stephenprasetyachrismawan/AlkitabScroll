@@ -6,7 +6,9 @@ import { DURATION, enter } from '../lib/motion';
 import { CATEGORY_MAP, hashString, type FontKey } from '../lib/categories';
 import { UI_FONT, VERSE_FONTS } from '../lib/fonts';
 import type { Lang } from '../lib/i18n';
+import { useSettings } from '../lib/settings';
 import { passageText, TRANSLATIONS, type Translation, type Verse } from '../lib/verses';
+import { VerseCharacter } from './characters/CharacterStage';
 
 type Props = {
   verse: Verse;
@@ -29,6 +31,11 @@ type Props = {
    * (tags, verse, reference) each time it becomes active. Omit for static cards.
    */
   active?: boolean;
+  /**
+   * Whether the verse's character moves. Defaults to `active` when given,
+   * otherwise true (single cards: status, share preview).
+   */
+  characterPlaying?: boolean;
 };
 
 /** One part of the card rising into place; `p` goes 0 → 1. */
@@ -74,7 +81,9 @@ function VerseCardBase({
   rightInset = 0,
   topInset = 0,
   active,
+  characterPlaying,
 }: Props) {
+  const { characters } = useSettings();
   const animate = active !== undefined;
   const pTags = useSharedValue(animate ? 0 : 1);
   const pBody = useSharedValue(animate ? 0 : 1);
@@ -114,7 +123,10 @@ function VerseCardBase({
   const tagsH = 30;
   const boxW = width - padX * 2 - rightInset - (framed ? 40 : 0);
   // reserved: tags, reference row, copyright line, frame padding, quote mark
-  const boxH = height - padTop - bottomInset - tagsH - 100 - (framed ? 76 : 0) - (layout === 1 ? 50 : 0);
+  // the verse's character sits on the bottom edge, left; the text keeps clear of it
+  const charSize = characters ? Math.round(Math.min(width * 0.24, height * 0.15, 104)) : 0;
+  const charRoom = Math.round(charSize * 0.7);
+  const boxH = height - padTop - bottomInset - tagsH - 100 - (framed ? 76 : 0) - (layout === 1 ? 50 : 0) - charRoom;
   const fitText = multi ? parts.map((p) => `${p.n} ${p.text}`).join(' ') : body;
   const fontSize = fitFontSize(fitText, boxW, boxH, font);
   const align = layout === 1 ? 'left' : 'center';
@@ -143,7 +155,9 @@ function VerseCardBase({
           </View>
         </Animated.View>
 
-        <Animated.View style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '55' }], bodyStyle]}>
+        <Animated.View
+          style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '55' }], { marginBottom: (layout === 2 ? 16 : 0) + charRoom }, bodyStyle]}
+        >
           {layout === 1 ? <Text style={[styles.quoteMark, { color: style.accent }]}>“</Text> : null}
           <Text
             style={{
@@ -173,6 +187,14 @@ function VerseCardBase({
 
         <Text style={[styles.copyright, { color: style.text }]}>{copyright}</Text>
       </View>
+      {charSize ? (
+        <VerseCharacter
+          verse={verse}
+          size={charSize}
+          playing={characterPlaying ?? active ?? true}
+          style={{ position: 'absolute', left: padX - charSize * 0.12, bottom: bottomInset + 34 }}
+        />
+      ) : null}
     </View>
   );
 }

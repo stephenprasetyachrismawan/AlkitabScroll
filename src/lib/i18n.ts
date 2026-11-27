@@ -125,6 +125,8 @@ const dict = {
   newMessageFrom: { id: 'Pesan baru dari', en: 'New message from' },
   music: { id: 'Musik latar', en: 'Background music' },
   musicHint: { id: 'Instrumental tenang saat menggulir ayat', en: 'Calm instrumentals while you scroll' },
+  characters: { id: 'Karakter', en: 'Characters' },
+  charactersHint: { id: 'Selo dan teman-teman beraksi sesuai isi ayat', en: 'Selo and friends act out each verse' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type StringKey = keyof typeof dict;
