@@ -7,6 +7,8 @@ import { FadeInView } from '../../components/FadeInView';
 import { router, useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../../components/Avatar';
+import { StreakFlame, useFriendStreaks } from '../../components/FriendStreak';
+import { useAuth } from '../../lib/auth';
 import * as api from '../../lib/api';
 import { UI_FONT } from '../../lib/fonts';
 import { timeAgo } from '../../lib/i18n';
@@ -18,6 +20,8 @@ export default function Inbox() {
   const insets = useSafeAreaInsets();
   const tabSpace = useTabBarSpace();
   const [rows, setRows] = useState<api.InboxRow[]>([]);
+  const { userId } = useAuth();
+  const streaks = useFriendStreaks(userId);
 
   useFocusEffect(
     useCallback(() => {
@@ -52,6 +56,7 @@ export default function Inbox() {
                   {preview} · {timeAgo(item.last_at, lang)}
                 </Text>
               </View>
+              <StreakFlame streak={streaks[item.partner_id]} />
               {item.unread ? <View style={[styles.dot, { backgroundColor: colors.primary }]} /> : null}
             </PressableScale>
             </FadeInView>
