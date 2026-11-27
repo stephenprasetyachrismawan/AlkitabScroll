@@ -11,10 +11,12 @@ import { useTabBarSpace } from '../../components/TabBar';
 import { PressableScale } from '../../components/PressableScale';
 import * as api from '../../lib/api';
 import { useAuth } from '../../lib/auth';
-import { CATEGORIES, CATEGORY_MAP } from '../../lib/categories';
+import { CATEGORIES } from '../../lib/categories';
 import { UI_FONT } from '../../lib/fonts';
 import { useSettings } from '../../lib/settings';
-import { passageText, VERSES, type Verse } from '../../lib/verses';
+import { VERSES } from '../../lib/verses';
+import { searchVerses, warmVerseSearch } from '../../lib/verseSearch';
+import { VerseResultCard } from '../../components/VerseResultCard';
 
 type Mode = 'people' | 'verses';
 
@@ -26,7 +28,7 @@ export default function Explore() {
 
   const [q, setQ] = useState('');
   const [searching, setSearching] = useState(false); // search panel open
-  const [mode, setMode] = useState<Mode>('people');
+  const [mode, setMode] = useState<Mode>('verses');
   const [people, setPeople] = useState<api.Profile[]>([]);
   const [suggested, setSuggested] = useState<api.Profile[]>([]);
   const [loading, setLoading] = useState(false);
@@ -72,25 +74,17 @@ export default function Explore() {
     };
   }, [searching, userId]);
 
-  // Verse search runs locally over the bundled text.
-  // The lowercased text is built once per translation, and typing stays responsive because the
-  // filter runs on a deferred copy of the query.
-  const haystack = useMemo(
-    () =>
-      VERSES.map((v) => {
-        const p = passageText(v, translation);
-        return `${p.body}\n${p.title}\n${v.ref}`.toLowerCase();
-      }),
-    [translation],
-  );
+  // Verse search: hybrid words + meaning engine over all three translations (lib/search.ts).
+  // Runs on a deferred copy of the query so typing never waits on it.
+  useEffect(() => {
+    if (searching) warmVerseSearch();
+  }, [searching]);
   const deferredTerm = useDeferredValue(term);
-  const verseResults = useMemo(() => {
-    if (mode !== 'verses' || deferredTerm.length < 2) return [];
-    const needle = deferredTerm.toLowerCase();
-    const out: Verse[] = [];
-    for (let i = 0; i < VERSES.length && out.length < 60; i++) if (haystack[i].includes(needle)) out.push(VERSES[i]);
-    return out;
-  }, [mode, deferredTerm, haystack]);
+  const verseResult = useMemo(
+    () => (mode === 'verses' && deferredTerm.length >= 2 ? searchVerses(deferredTerm, 'search', translation, 60) : null),
+    [mode, deferredTerm, translation],
+  );
+  const verseResults = verseResult?.hits ?? [];
 
   const toggleFollow = async (p: api.Profile) => {
     if (!userId) return;
@@ -156,7 +150,12 @@ export default function Explore() {
           data={CATEGORIES}
           numColumns={2}
           keyExtractor={(c) => c.key}
-          ListHeaderComponent={<Text style={[styles.h, { color: colors.text }]}>{t('categories')}</Text>}
+          ListHeaderComponent={
+            <View style={{ gap: 12 }}>
+              <CurhatCard />
+              <Text style={[styles.h, { color: colors.text }]}>{t('categories')}</Text>
+            </View>
+          }
           contentContainerStyle={{ padding: 12, gap: 12, paddingBottom: tabSpace }}
           columnWrapperStyle={{ gap: 12 }}
           renderItem={({ item, index }) => {
@@ -244,12 +243,21 @@ export default function Explore() {
             ) : (
               <FlatList
                 data={verseResults}
-                keyExtractor={(v) => v.id}
+                keyExtractor={(h) => h.id}
                 keyboardShouldPersistTaps="handled"
                 keyboardDismissMode="on-drag"
                 contentContainerStyle={{ paddingBottom: tabSpace, paddingHorizontal: 12, gap: 10 }}
-                ListEmptyComponent={<Text style={[styles.empty, { color: colors.muted }]}>{term.length < 2 ? t('typeToSearch') : t('noResults')}</Text>}
-                renderItem={({ item }) => <VerseRow verse={item} />}
+                ListHeaderComponent={
+                  verseResult?.corrected.length ? (
+                    <Text style={[styles.sub, { color: colors.muted, paddingHorizontal: 4 }]}>
+                      {lang === 'id' ? 'Menampilkan hasil untuk ' : 'Showing results for '}
+                      <Text style={{ color: colors.text }}>{verseResult.corrected.map((c) => c[1]).join(', ')}</Text>
+                    </Text>
+                  ) : undefined
+                }
+                ListEmptyComponent={<Text style={[styles.empty, { color: colors.muted }]}>{term.length < 2 ? t('searchHint') : t('noResults')}</Text>}
+                ListFooterComponent={term.length >= 2 ? <CurhatNudge query={term} /> : undefined}
+                renderItem={({ item }) => <VerseResultCard hit={item} lines={3} />}
               />
             )}
           </View>
@@ -259,25 +267,37 @@ export default function Explore() {
   );
 }
 
-function VerseRow({ verse }: { verse: Verse }) {
-  const { translation, dark, lang } = useSettings();
-  const c = CATEGORY_MAP[verse.categories[0]];
-  const s = dark ? c.dark : c.light;
-  const p = passageText(verse, translation);
+/** Under search results: a feeling, not a verse, belongs in Curhat. */
+function CurhatNudge({ query }: { query: string }) {
+  const { colors, t } = useSettings();
   return (
-    <PressableScale scaleTo={0.98} onPress={() => router.push({ pathname: '/post/[id]', params: { id: verse.id } })}>
-      <View style={[styles.verseRow, { backgroundColor: s.paper }]}>
-        <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 15, lineHeight: 23 }} numberOfLines={3}>
-          {p.body}
-        </Text>
-        <View style={styles.verseMeta}>
-          <Ionicons name={c.icon as keyof typeof Ionicons.glyphMap} size={13} color={s.accent} />
-          <Text style={{ color: s.text, fontFamily: UI_FONT.bold, fontSize: 12 }}>
-            {p.title} · {c.label[lang]}
-          </Text>
-        </View>
-      </View>
+    <PressableScale onPress={() => router.push({ pathname: '/curhat', params: { text: query } })} style={styles.nudge} accessibilityRole="button">
+      <Ionicons name="create-outline" size={16} color={colors.primary} />
+      <Text style={{ color: colors.primary, fontFamily: UI_FONT.bold, fontSize: 14 }}>{t('curhatNudge')}</Text>
     </PressableScale>
+  );
+}
+
+/** Top of Explore: the way into Curhat. */
+function CurhatCard() {
+  const { colors, t } = useSettings();
+  return (
+    <ChunkyPressable
+      face={colors.card}
+      ledge={colors.border}
+      faceStyle={styles.curhat}
+      onPress={() => router.push('/curhat')}
+      accessibilityLabel={t('curhatTitle')}
+    >
+      <View style={[styles.curhatIcon, { backgroundColor: colors.primarySoft }]}>
+        <Ionicons name="create-outline" size={22} color={colors.primary} />
+      </View>
+      <View style={{ flex: 1, gap: 2 }}>
+        <Text style={[styles.curhatTitle, { color: colors.text }]}>{t('curhatTitle')}</Text>
+        <Text style={{ color: colors.muted, fontFamily: UI_FONT.regular, fontSize: 14, lineHeight: 20 }}>{t('curhatCardBody')}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.muted} />
+    </ChunkyPressable>
   );
 }
 
@@ -300,6 +320,8 @@ const styles = StyleSheet.create({
   personName: { fontFamily: UI_FONT.bold, fontSize: 15 },
   followBtn: { minWidth: 92, minHeight: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 14 },
   empty: { textAlign: 'center', marginTop: 30, fontFamily: UI_FONT.regular },
-  verseRow: { borderRadius: 18, padding: 14, gap: 8, overflow: 'hidden' },
-  verseMeta: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  nudge: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 48, marginTop: 6 },
+  curhat: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 },
+  curhatIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  curhatTitle: { fontFamily: UI_FONT.title, fontSize: 19, letterSpacing: -0.3 },
 });
