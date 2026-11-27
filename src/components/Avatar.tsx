@@ -3,7 +3,7 @@ import type { Profile } from '../lib/api';
 import { hashString } from '../lib/categories';
 import { UI_FONT } from '../lib/fonts';
 
-const COLORS = ['#8B5E34', '#4A7BB7', '#5B9A6B', '#D45A78', '#7B68B5', '#E07B39', '#2F8F8F'];
+const COLORS = ['#8B5E34', '#4D6A8C', '#4F7A3A', '#B4505F', '#A0522D', '#C27A2C', '#2F7A78'];
 
 export function Avatar({ profile, size = 36, ring }: { profile?: Profile | null; size?: number; ring?: string }) {
   const name = profile?.display_name ?? '?';

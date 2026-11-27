@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -98,14 +97,14 @@ export default function Chat() {
                     const s = dark ? c.dark : c.light;
                     const p = passageText(v, translation);
                     return (
-                      <LinearGradient colors={s.gradient} style={styles.verseBubble}>
+                      <View style={[styles.verseBubble, { backgroundColor: s.paper }]}>
                         <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 14, lineHeight: 20 }} numberOfLines={8}>
                           “{p.body}”
                         </Text>
                         <Text style={{ color: s.text, fontFamily: UI_FONT.bold, fontSize: 12, marginTop: 8 }}>
                           {c.emoji} {p.title}
                         </Text>
-                      </LinearGradient>
+                      </View>
                     );
                   })()}
                 </Pressable>

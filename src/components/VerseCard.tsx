@@ -1,9 +1,8 @@
 import { memo, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming, type SharedValue } from 'react-native-reanimated';
-import { DURATION, timing } from '../lib/motion';
+import { DURATION, enter } from '../lib/motion';
 import { CATEGORY_MAP, hashString, type FontKey } from '../lib/categories';
 import { UI_FONT, VERSE_FONTS } from '../lib/fonts';
 import type { Lang } from '../lib/i18n';
@@ -83,9 +82,9 @@ function VerseCardBase({
   useEffect(() => {
     if (!animate) return;
     if (active) {
-      pTags.value = withTiming(1, timing(DURATION.enter));
-      pBody.value = withDelay(DURATION.stagger, withTiming(1, timing(DURATION.enter + 120)));
-      pRef.value = withDelay(DURATION.stagger * 3, withTiming(1, timing(DURATION.enter)));
+      pTags.value = withTiming(1, enter());
+      pBody.value = withDelay(DURATION.stagger, withTiming(1, enter(DURATION.enter + 120)));
+      pRef.value = withDelay(DURATION.stagger * 3, withTiming(1, enter()));
     } else {
       // reset quietly while off-screen so the next arrival plays again
       pTags.value = 0.001;
@@ -112,7 +111,7 @@ function VerseCardBase({
   const padX = Math.max(22, width * 0.07);
   const padTop = Math.max(24, height * 0.05) + topInset;
   const framed = layout === 2;
-  const tagsH = 34 * (verse.categories.length > 2 || badge ? 2 : 1);
+  const tagsH = 30;
   const boxW = width - padX * 2 - rightInset - (framed ? 40 : 0);
   // reserved: tags, reference row, copyright line, frame padding, quote mark
   const boxH = height - padTop - bottomInset - tagsH - 100 - (framed ? 76 : 0) - (layout === 1 ? 50 : 0);
@@ -121,64 +120,31 @@ function VerseCardBase({
   const align = layout === 1 ? 'left' : 'center';
   const copyright = TRANSLATIONS.find((x) => x.key === translation)?.copyright ?? '';
 
+  const kicker = verse.categories
+    .slice(0, 2)
+    .map((k) => CATEGORY_MAP[k]?.label[lang])
+    .filter(Boolean)
+    .join('  ·  ');
+
   return (
-    <LinearGradient colors={style.gradient} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} style={{ width, height, overflow: 'hidden' }}>
-      {/* soft decorative glow */}
-      <View
-        pointerEvents="none"
-        style={[
-          styles.glow,
-          {
-            backgroundColor: style.accent,
-            width: width * 0.9,
-            height: width * 0.9,
-            borderRadius: width,
-            top: layout === 2 ? -width * 0.45 : height - width * 0.5,
-            left: layout === 1 ? -width * 0.4 : width * 0.3,
-          },
-        ]}
-      />
-
-      {/* glossy sheen: light falling across the top-left of the card */}
-      <LinearGradient
-        pointerEvents="none"
-        colors={dark ? ['rgba(255,255,255,0.10)', 'rgba(255,255,255,0)'] : ['rgba(255,255,255,0.55)', 'rgba(255,255,255,0)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0.7, y: 0.45 }}
-        style={StyleSheet.absoluteFill}
-      />
-
+    <View style={{ width, height, overflow: 'hidden', backgroundColor: style.paper }}>
       <View style={[styles.inner, { paddingHorizontal: padX, paddingTop: padTop, paddingBottom: bottomInset + 24, paddingRight: padX + rightInset }]}>
-        <Animated.View style={[styles.tags, tagsStyle]}>
+        <Animated.View style={[styles.tags, { justifyContent: align === 'left' ? 'flex-start' : 'center' }, tagsStyle]}>
           {badge ? (
-            <View style={[styles.tag, { backgroundColor: style.accent, borderColor: 'rgba(255,255,255,0.5)' }]}>
-              <Text style={[styles.tagText, { color: '#fff' }]}>{badge}</Text>
+            <View style={[styles.stamp, { borderColor: style.accent }]}>
+              <Text style={[styles.stampText, { color: style.accent }]}>{badge}</Text>
             </View>
           ) : null}
-          {verse.categories.slice(0, 3).map((k) => {
-            const cc = CATEGORY_MAP[k];
-            if (!cc) return null;
-            return (
-              <View
-                key={k}
-                style={[
-                  styles.tag,
-                  dark
-                    ? { backgroundColor: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.16)' }
-                    : { backgroundColor: 'rgba(255,255,255,0.55)', borderColor: 'rgba(255,255,255,0.9)' },
-                ]}
-              >
-                <Ionicons name={cc.icon as keyof typeof Ionicons.glyphMap} size={13} color={style.accent} />
-                <Text style={[styles.tagText, { color: style.text }]}>{cc.label[lang]}</Text>
-              </View>
-            );
-          })}
+          <View style={styles.kickerRow}>
+            <Ionicons name={cat.icon as keyof typeof Ionicons.glyphMap} size={13} color={style.accent} />
+            <Text style={[styles.kicker, { color: style.text }]} numberOfLines={1}>
+              {kicker.toUpperCase()}
+            </Text>
+          </View>
         </Animated.View>
 
-        <Animated.View style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '66' }], bodyStyle]}>
-          {layout === 1 ? (
-            <Text style={[styles.quoteMark, { color: style.accent, fontSize: 64, lineHeight: 64 }]}>“</Text>
-          ) : null}
+        <Animated.View style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '55' }], bodyStyle]}>
+          {layout === 1 ? <Text style={[styles.quoteMark, { color: style.accent }]}>“</Text> : null}
           <Text
             style={{
               color: style.text,
@@ -191,7 +157,7 @@ function VerseCardBase({
             {multi
               ? parts.map((p, i) => (
                   <Text key={p.n}>
-                    <Text style={{ fontSize: fontSize * 0.55, color: style.accent, fontFamily: UI_FONT.bold }}>{p.n} </Text>
+                    <Text style={{ fontSize: fontSize * 0.5, color: style.accent, fontFamily: UI_FONT.bold }}>{p.n} </Text>
                     {p.text}
                     {i < parts.length - 1 ? ' ' : ''}
                   </Text>
@@ -201,28 +167,30 @@ function VerseCardBase({
           <Animated.View style={[styles.refRow, { justifyContent: align === 'left' ? 'flex-start' : 'center' }, refStyle]}>
             <View style={[styles.rule, { backgroundColor: style.accent }]} />
             <Text style={[styles.ref, { color: style.text }]}>{title}</Text>
+            {align === 'left' ? null : <View style={[styles.rule, { backgroundColor: style.accent }]} />}
           </Animated.View>
         </Animated.View>
 
         <Text style={[styles.copyright, { color: style.text }]}>{copyright}</Text>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
 export const VerseCard = memo(VerseCardBase);
 
 const styles = StyleSheet.create({
-  glow: { position: 'absolute', opacity: 0.12 },
   inner: { flex: 1 },
-  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  tag: { flexDirection: 'row', alignItems: 'center', gap: 5, borderWidth: 1, borderColor: 'transparent', borderRadius: 999, paddingHorizontal: 11, paddingVertical: 5 },
-  tagText: { fontFamily: UI_FONT.semibold, fontSize: 12 },
+  tags: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 10 },
+  stamp: { borderWidth: 1.5, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 3, transform: [{ rotate: '-2deg' }] },
+  stampText: { fontFamily: UI_FONT.title, fontSize: 11.5, letterSpacing: 0.6 },
+  kickerRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 1 },
+  kicker: { fontFamily: UI_FONT.bold, fontSize: 11, letterSpacing: 1.6, opacity: 0.75 },
   body: { flex: 1, justifyContent: 'center' },
-  framed: { borderWidth: 1.5, borderRadius: 20, paddingHorizontal: 18, paddingVertical: 22, marginVertical: 16 },
-  quoteMark: { fontFamily: UI_FONT.title, marginBottom: -8, opacity: 0.6 },
-  refRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 18 },
-  rule: { width: 28, height: 2, borderRadius: 2 },
-  ref: { fontFamily: UI_FONT.serifBold, fontSize: 15, letterSpacing: 0.5 },
-  copyright: { fontFamily: UI_FONT.regular, fontSize: 10, opacity: 0.55, textAlign: 'center' },
+  framed: { borderWidth: 1, borderRadius: 4, paddingHorizontal: 18, paddingVertical: 24, marginVertical: 16 },
+  quoteMark: { fontFamily: UI_FONT.serifBold, fontSize: 72, lineHeight: 72, marginBottom: -18, opacity: 0.5 },
+  refRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 20 },
+  rule: { width: 18, height: 1.5 },
+  ref: { fontFamily: UI_FONT.display, fontSize: 15, letterSpacing: 0.4 },
+  copyright: { fontFamily: UI_FONT.regular, fontSize: 10, opacity: 0.5, textAlign: 'center' },
 });

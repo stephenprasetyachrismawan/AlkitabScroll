@@ -10,7 +10,7 @@ import { useSettings } from '../lib/settings';
 import type { Verse } from '../lib/verses';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Avatar } from './Avatar';
-import { Glass } from './Glass';
+import { Surface } from './Surface';
 import { PressableScale } from './PressableScale';
 import { VerseCard } from './VerseCard';
 
@@ -78,7 +78,7 @@ export function ShareSheet({ verse, onClose }: Props) {
   return (
     <Modal transparent animationType="slide" visible onRequestClose={close}>
       <Pressable style={styles.backdrop} onPress={close} />
-      <Glass dark={dark} radius={28} strength={0.95} style={styles.sheet}>
+      <Surface radius={28} style={styles.sheet}>
         <View style={[styles.handle, { backgroundColor: colors.border }]} />
         {mode === 'menu' ? (
           <View style={{ gap: 6 }}>
@@ -126,7 +126,7 @@ export function ShareSheet({ verse, onClose }: Props) {
             />
           </View>
         )}
-      </Glass>
+      </Surface>
 
       {/* Off-screen 9:16 card used for image export */}
       <View style={styles.offscreen} pointerEvents="none">
