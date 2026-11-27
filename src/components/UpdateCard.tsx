@@ -120,7 +120,7 @@ export function UpdateCard() {
               <Text style={[styles.meta, { color: colors.text, flex: 1 }]}>
                 {t('updateDownloading')} {pct}%
               </Text>
-              <Pressable onPress={cancel} hitSlop={10} accessibilityRole="button">
+              <Pressable onPress={cancel} hitSlop={8} accessibilityRole="button" style={styles.tap}>
                 <Text style={[styles.link, { color: colors.muted }]}>{t('updateCancel')}</Text>
               </Pressable>
             </View>
@@ -131,7 +131,7 @@ export function UpdateCard() {
           <View style={{ gap: 10 }}>
             <Text style={[styles.body, { color: colors.danger }]}>{t('updateFailed')}</Text>
             <ChunkyButton label={t('updateRetry')} icon="refresh" onPress={start} />
-            <Pressable onPress={() => Linking.openURL(release.pageUrl)} hitSlop={8} accessibilityRole="link" style={{ alignSelf: 'center' }}>
+            <Pressable onPress={() => Linking.openURL(release.pageUrl)} accessibilityRole="link" style={[styles.tap, { alignSelf: 'center' }]}>
               <Text style={[styles.link, { color: colors.primary }]}>{t('updateOpenGithub')}</Text>
             </Pressable>
           </View>
@@ -154,6 +154,8 @@ const styles = StyleSheet.create({
   meta: { fontFamily: UI_FONT.semibold, fontSize: 13 },
   body: { fontFamily: UI_FONT.regular, fontSize: 13, lineHeight: 19 },
   link: { fontFamily: UI_FONT.bold, fontSize: 14 },
+  // taste-skill: every control outside running text is at least 44px tall.
+  tap: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   track: { height: 8, borderRadius: 999, overflow: 'hidden' },
   fill: { position: 'absolute', left: 0, top: 0, bottom: 0, right: 0, borderRadius: 999, transformOrigin: 'left' },

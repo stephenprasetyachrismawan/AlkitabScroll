@@ -126,7 +126,7 @@ const dict = {
   music: { id: 'Musik latar', en: 'Background music' },
   musicHint: { id: 'Instrumental tenang saat menggulir ayat', en: 'Calm instrumentals while you scroll' },
   updateTitle: { id: 'Versi baru Selah siap', en: 'A new Selah is ready' },
-  updateNow: { id: 'Perbarui sekarang', en: 'Update now' },
+  updateNow: { id: 'Perbarui Selah', en: 'Update Selah' },
   updateDownloading: { id: 'Mengunduh', en: 'Downloading' },
   updateInstall: { id: 'Pasang pembaruan', en: 'Install update' },
   updateCancel: { id: 'Batalkan', en: 'Cancel' },
