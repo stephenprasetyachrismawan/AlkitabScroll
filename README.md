@@ -55,7 +55,7 @@ npm test
 ### 1. Supabase (gratis)
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. **SQL Editor** → jalankan isi [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+2. **SQL Editor** → jalankan isi [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql), lalu [`0002_messages_engage.sql`](supabase/migrations/0002_messages_engage.sql) (permintaan doa, balasan, reaksi pesan).
 3. **Authentication → Providers → Google**: aktifkan, isi Client ID & Secret dari [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (OAuth client tipe *Web application*, redirect URI = `https://<project>.supabase.co/auth/v1/callback`).
 4. **Authentication → URL Configuration → Redirect URLs**: tambahkan `selah://auth-callback` (aplikasi Android), `exp://**` (Expo Go saat development), dan `http://localhost:8081/**` (web).
 5. Salin `.env.example` ke `.env.local`, isi URL & publishable key dari **Project Settings → API**.
