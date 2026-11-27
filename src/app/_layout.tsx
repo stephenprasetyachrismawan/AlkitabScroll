@@ -2,18 +2,17 @@ import { useEffect } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { Stack, router, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { EngagementProvider, useEngagement } from '../lib/engagement';
-import { FONT_ASSETS } from '../lib/fonts';
 import { SettingsProvider, useSettings } from '../lib/settings';
+import { useAppFonts } from '../lib/useAppFonts';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { NotificationsManager } from '../components/NotificationsManager';
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts(FONT_ASSETS);
+  const fontsLoaded = useAppFonts();
   if (!fontsLoaded) return null;
   return (
     <SafeAreaProvider>

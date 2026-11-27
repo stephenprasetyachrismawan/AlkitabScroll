@@ -8,7 +8,7 @@ import { useAuth } from '../lib/auth';
 import { UI_FONT } from '../lib/fonts';
 import { useSettings } from '../lib/settings';
 import type { Verse } from '../lib/verses';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Avatar } from './Avatar';
 import { Glass } from './Glass';
 import { PressableScale } from './PressableScale';

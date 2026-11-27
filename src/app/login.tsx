@@ -5,7 +5,7 @@ import { Glass } from '../components/Glass';
 import { PressableScale } from '../components/PressableScale';
 import { DURATION, EASE_OUT_EXPO } from '../lib/motion';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useAuth } from '../lib/auth';
 import { UI_FONT } from '../lib/fonts';
 import { useSettings } from '../lib/settings';

@@ -1,7 +1,7 @@
 import { memo, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming, type SharedValue } from 'react-native-reanimated';
 import { DURATION, timing } from '../lib/motion';
 import { CATEGORY_MAP, hashString, type FontKey } from '../lib/categories';

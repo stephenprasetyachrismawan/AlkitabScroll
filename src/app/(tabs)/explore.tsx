@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -74,14 +74,24 @@ export default function Explore() {
   }, [searching, userId]);
 
   // Verse search runs locally over the bundled text.
+  // The lowercased text is built once per translation, and typing stays responsive because the
+  // filter runs on a deferred copy of the query.
+  const haystack = useMemo(
+    () =>
+      VERSES.map((v) => {
+        const p = passageText(v, translation);
+        return `${p.body}\n${p.title}\n${v.ref}`.toLowerCase();
+      }),
+    [translation],
+  );
+  const deferredTerm = useDeferredValue(term);
   const verseResults = useMemo(() => {
-    if (mode !== 'verses' || term.length < 2) return [];
-    const needle = term.toLowerCase();
-    return VERSES.filter((v) => {
-      const p = passageText(v, translation);
-      return p.body.toLowerCase().includes(needle) || p.title.toLowerCase().includes(needle) || v.ref.toLowerCase().includes(needle);
-    }).slice(0, 60);
-  }, [mode, term, translation]);
+    if (mode !== 'verses' || deferredTerm.length < 2) return [];
+    const needle = deferredTerm.toLowerCase();
+    const out: Verse[] = [];
+    for (let i = 0; i < VERSES.length && out.length < 60; i++) if (haystack[i].includes(needle)) out.push(VERSES[i]);
+    return out;
+  }, [mode, deferredTerm, haystack]);
 
   const toggleFollow = async (p: api.Profile) => {
     if (!userId) return;

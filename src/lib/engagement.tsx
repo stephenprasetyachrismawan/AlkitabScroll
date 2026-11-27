@@ -117,21 +117,28 @@ export function EngagementProvider({ children }: { children: ReactNode }) {
     [userId],
   );
 
+  // Sets and toggles keep their identity while routes change (every dwell signal bumps routes),
+  // so feed rows that only read likes/saves skip re-rendering.
+  const liked = useMemo(() => new Set(likedOrder), [likedOrder]);
+  const saved = useMemo(() => new Set(savedOrder), [savedOrder]);
+  const toggleLike = useCallback((id: string) => toggle('likes', id), [toggle]);
+  const toggleSave = useCallback((id: string) => toggle('saves', id), [toggle]);
+
   const value = useMemo<Ctx>(
     () => ({
       ready,
       routes,
-      liked: new Set(likedOrder),
-      saved: new Set(savedOrder),
+      liked,
+      saved,
       likedOrder,
       savedOrder,
       moodToday,
-      toggleLike: (id) => toggle('likes', id),
-      toggleSave: (id) => toggle('saves', id),
+      toggleLike,
+      toggleSave,
       recordDwell,
       chooseMood,
     }),
-    [ready, routes, likedOrder, savedOrder, moodToday, toggle, recordDwell, chooseMood],
+    [ready, routes, liked, saved, likedOrder, savedOrder, moodToday, toggleLike, toggleSave, recordDwell, chooseMood],
   );
 
   return <EngagementContext.Provider value={value}>{children}</EngagementContext.Provider>;
