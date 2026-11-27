@@ -6,6 +6,7 @@
 //   setFigureRenderer(({ figure, mood, size }) => <AnimatedCharacter id={figure} mood={mood} size={size} />);
 //
 // Return null from the renderer to fall back to the medallion for a figure that has no art yet.
+// `FigureMedallion` is exported so a renderer can compose it (e.g. a companion beside it).
 import { useEffect, type ReactElement } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -43,10 +44,10 @@ export const figureName = (f: FigureId, lang: 'id' | 'en') => LOOK[f].name[lang]
 
 export function StoryFigure({ figure, mood = 'idle', size = 72, label }: { figure: FigureId; mood?: FigureMood; size?: number; label?: boolean }) {
   const custom = renderer?.({ figure, mood, size }) ?? null;
-  return custom ?? <Medallion figure={figure} mood={mood} size={size} label={label} />;
+  return custom ?? <FigureMedallion figure={figure} mood={mood} size={size} label={label} />;
 }
 
-function Medallion({ figure, mood, size, label }: { figure: FigureId; mood: FigureMood; size: number; label?: boolean }) {
+export function FigureMedallion({ figure, mood, size, label }: { figure: FigureId; mood: FigureMood; size: number; label?: boolean }) {
   const { colors, lang, dark } = useSettings();
   const look = LOOK[figure];
   const y = useSharedValue(0);
