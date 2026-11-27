@@ -8,7 +8,8 @@
 // Return null from the renderer to fall back to the medallion for a figure that has no art yet.
 // `FigureMedallion` is exported so a renderer can compose it (e.g. a companion beside it).
 import { useEffect, type ReactElement } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from '../Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import { UI_FONT } from '../../lib/fonts';
@@ -19,7 +20,7 @@ import { useSettings } from '../../lib/settings';
 /** idle: on the path. cheer: a right answer or a finished story. think: a question. sad: a miss. */
 export type FigureMood = 'idle' | 'cheer' | 'think' | 'sad';
 
-export type FigureProps = { figure: FigureId; mood: FigureMood; size: number };
+export type FigureProps = { figure: FigureId; mood: FigureMood; size: number; label?: boolean };
 type Renderer = (p: FigureProps) => ReactElement | null;
 
 let renderer: Renderer | null = null;
@@ -43,7 +44,7 @@ const LOOK: Record<FigureId, { icon: keyof typeof Ionicons.glyphMap; name: { id:
 export const figureName = (f: FigureId, lang: 'id' | 'en') => LOOK[f].name[lang];
 
 export function StoryFigure({ figure, mood = 'idle', size = 72, label }: { figure: FigureId; mood?: FigureMood; size?: number; label?: boolean }) {
-  const custom = renderer?.({ figure, mood, size }) ?? null;
+  const custom = renderer?.({ figure, mood, size, label }) ?? null;
   return custom ?? <FigureMedallion figure={figure} mood={mood} size={size} label={label} />;
 }
 

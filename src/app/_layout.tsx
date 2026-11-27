@@ -17,6 +17,8 @@ import { Celebration } from '../components/Celebration';
 import { SowingCelebration } from '../components/Sowing';
 import { ToastProvider } from '../components/Toast';
 import { WidgetSync } from '../components/WidgetSync';
+// Registers Selo as the journey's figure companion (side effect only).
+import '../components/characters/JourneyCompanion';
 
 export default function RootLayout() {
   const fontsLoaded = useAppFonts();

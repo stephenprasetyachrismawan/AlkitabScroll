@@ -1,10 +1,15 @@
 import { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text as RNText, View, type TextProps } from 'react-native';
 import { CATEGORY_MAP } from '../lib/categories';
 import { UI_FONT } from '../lib/fonts';
 import type { Lang } from '../lib/i18n';
 import { CARD_FONTS, fitFontSize, FORMATS, THEME_MAP, type CardFont, type CardFormat, type CardTheme } from '../lib/shareCards';
 import { passageText, TRANSLATIONS, type Translation, type Verse } from '../lib/verses';
+
+/** The card is exported as a fixed-size image, so its text ignores the phone's font size. */
+function Text(props: TextProps) {
+  return <RNText allowFontScaling={false} {...props} />;
+}
 
 const FAMILY: Record<CardFont, string> = {
   lora: 'Lora_500Medium_Italic',

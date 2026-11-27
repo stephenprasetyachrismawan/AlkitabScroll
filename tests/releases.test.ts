@@ -1,7 +1,7 @@
 // Run: npm test
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { formatSize, isNewer, parseRelease, parseVersion } from '../src/lib/releases.ts';
+import { formatSize, isNewer, parseRelease, pickNewest, parseVersion } from '../src/lib/releases.ts';
 
 test('parseVersion', () => {
   assert.deepEqual(parseVersion('v1.0.13'), [1, 0, 13]);
@@ -58,4 +58,15 @@ test('parseRelease rejects drafts, prereleases, missing APKs and foreign hosts',
 test('formatSize', () => {
   assert.equal(formatSize(54_525_952), '52.0 MB');
   assert.equal(formatSize(0), '');
+});
+
+test('pickNewest takes the highest version, not the first listed', () => {
+  const rel = (n: number) => ({
+    ...base,
+    tag_name: `v1.0.${n}`,
+    assets: [{ ...base.assets[0], name: `Selah-v1.0.${n}.apk`, browser_download_url: `https://github.com/stephenprasetyachrismawan/AlkitabScroll/releases/download/v1.0.${n}/Selah-v1.0.${n}.apk` }],
+  });
+  assert.equal(pickNewest([rel(32), rel(37), rel(35), { ...rel(40), draft: true }])?.version, '1.0.37');
+  assert.equal(pickNewest([]), null);
+  assert.equal(pickNewest(rel(5))?.version, '1.0.5');
 });

@@ -2,6 +2,12 @@
 
 export const RELEASES_REPO = 'stephenprasetyachrismawan/AlkitabScroll';
 export const LATEST_RELEASE_URL = `https://api.github.com/repos/${RELEASES_REPO}/releases/latest`;
+/**
+ * Recent releases. GitHub's "latest" flag follows publish time, and builds that run side by side
+ * can publish out of order (v1.0.32 once landed after v1.0.37), so the app picks the highest
+ * version from this list instead of trusting /releases/latest.
+ */
+export const RECENT_RELEASES_URL = `https://api.github.com/repos/${RELEASES_REPO}/releases?per_page=15`;
 
 export type Release = {
   tag: string;
@@ -64,6 +70,17 @@ export function parseRelease(json: unknown): Release | null {
     publishedAt: r.published_at ?? '',
     pageUrl: r.html_url ?? `https://github.com/${RELEASES_REPO}/releases`,
   };
+}
+
+/** The installable release with the highest version in a GitHub releases list, or null. */
+export function pickNewest(json: unknown): Release | null {
+  if (!Array.isArray(json)) return parseRelease(json);
+  let best: Release | null = null;
+  for (const item of json) {
+    const r = parseRelease(item);
+    if (r && (!best || isNewer(r.version, best.version))) best = r;
+  }
+  return best;
 }
 
 export function formatSize(bytes: number): string {
