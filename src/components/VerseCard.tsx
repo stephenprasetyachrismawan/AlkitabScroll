@@ -7,7 +7,9 @@ import { DURATION, enter } from '../lib/motion';
 import { CATEGORY_MAP, hashString, type FontKey } from '../lib/categories';
 import { UI_FONT, VERSE_FONTS } from '../lib/fonts';
 import type { Lang } from '../lib/i18n';
+import { useSettings } from '../lib/settings';
 import { passageText, TRANSLATIONS, type Translation, type Verse } from '../lib/verses';
+import { VerseCharacter } from './characters/CharacterStage';
 
 type Props = {
   verse: Verse;
@@ -32,6 +34,11 @@ type Props = {
   active?: boolean;
   /** Image export: ignore the phone's font size so shared pictures look the same everywhere. */
   print?: boolean;
+  /**
+   * Whether the verse's character moves. Defaults to `active` when given,
+   * otherwise true (single cards: status, share preview).
+   */
+  characterPlaying?: boolean;
 };
 
 /** One part of the card rising into place; `p` goes 0 → 1. */
@@ -78,7 +85,9 @@ function VerseCardBase({
   topInset = 0,
   active,
   print,
+  characterPlaying,
 }: Props) {
+  const { characters } = useSettings();
   // Text on the card grows with the phone's font size (capped), and the verse is fitted
   // to whatever room is left, so a large setting never pushes text off the card.
   const phoneScale = useFontScale(1.3);
@@ -122,7 +131,10 @@ function VerseCardBase({
   const tagsH = 30 * scale;
   const boxW = width - padX * 2 - rightInset - (framed ? 40 : 0);
   // reserved: tags, reference row, copyright line, frame padding, quote mark
-  const boxH = height - padTop - bottomInset - tagsH - 100 * scale - (framed ? 76 : 0) - (layout === 1 ? 50 : 0);
+  // the verse's character sits on the bottom edge, left; the text keeps clear of it
+  const charSize = characters ? Math.round(Math.min(width * 0.24, height * 0.15, 104)) : 0;
+  const charRoom = Math.round(charSize * 0.7);
+  const boxH = height - padTop - bottomInset - tagsH - 100 * scale - (framed ? 76 : 0) - (layout === 1 ? 50 : 0) - charRoom;
   const fitText = multi ? parts.map((p) => `${p.n} ${p.text}`).join(' ') : body;
   // The verse is sized here, not by the system: a bigger font setting raises the ceiling,
   // then fitting brings it back down if the passage is long.
@@ -155,7 +167,9 @@ function VerseCardBase({
           </View>
         </Animated.View>
 
-        <Animated.View style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '55' }], bodyStyle]}>
+        <Animated.View
+          style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '55' }], { marginBottom: (layout === 2 ? 16 : 0) + charRoom }, bodyStyle]}
+        >
           {layout === 1 ? (
             <Text allowFontScaling={false} style={[styles.quoteMark, { color: style.accent }]}>
               “
@@ -194,6 +208,14 @@ function VerseCardBase({
           {copyright}
         </Text>
       </View>
+      {charSize ? (
+        <VerseCharacter
+          verse={verse}
+          size={charSize}
+          playing={characterPlaying ?? active ?? true}
+          style={{ position: 'absolute', left: padX - charSize * 0.12, bottom: bottomInset + 34 }}
+        />
+      ) : null}
     </View>
   );
 }

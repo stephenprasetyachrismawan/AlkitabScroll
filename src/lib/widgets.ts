@@ -3,7 +3,7 @@
 import { PixelRatio, Platform } from 'react-native';
 import type { Lang } from './i18n';
 import { VERSES, type Translation } from './verses';
-import { touchStreak, verseWidgetProps, verseWidgetTimeline, type Streak } from './widgetData';
+import { gardenWidgetProps, gardenWidgetTimeline, touchStreak, verseWidgetProps, verseWidgetTimeline, type Streak } from './widgetData';
 
 const STREAK_KEY = 'selah.streak';
 
@@ -34,14 +34,19 @@ export async function syncWidgets(opts: { translation: Translation; lang: Lang }
   if (Platform.OS === 'web') return;
   try {
     const streak = markOpenedToday();
-    const { default: VerseWidget } = await import('../widgets/VerseWidget');
+    const [{ default: VerseWidget }, { default: GardenWidget }] = await Promise.all([
+      import('../widgets/VerseWidget'),
+      import('../widgets/GardenWidget'),
+    ]);
     const now = new Date();
     if (Platform.OS === 'ios') {
       VerseWidget.updateTimeline(verseWidgetTimeline(VERSES, now, opts.translation, opts.lang, streak));
+      GardenWidget.updateTimeline(gardenWidgetTimeline(now, opts.lang, streak));
     } else {
       // The widget's sizes are in sp; it uses the font scale to keep a large setting from
       // pushing the reference and buttons off a fixed-size widget.
       VerseWidget.updateSnapshot({ ...verseWidgetProps(VERSES, now, opts.translation, opts.lang, streak), fs: PixelRatio.getFontScale() });
+      GardenWidget.updateSnapshot(gardenWidgetProps(now, opts.lang, streak));
     }
   } catch (e) {
     console.warn('widgets', e);
