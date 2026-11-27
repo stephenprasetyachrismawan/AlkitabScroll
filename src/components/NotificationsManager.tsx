@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { router, type Href } from 'expo-router';
+import { previewText } from '../lib/chat';
 import * as api from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { useEngagement } from '../lib/engagement';
@@ -51,7 +52,7 @@ export function NotificationsManager() {
         const m = payload.new as api.Message;
         if (m.sender_id === openChat.partnerId) return;
         const sender = await api.getProfile(m.sender_id).catch(() => null);
-        const body = m.verse_id ? `📖 ${VERSE_MAP[m.verse_id]?.text.tb.title ?? translate(lang, 'sentVerse')}` : m.body ?? '';
+        const body = previewText(m, (id) => VERSE_MAP[id]?.text.tb.title, lang);
         notifyNow(`${translate(lang, 'newMessageFrom')} ${sender?.display_name ?? 'Selah'}`, body, { url: `/chat/${m.sender_id}` });
       })
       .subscribe();
