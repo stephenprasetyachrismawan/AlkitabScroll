@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../../components/Text';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -74,7 +75,9 @@ export default function Chat() {
           headerTitle: () => (
             <Pressable style={styles.title} onPress={() => router.push({ pathname: '/user/[id]', params: { id: other } })}>
               <Avatar profile={partner} size={30} />
-              <Text style={{ color: colors.text, fontFamily: UI_FONT.bold, fontSize: 16 }}>{partner?.display_name ?? ''}</Text>
+              <Text style={{ color: colors.text, fontFamily: UI_FONT.bold, fontSize: 16, flexShrink: 1 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
+                {partner?.display_name ?? ''}
+              </Text>
             </Pressable>
           ),
         }}
@@ -137,9 +140,9 @@ export default function Chat() {
 }
 
 const styles = StyleSheet.create({
-  title: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  title: { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 1 },
   bubble: { maxWidth: '80%', borderRadius: 18, paddingHorizontal: 14, paddingVertical: 9 },
-  verseBubble: { width: 240, borderRadius: 18, padding: 14 },
+  verseBubble: { width: 260, borderRadius: 18, padding: 14 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: 1, paddingHorizontal: 14, paddingVertical: 10, paddingBottom: 12 },
-  input: { flex: 1, fontFamily: UI_FONT.regular, fontSize: 15, maxHeight: 100 },
+  input: { flex: 1, fontFamily: UI_FONT.regular, fontSize: 15, maxHeight: 140 },
 });

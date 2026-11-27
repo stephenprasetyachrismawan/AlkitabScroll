@@ -1,4 +1,5 @@
-import { Image, Text, View } from 'react-native';
+import { Image, View } from 'react-native';
+import { Text } from './Text';
 import type { Profile } from '../lib/api';
 import { hashString } from '../lib/categories';
 import { UI_FONT } from '../lib/fonts';
@@ -24,7 +25,7 @@ export function Avatar({ profile, size = 36, ring }: { profile?: Profile | null;
             justifyContent: 'center',
           }}
         >
-          <Text style={{ color: '#fff', fontFamily: UI_FONT.bold, fontSize: inner * 0.42 }}>{name.slice(0, 1).toUpperCase()}</Text>
+          <Text allowFontScaling={false} style={{ color: '#fff', fontFamily: UI_FONT.bold, fontSize: inner * 0.42 }}>{name.slice(0, 1).toUpperCase()}</Text>
         </View>
       )}
     </View>

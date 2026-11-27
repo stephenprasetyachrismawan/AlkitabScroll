@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { Text, useFontScale } from './Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import type { BottomTabBarProps } from 'expo-router/tabs';
@@ -11,10 +12,20 @@ import { useSettings } from '../lib/settings';
 import { PressableScale } from './PressableScale';
 
 export const TAB_BAR_HEIGHT = 60;
+/** Tab labels grow with the phone's font size up to this much; the bar grows with them. */
+const LABEL_SCALE = 1.3;
+const LABEL_SIZE = 11.5;
+
+/** Bar height for the current font size: 60 at the default, a little taller past it. */
+export function useTabBarHeight() {
+  const scale = useFontScale(LABEL_SCALE);
+  return Math.round(TAB_BAR_HEIGHT + LABEL_SIZE * 1.3 * (scale - 1));
+}
+
 /** Space screens leave at the bottom so content clears the bar. */
 export function useTabBarSpace() {
   const insets = useSafeAreaInsets();
-  return TAB_BAR_HEIGHT + Math.max(insets.bottom, 8);
+  return useTabBarHeight() + Math.max(insets.bottom, 8);
 }
 
 const ICONS: Record<string, [keyof typeof Ionicons.glyphMap, keyof typeof Ionicons.glyphMap]> = {
@@ -31,6 +42,7 @@ const ICONS: Record<string, [keyof typeof Ionicons.glyphMap, keyof typeof Ionico
 export function TabBar({ state, descriptors, navigateToTab }: BottomTabBarProps) {
   const { colors } = useSettings();
   const insets = useSafeAreaInsets();
+  const height = useTabBarHeight();
   const [width, setWidth] = useState(0);
   const count = state.routes.length;
   const slot = width / Math.max(count, 1);
@@ -44,7 +56,7 @@ export function TabBar({ state, descriptors, navigateToTab }: BottomTabBarProps)
 
   return (
     <View style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, 8), backgroundColor: colors.bg, borderTopColor: colors.border }]}>
-      <View style={styles.row} onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}>
+      <View style={[styles.row, { height }]} onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}>
         {width > 0 ? (
           <Animated.View style={[styles.indicatorSlot, { width: slot }, bar]}>
             <View style={[styles.indicator, { backgroundColor: colors.primary }]} />
@@ -70,7 +82,7 @@ export function TabBar({ state, descriptors, navigateToTab }: BottomTabBarProps)
               }}
             >
               <TabIcon focused={focused} name={focused ? on : off} color={focused ? colors.primary : colors.muted} />
-              <Text style={[styles.label, { color: focused ? colors.text : colors.muted }]} numberOfLines={1}>
+              <Text style={[styles.label, { color: focused ? colors.text : colors.muted }]} numberOfLines={1} maxFontSizeMultiplier={LABEL_SCALE}>
                 {title}
               </Text>
             </PressableScale>
@@ -98,9 +110,9 @@ function TabIcon({ focused, name, color }: { focused: boolean; name: keyof typeo
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, borderTopWidth: StyleSheet.hairlineWidth * 2 },
-  row: { height: TAB_BAR_HEIGHT, flexDirection: 'row', alignItems: 'center' },
+  row: { flexDirection: 'row', alignItems: 'center' },
   indicatorSlot: { position: 'absolute', top: 0, left: 0, alignItems: 'center' },
   indicator: { width: 28, height: 3, borderBottomLeftRadius: 3, borderBottomRightRadius: 3 },
-  tab: { flex: 1, height: '100%', alignItems: 'center', justifyContent: 'center', gap: 3 },
-  label: { fontFamily: UI_FONT.semibold, fontSize: 11.5 },
+  tab: { flex: 1, height: '100%', alignItems: 'center', justifyContent: 'center', gap: 3, paddingHorizontal: 2 },
+  label: { fontFamily: UI_FONT.semibold, fontSize: LABEL_SIZE },
 });

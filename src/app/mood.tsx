@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -39,15 +40,16 @@ export default function MoodScreen() {
   const name = profile?.display_name?.split(' ')[0];
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.bg }]}>
-      <Animated.Text entering={rise(0)} style={[styles.hello, { color: colors.primary }]}>
+    // Scrolls only when a large font size makes the screen taller than the phone.
+    <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={styles.root}>
+      <Animated.Text entering={rise(0)} maxFontSizeMultiplier={1.4} style={[styles.hello, { color: colors.primary }]}>
         {lang === 'id' ? 'Shalom' : 'Hello'}
         {name ? `, ${name}` : ''}
       </Animated.Text>
-      <Animated.Text entering={rise(1)} style={[styles.q, { color: colors.text }]}>
+      <Animated.Text entering={rise(1)} maxFontSizeMultiplier={1.15} style={[styles.q, { color: colors.text }]}>
         {t('moodQuestion')}
       </Animated.Text>
-      <Animated.Text entering={rise(2)} style={[styles.hint, { color: colors.muted }]}>
+      <Animated.Text entering={rise(2)} maxFontSizeMultiplier={1.4} style={[styles.hint, { color: colors.muted }]}>
         {picked ? t('moodThanks') : t('moodHint')}
       </Animated.Text>
       <View style={styles.grid}>
@@ -57,7 +59,7 @@ export default function MoodScreen() {
           </Animated.View>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -96,8 +98,12 @@ function MoodTile({ mood, label, state, onPress }: { mood: Mood; label: string; 
       >
         <View style={[styles.ledge, { backgroundColor: picked ? colors.ledge : colors.border }]} />
         <Animated.View style={[styles.cell, { backgroundColor: picked ? colors.primarySoft : colors.card, borderColor: picked ? colors.primary : colors.border }, face]}>
-          <Text style={styles.emoji}>{mood.emoji}</Text>
-          <Text style={[styles.label, { color: colors.text }]}>{label}</Text>
+          <Text style={styles.emoji} maxFontSizeMultiplier={1.1}>
+            {mood.emoji}
+          </Text>
+          <Text style={[styles.label, { color: colors.text }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.8} maxFontSizeMultiplier={1.3}>
+            {label}
+          </Text>
           <Animated.View style={[styles.check, { backgroundColor: colors.primary }, check]}>
             <Ionicons name="checkmark" size={14} color={colors.onPrimary} />
           </Animated.View>
@@ -108,15 +114,15 @@ function MoodTile({ mood, label, state, onPress }: { mood: Mood; label: string; 
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, justifyContent: 'center', padding: 24, gap: 6 },
+  root: { flexGrow: 1, justifyContent: 'center', padding: 24, gap: 6 },
   hello: { fontFamily: UI_FONT.bold, fontSize: 15, letterSpacing: 0.3 },
   q: { fontFamily: UI_FONT.title, fontSize: 34, lineHeight: 38, letterSpacing: -0.8 },
   hint: { fontFamily: UI_FONT.regular, fontSize: 16, lineHeight: 23, marginBottom: 24 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 12 },
   cellWrap: { width: '31.5%' },
   ledge: { position: 'absolute', left: 0, right: 0, bottom: 0, top: LEDGE, borderRadius: 18 },
-  cell: { aspectRatio: 0.9, borderRadius: 18, borderWidth: 2, alignItems: 'center', justifyContent: 'center', gap: 8 },
+  cell: { aspectRatio: 0.9, borderRadius: 18, borderWidth: 2, alignItems: 'center', justifyContent: 'center', gap: 6, paddingHorizontal: 6 },
   emoji: { fontSize: 38 },
-  label: { fontFamily: UI_FONT.semibold, fontSize: 14 },
+  label: { fontFamily: UI_FONT.semibold, fontSize: 14, textAlign: 'center' },
   check: { position: 'absolute', top: 8, right: 8, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center' },
 });

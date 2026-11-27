@@ -47,7 +47,7 @@ export function DailyProgress({ overlay, dark }: { overlay?: boolean; dark?: boo
         <Animated.View style={flameStyle}>
           <Ionicons name={flameOn ? 'flame' : 'flame-outline'} size={18} color={flameColor} />
         </Animated.View>
-        <RollingNumber value={streak} style={[styles.num, { color: fg }]} />
+        <RollingNumber value={streak} style={[styles.num, { color: fg }]} maxFontSizeMultiplier={1.3} />
         <View style={styles.pips}>
           {Array.from({ length: goal }, (_, i) => (
             <Pip key={i} on={i < count} color={doneToday ? colors.success : colors.primary} idle={overlay ? (dark ? 'rgba(247,241,227,0.25)' : 'rgba(34,29,23,0.15)') : colors.surface} />
@@ -72,7 +72,7 @@ function Pip({ on, color, idle }: { on: boolean; color: string; idle: string }) 
 }
 
 const styles = StyleSheet.create({
-  pill: { height: 44, paddingHorizontal: 12, justifyContent: 'center' },
+  pill: { minHeight: 44, paddingHorizontal: 12, justifyContent: 'center' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   num: { fontFamily: UI_FONT.title, fontSize: 16, minWidth: 10 },
   pips: { flexDirection: 'row', gap: 3, marginLeft: 2 },

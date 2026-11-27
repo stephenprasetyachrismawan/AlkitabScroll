@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { AppState, StyleSheet, Text, View } from 'react-native';
+import { AppState, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -40,7 +41,9 @@ export default function Home() {
   const overlayDark = dark || selahVisible;
   const bar = (
     <View style={[styles.bar, { paddingTop: insets.top + 6 }, reels && styles.barOverlay]}>
-      <Text style={[styles.logo, { color: fg }]}>Selah</Text>
+      <Text style={[styles.logo, { color: fg }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+        Selah
+      </Text>
       <View style={styles.right}>
         <DailyProgress overlay={reels} dark={reels ? overlayDark : undefined} />
         <PressableScale onPress={() => update({ music: !music })} haptic accessibilityRole="switch" accessibilityState={{ checked: music }} accessibilityLabel={t('music')}>
@@ -65,9 +68,9 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 8 },
+  bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingHorizontal: 16, paddingBottom: 8 },
   barOverlay: { position: 'absolute', top: 0, left: 0, right: 0 },
-  logo: { fontFamily: UI_FONT.title, fontSize: 27, letterSpacing: -0.6 },
-  right: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  logo: { fontFamily: UI_FONT.title, fontSize: 27, letterSpacing: -0.6, flexShrink: 1 },
+  right: { flexDirection: 'row', alignItems: 'center', gap: 6, flexShrink: 0 },
   round: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 });

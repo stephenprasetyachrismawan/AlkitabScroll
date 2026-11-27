@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { UI_FONT } from '../lib/fonts';
 import { EASE_IN_OUT } from '../lib/motion';
@@ -49,17 +50,23 @@ export function SelahBreak({ width, height, bottomInset = 0, index, verse, onCon
   return (
     <View style={[styles.root, { width, height, paddingBottom: bottomInset }]}>
       <Breath />
-      <Text style={styles.kicker}>SELAH</Text>
+      <Text style={styles.kicker} maxFontSizeMultiplier={1.3}>
+        SELAH
+      </Text>
       <Text style={styles.title}>{t('selahTitle')}</Text>
-      <Text style={styles.body}>{t('selahBody')}</Text>
+      <Text style={styles.body} maxFontSizeMultiplier={1.3}>
+        {t('selahBody')}
+      </Text>
       <Surface tone="overlay" dark radius={16} style={{ padding: 6 }}>
         <YouTubeEmbed videoIds={[SELAH_VIDEOS[index % SELAH_VIDEOS.length]]} width={videoW} height={(videoW * 9) / 16} style={{ borderRadius: 16 }} />
       </Surface>
       <View style={styles.verse}>
-        <Text style={styles.verseText} numberOfLines={5}>
+        <Text style={styles.verseText} numberOfLines={5} maxFontSizeMultiplier={1.3}>
           “{body}”
         </Text>
-        <Text style={styles.verseRef}>{title}</Text>
+        <Text style={styles.verseRef} maxFontSizeMultiplier={1.3}>
+          {title}
+        </Text>
       </View>
       <View style={styles.row}>
         <ChunkyButton variant="secondary" label={t('enoughToday')} onPress={onEnough} face="#2A3326" ledge="#121710" ink={INK} style={styles.btn} />

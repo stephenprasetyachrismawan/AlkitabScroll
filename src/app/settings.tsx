@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { Text } from '../components/Text';
 import { notifyNow, permissionState, requestPermission, type PermissionState } from '../lib/notifications';
 import { Stack } from 'expo-router';
 import * as api from '../lib/api';
@@ -178,8 +179,8 @@ function Choice<T extends string>({
     <>
       {options.map(([k, label]) => (
         <Pressable key={k} onPress={() => onChange(k)} style={styles.option}>
-          <Text style={[styles.optionText, { color: colors.text }]}>{label}</Text>
-          <Text style={{ color: colors.primary, fontSize: 16 }}>{value === k ? '●' : '○'}</Text>
+          <Text style={[styles.optionText, { color: colors.text, flex: 1 }]}>{label}</Text>
+          <Text style={{ color: colors.primary, fontSize: 16 }} maxFontSizeMultiplier={1.3}>{value === k ? '●' : '○'}</Text>
         </Pressable>
       ))}
     </>
@@ -189,16 +190,16 @@ function Choice<T extends string>({
 const styles = StyleSheet.create({
   title: { fontFamily: UI_FONT.bold, fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' },
   box: { borderWidth: 1, borderRadius: 14, paddingHorizontal: 14 },
-  option: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 48 },
-  pill: { borderRadius: 999, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  pillText: { color: '#fff', fontFamily: UI_FONT.bold },
-  timeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 18 },
+  option: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 12, minHeight: 48, paddingVertical: 6 },
+  pill: { borderRadius: 999, minHeight: 44, paddingHorizontal: 16, paddingVertical: 8, alignItems: 'center', justifyContent: 'center' },
+  pillText: { color: '#fff', fontFamily: UI_FONT.bold, textAlign: 'center' },
+  timeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14 },
   time: { fontFamily: UI_FONT.title, fontSize: 30, minWidth: 100, textAlign: 'center' },
-  step: { borderWidth: 1, borderRadius: 14, minWidth: 56, minHeight: 40, alignItems: 'center', justifyContent: 'center' },
+  step: { borderWidth: 1, borderRadius: 14, minWidth: 56, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   stepText: { fontFamily: UI_FONT.bold },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
-  chip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, minHeight: 36, justifyContent: 'center' },
+  chip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center' },
   optionText: { fontFamily: UI_FONT.semibold, fontSize: 15 },
   note: { fontFamily: UI_FONT.regular, fontSize: 11, paddingBottom: 12, lineHeight: 16 },
-  action: { borderWidth: 1, borderRadius: 12, alignItems: 'center', paddingVertical: 13 },
+  action: { borderWidth: 1, borderRadius: 12, alignItems: 'center', paddingVertical: 13, paddingHorizontal: 16 },
 });
