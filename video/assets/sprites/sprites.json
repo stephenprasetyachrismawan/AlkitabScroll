@@ -1,0 +1,92 @@
+{
+ "selo-sway": {
+  "frames": 54,
+  "cols": 10,
+  "rows": 6,
+  "fps": 15
+ },
+ "selo-hop": {
+  "frames": 39,
+  "cols": 10,
+  "rows": 4,
+  "fps": 15
+ },
+ "selo-pray": {
+  "frames": 54,
+  "cols": 10,
+  "rows": 6,
+  "fps": 15
+ },
+ "selo-sleep": {
+  "frames": 60,
+  "cols": 10,
+  "rows": 6,
+  "fps": 15
+ },
+ "selo-love": {
+  "frames": 42,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ },
+ "selo-wave": {
+  "frames": 42,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ },
+ "selo-sing": {
+  "frames": 42,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ },
+ "dara-fly": {
+  "frames": 45,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ },
+ "dara-glide": {
+  "frames": 54,
+  "cols": 10,
+  "rows": 6,
+  "fps": 15
+ },
+ "arka-roar": {
+  "frames": 48,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ },
+ "arka-stand": {
+  "frames": 48,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ },
+ "arka-guard": {
+  "frames": 54,
+  "cols": 10,
+  "rows": 6,
+  "fps": 15
+ },
+ "pipi-peck": {
+  "frames": 42,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ },
+ "pipi-lookup": {
+  "frames": 48,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ },
+ "lumi-glow": {
+  "frames": 42,
+  "cols": 10,
+  "rows": 5,
+  "fps": 15
+ }
+}

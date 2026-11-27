@@ -1,0 +1,151 @@
+<template>
+  <style>
+
+@font-face{font-family:'Gabarito';font-weight:700;src:url('assets/fonts/Gabarito_700Bold.ttf')}
+@font-face{font-family:'Gabarito';font-weight:600;src:url('assets/fonts/Gabarito_600SemiBold.ttf')}
+@font-face{font-family:'Figtree';font-weight:400;src:url('assets/fonts/Figtree_400Regular.ttf')}
+@font-face{font-family:'Figtree';font-weight:500;src:url('assets/fonts/Figtree_500Medium.ttf')}
+@font-face{font-family:'Figtree';font-weight:700;src:url('assets/fonts/Figtree_700Bold.ttf')}
+@font-face{font-family:'Lora';font-weight:400;src:url('assets/fonts/Lora_400Regular.ttf')}
+@font-face{font-family:'Lora';font-weight:500;font-style:italic;src:url('assets/fonts/Lora_500Medium_Italic.ttf')}
+@font-face{font-family:'Lora';font-weight:600;src:url('assets/fonts/Lora_600SemiBold.ttf')}
+@font-face{font-family:'Caveat';font-weight:500;src:url('assets/fonts/Caveat_500Medium.ttf')}
+
+
+#root{position:absolute;inset:0;overflow:hidden;background:#F7F1E3;font-family:'Figtree';color:#221D17}
+#root *{box-sizing:border-box}
+.abs{position:absolute}
+.phone{position:absolute;width:500px;height:1000px;border-radius:64px;background:#1E1A16;padding:14px;}
+.screen{position:absolute;inset:14px;border-radius:52px;overflow:hidden;background:#F7F1E3}
+.status{position:absolute;left:0;right:0;top:0;height:54px;display:flex;justify-content:space-between;align-items:center;padding:0 38px;font:600 22px 'Figtree';color:#221D17;z-index:5}
+.title{font:700 84px/1.04 'Gabarito';letter-spacing:-0.02em;color:#221D17}
+.sub{font:500 34px/1.35 'Figtree';color:#655F56}
+.hand{font:500 44px/1.1 'Caveat';color:#9A6A3A}
+.chunky{background:#FFFBF2;border:2px solid #DDD3BF;border-radius:26px;box-shadow:0 7px 0 #DDD3BF;}
+.verse{font:500 34px/1.42 'Lora';font-style:italic}
+.ref{font:700 24px 'Figtree';letter-spacing:0.02em}
+.sprite{position:absolute;background-repeat:no-repeat}
+.word{display:inline-block;margin-right:0.24em}
+
+
+#root{background:#26272B}
+.post{margin:0 18px 18px;border-radius:22px;background:#33353B;padding:18px;position:relative}
+.av{width:44px;height:44px;border-radius:22px;background:#5E616A}
+.ln{position:absolute;left:78px;top:30px;height:16px;border-radius:8px;background:#5E616A}
+.img{margin-top:14px;border-radius:14px}
+.meta{margin-top:14px;font:600 20px 'Figtree';color:#8D9099}
+#d-phone .screen{background:#2E3035}
+#d-feed{position:absolute;left:0;right:0;top:60px}
+#d-badge{position:absolute;right:26px;top:66px;min-width:62px;height:44px;border-radius:22px;background:#D9473A;color:#fff;font:700 24px/44px 'Figtree';text-align:center;padding:0 12px;z-index:6}
+#d-l1{left:150px;top:300px;color:#F2EEE6;font:700 150px/1 'Gabarito';letter-spacing:-0.03em}
+#d-l2{left:150px;top:480px;color:#CFCBC3;font:700 64px/1.1 'Gabarito'}
+#d-l3{left:150px;top:300px;color:#F2EEE6;font:700 92px/1.05 'Gabarito';width:760px}
+
+  </style>
+  <div id="root" data-composition-id="doom" data-width="1920" data-height="1080" data-layout-allow-overlap data-layout-allow-overflow>
+
+<div id="d-phone" class="phone" style="left:1180px;top:40px">
+  <div class="screen"><div class="status" style="color:#C9C6BF"><span>23:47</span><span>▮▮▮ 12%</span></div>
+    <div id="d-badge">37</div>
+    <div id="d-feed"><div class="post" style="height:300px"><div class="av"></div><div class="ln" style="width:60%"></div>
+    <div class="img" style="height:170px;background:#5A5D66"></div>
+    <div class="meta">♥ 12,0rb  ·  💬 230</div></div><div class="post" style="height:420px"><div class="av"></div><div class="ln" style="width:45%"></div>
+    <div class="img" style="height:290px;background:#4C4F57"></div>
+    <div class="meta">♥ 48,1rb  ·  💬 88</div></div><div class="post" style="height:260px"><div class="av"></div><div class="ln" style="width:70%"></div>
+    <div class="img" style="height:130px;background:#62656E"></div>
+    <div class="meta">♥ 7,2rb  ·  💬 3</div></div><div class="post" style="height:380px"><div class="av"></div><div class="ln" style="width:52%"></div>
+    <div class="img" style="height:250px;background:#55585F"></div>
+    <div class="meta">♥ 96,3rb  ·  💬 412</div></div><div class="post" style="height:300px"><div class="av"></div><div class="ln" style="width:60%"></div>
+    <div class="img" style="height:170px;background:#5A5D66"></div>
+    <div class="meta">♥ 3,4rb  ·  💬 230</div></div><div class="post" style="height:420px"><div class="av"></div><div class="ln" style="width:45%"></div>
+    <div class="img" style="height:290px;background:#4C4F57"></div>
+    <div class="meta">♥ 21,5rb  ·  💬 88</div></div><div class="post" style="height:260px"><div class="av"></div><div class="ln" style="width:70%"></div>
+    <div class="img" style="height:130px;background:#62656E"></div>
+    <div class="meta">♥ 64,6rb  ·  💬 7</div></div><div class="post" style="height:380px"><div class="av"></div><div class="ln" style="width:52%"></div>
+    <div class="img" style="height:250px;background:#55585F"></div>
+    <div class="meta">♥ 9,7rb  ·  💬 412</div></div><div class="post" style="height:300px"><div class="av"></div><div class="ln" style="width:60%"></div>
+    <div class="img" style="height:170px;background:#5A5D66"></div>
+    <div class="meta">♥ 12,8rb  ·  💬 230</div></div><div class="post" style="height:420px"><div class="av"></div><div class="ln" style="width:45%"></div>
+    <div class="img" style="height:290px;background:#4C4F57"></div>
+    <div class="meta">♥ 48,9rb  ·  💬 88</div></div><div class="post" style="height:260px"><div class="av"></div><div class="ln" style="width:70%"></div>
+    <div class="img" style="height:130px;background:#62656E"></div>
+    <div class="meta">♥ 7,0rb  ·  💬 11</div></div><div class="post" style="height:380px"><div class="av"></div><div class="ln" style="width:52%"></div>
+    <div class="img" style="height:250px;background:#55585F"></div>
+    <div class="meta">♥ 96,1rb  ·  💬 412</div></div><div class="post" style="height:300px"><div class="av"></div><div class="ln" style="width:60%"></div>
+    <div class="img" style="height:170px;background:#5A5D66"></div>
+    <div class="meta">♥ 3,2rb  ·  💬 230</div></div><div class="post" style="height:420px"><div class="av"></div><div class="ln" style="width:45%"></div>
+    <div class="img" style="height:290px;background:#4C4F57"></div>
+    <div class="meta">♥ 21,3rb  ·  💬 88</div></div><div class="post" style="height:260px"><div class="av"></div><div class="ln" style="width:70%"></div>
+    <div class="img" style="height:130px;background:#62656E"></div>
+    <div class="meta">♥ 64,4rb  ·  💬 15</div></div><div class="post" style="height:380px"><div class="av"></div><div class="ln" style="width:52%"></div>
+    <div class="img" style="height:250px;background:#55585F"></div>
+    <div class="meta">♥ 9,5rb  ·  💬 412</div></div></div>
+  </div>
+</div>
+<div id="d-l1" class="abs">23:47</div>
+<div id="d-l2" class="abs"><span class="word">Jempol</span><span class="word">masih</span><span class="word">scroll.</span></div>
+<div id="d-l3" class="abs"><span class="word">Dua</span><span class="word">jam</span><span class="word">lewat.</span><span class="word">Tak</span><span class="word">satu</span><span class="word">pun</span><span class="word">teringat.</span></div>
+
+  </div>
+  <script>
+(() => {
+
+const SPR = {"selo-sway": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "selo-hop": {"frames": 39, "cols": 10, "rows": 4, "fps": 15}, "selo-pray": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "selo-sleep": {"frames": 60, "cols": 10, "rows": 6, "fps": 15}, "selo-love": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "selo-wave": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "selo-sing": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "dara-fly": {"frames": 45, "cols": 10, "rows": 5, "fps": 15}, "dara-glide": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "arka-roar": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "arka-stand": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "arka-guard": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "pipi-peck": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "pipi-lookup": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "lumi-glow": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}};
+// Plays one of the app's real character loops (captured frame by frame from
+// the React Native components) on a sprite element, at the app's own speed.
+function sprite(tl, sel, key, start, dur, size) {
+  const m = SPR[key], el = document.querySelector(sel), o = { f: 0 };
+  el.style.backgroundImage = "url('assets/sprites/" + key + ".webp')";
+  el.style.backgroundSize = (m.cols * size) + 'px ' + (m.rows * size) + 'px';
+  el.style.width = size + 'px'; el.style.height = size + 'px';
+  const paint = () => { const i = Math.floor(o.f) % m.frames;
+    el.style.backgroundPosition = (-(i % m.cols) * size) + 'px ' + (-Math.floor(i / m.cols) * size) + 'px'; };
+  paint();
+  tl.fromTo(o, { f: 0 }, { f: dur * m.fps, duration: dur, ease: 'none', onUpdate: paint }, start);
+}
+// Word-by-word blur-in for a title (no translate).
+function words(tl, sel, at, gap) {
+  document.querySelectorAll(sel + ' .word').forEach((w, i) => {
+    tl.fromTo(w, { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.16, ease: 'power4.out' }, at + i * (gap || 0.07));
+  });
+}
+function wordsOut(tl, sel, at) {
+  tl.to(sel, { opacity: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power3.in' }, at);
+}
+// Typewriter: reveal text one character at a time, deterministic on seek.
+function typer(tl, sel, text, start, dur) {
+  const el = document.querySelector(sel), o = { n: 0 };
+  const paint = () => { el.textContent = text.slice(0, Math.round(o.n)); };
+  paint();
+  tl.fromTo(o, { n: 0 }, { n: text.length, duration: dur, ease: 'none', onUpdate: paint }, start);
+}
+// Rolling counter.
+function counter(tl, sel, from, to, start, dur, suffix) {
+  const el = document.querySelector(sel), o = { v: from };
+  const paint = () => { const v = Math.round(o.v); el.textContent = (to >= 99 && v >= 99 ? '99+' : v) + (suffix || ''); };
+  paint();
+  tl.fromTo(o, { v: from }, { v: to, duration: dur, ease: 'power1.in', onUpdate: paint }, start);
+}
+
+const tl = gsap.timeline({ paused: true });
+
+gsap.set('#d-l1', { opacity: 0 }); gsap.set('#d-l2 .word, #d-l3 .word', { opacity: 0 });
+tl.fromTo('#d-l1', { opacity: 0, filter: 'blur(10px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.25, ease: 'power4.out' }, 0.1);
+words(tl, '#d-l2', 0.6, 0.09);
+// the feed: fast flicks, each one a little faster
+tl.fromTo('#d-feed', { y: 0 }, { y: -900, duration: 1.0, ease: 'power3.inOut' }, 0.2);
+tl.to('#d-feed', { y: -2000, duration: 0.8, ease: 'power3.inOut' }, 1.3);
+tl.to('#d-feed', { y: -3300, duration: 0.7, ease: 'power3.inOut' }, 2.15);
+tl.to('#d-feed', { y: -4700, duration: 0.65, ease: 'power3.inOut' }, 2.9);
+tl.fromTo('#d-feed', { filter: 'blur(0px)' }, { filter: 'blur(5px)', duration: 0.4, ease: 'power2.in' }, 2.2);
+counter(tl, '#d-badge', 37, 99, 0.3, 4.0);
+tl.to('#d-l1', { opacity: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power3.in' }, 2.6);
+wordsOut(tl, '#d-l2', 2.6);
+words(tl, '#d-l3', 2.95, 0.1);
+// slows, stalls: the thumb gives up
+tl.to('#d-feed', { y: -5050, filter: 'blur(0px)', duration: 1.6, ease: 'expo.out' }, 3.6);
+
+window.__timelines["doom"] = tl;
+})();
+  </script>
+</template>

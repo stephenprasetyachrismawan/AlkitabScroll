@@ -1,80 +1,91 @@
+<div align="center">
+
+<img src="docs/media/selah-story.gif" alt="Selah: dari doomscroll jam 23:47 ke tujuh ayat yang dibaca pelan, ditemani Selo si domba" width="100%" />
+
 # Selah
 
-> *Selah* — kata dalam Mazmur yang berarti "berhenti sejenak, renungkan".
+**Ganti doomscroll dengan scroll yang menguatkan jiwa.**
 
-Aplikasi Android (React Native + Expo) untuk menggantikan doomscroll dengan scroll ayat Alkitab.
-Setiap ayat tampil sebagai postingan bergaya sesuai kategorinya, dengan mode **Post 3:4** dan **Reels 9:16**.
+[Unduh APK Android](https://github.com/stephenprasetyachrismawan/AlkitabScroll/releases/latest) · [Tonton video lengkap (57 detik)](docs/media/selah-story.mp4)
 
-## Fitur
+</div>
 
-| Fitur | Keterangan |
-|---|---|
-| Login Google | Lewat Supabase Auth |
-| Moody harian | Wajib diisi saat pertama membuka aplikasi tiap hari; mengarahkan algoritma |
-| Feed algoritma | "Route stack": mood > simpan > suka > lama melihat > acak (lihat [docs/ALGORITMA.md](docs/ALGORITMA.md)) |
-| Ayat Hari Ini | Sama untuk semua pengguna di hari yang sama |
-| Saat Teduh | Setiap 30 ayat: jeda dengan musik instrumental (YouTube embed) dan pilihan "Cukup untuk hari ini" |
-| Suka, Simpan, Komentar | Komentar publik, dengan filter kata kasar, lapor & blokir |
-| Profil | Tab Disukai & Disimpan; membuka satu ayat lalu scroll berlanjut ke algoritma |
-| Ikuti | Follow antar pengguna, profil publik |
-| Status 24 jam | Hanya untuk pengikut; bisa diekspor jadi gambar untuk status WhatsApp/IG |
-| Pesan (DM) | Chat realtime, bisa kirim ayat ke teman |
-| 3 terjemahan | TB, BIMK (© LAI), KJV (domain publik) |
-| 2 bahasa | Indonesia & Inggris, plus mode gelap |
-| Hapus akun | Tersedia di Pengaturan |
+---
+
+## Kenapa Selah ada
+
+Jam 23:47. Jempol masih scroll. Dua jam lewat, dan tidak ada satu pun yang teringat.
+
+*Selah* adalah kata dalam Mazmur yang artinya **berhenti sejenak, renungkan**. Aplikasi ini memakai gerakan yang sama dengan media sosial, yaitu scroll, tapi isinya ayat Alkitab dan ujungnya jelas: tujuh ayat yang dibaca pelan, lalu aplikasinya sendiri bilang *"Cukup untuk hari ini."*
+
+## Sehari bersama Selah
+
+**Pagi, satu pertanyaan.** Selo si domba menanyakan perasaanmu: senang, sedih, cemas, lelah, marah, atau bersyukur. Ayat hari ini disusun dari jawabanmu.
+
+**Tujuh ayat, dibaca pelan.** Setiap ayat punya tokohnya. Kalau ayatnya tentang rajawali, Dara si merpati terbang. Kalau tentang keberanian, Arka si singa kecil mengaum. Pipi si burung pipit dan Lumi si pelita juga punya bagiannya. Api streak terisi satu demi satu, dan tidak ada feed tanpa ujung.
+
+**Taman Iman di layar utama.** Widget-nya tumbuh dari benih sampai pohon berbunga setiap kali kamu kembali. Kalau kamu absen, kamu tidak dimarahi; Selo cuma tidur menunggu.
+
+**Curhat.** Tulis saja apa yang kamu rasakan, misalnya *"hari ini aku cemas soal ujian besok"*, lalu pencarian pintar menangkap maksudnya dan memberi ayat yang pas. Catatanmu hanya tersimpan di HP.
+
+**Perjalanan Alkitab.** Ada 18 kisah dari Abraham sampai Paulus, dengan kuis singkat dan kartu hafalan yang muncul lagi tepat sebelum lupa.
+
+**Bagikan dan saling mendoakan.** Studio kartu ayat dengan banyak tema. Setiap kali berbagi, kamu menabur satu benih yang membuka tema baru. Ada juga streak bareng teman dan permintaan doa di chat, lengkap dengan tombol *"Aku doakan 🙏"*.
+
+<div align="center">
+<img src="docs/media/cast.png" alt="Selo, Dara, Arka, Pipi dan Lumi" width="88%" />
+</div>
 
 ## Isi ayat
 
-- 290+ perikop dipilih dari daftar ayat renungan Protestan yang umum dipakai (GotQuestions Indonesia, CNN Indonesia, Bisnis.com, Tithe.ly, dll), dibagi ke 21 kategori.
-- **Teks tidak diketik manual.** Semua diambil otomatis dari [alkitab.sabda.org](https://alkitab.sabda.org) lewat `scripts/fetch-verses.mjs`, lalu divalidasi (jumlah ayat per perikop harus cocok).
-- Penomoran Mazmur di TB/BIMK mengikuti teks Ibrani (sering beda 1–2 ayat dari KJV). Katalog menyimpan referensi KJV terpisah untuk kasus ini.
-- Hak cipta: TB & BIMK © Lembaga Alkitab Indonesia. Untuk rilis publik di Play Store, perlu izin tertulis dari LAI.
+- 290+ perikop dari daftar ayat renungan Protestan yang umum, dibagi ke 21 kategori.
+- Teks tidak diketik manual. Semuanya diambil otomatis dari [alkitab.sabda.org](https://alkitab.sabda.org), lalu jumlah ayat per perikop divalidasi.
+- Tersedia tiga terjemahan: TB dan BIMK (© Lembaga Alkitab Indonesia) serta KJV (domain publik). Rilis publik di Play Store butuh izin tertulis dari LAI.
 
-Daftar & kategori: [`scripts/catalog.txt`](scripts/catalog.txt). Untuk menambah ayat: tambah baris di katalog, lalu `npm run fetch-verses`.
+---
 
-## Menjalankan
+<details>
+<summary><b>Untuk pengembang</b>: menjalankan, membangun, dan struktur kode</summary>
 
-### 1. Supabase (gratis)
+### Teknologi
+
+React Native + Expo (Expo Router), Supabase (Auth Google, database, realtime), Reanimated. Karakter digambar dari View biasa tanpa aset gambar, jadi ukuran APK tetap kecil.
+
+### Supabase (gratis)
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. **SQL Editor** → jalankan isi [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
-3. **Authentication → Providers → Google**: aktifkan, isi Client ID & Secret dari [Google Cloud Console](https://console.cloud.google.com/apis/credentials) (OAuth client tipe *Web application*, redirect URI = `https://<project>.supabase.co/auth/v1/callback`).
-4. **Authentication → URL Configuration → Redirect URLs**: tambahkan `selah://auth-callback` (aplikasi Android), `exp://**` (Expo Go saat development), dan `http://localhost:8081/**` (web).
-5. Salin `.env.example` ke `.env.local`, isi URL & publishable key dari **Project Settings → API**.
+2. Buka **SQL Editor**, lalu jalankan isi [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+3. Buka **Authentication → Providers → Google**, lalu isi Client ID dan Secret dari [Google Cloud Console](https://console.cloud.google.com/apis/credentials). Pakai OAuth client tipe *Web application* dengan redirect URI `https://<project>.supabase.co/auth/v1/callback`.
+4. Buka **Authentication → URL Configuration → Redirect URLs**, lalu tambahkan `selah://auth-callback`, `exp://**`, dan `http://localhost:8081/**`.
+5. Salin `.env.example` ke `.env.local`, lalu isi URL dan publishable key dari **Project Settings → API**.
 
-> Supabase gratis menjeda proyek setelah 7 hari tidak dipakai. Untuk publik, pertimbangkan paket Pro.
+> Supabase gratis menjeda proyek yang tidak dipakai selama 7 hari.
 
-### 2. Aplikasi
+### Menjalankan
 
 ```bash
 npm install
-npx expo start          # scan QR dengan Expo Go, atau tekan "a" untuk emulator Android
+npx expo start          # scan QR dengan Expo Go, atau tekan "a" untuk emulator
+npm test                # tes unit
+npm run typecheck       # TypeScript
+npx expo lint           # lint
+npm run fetch-verses    # ambil ulang teks ayat dari sabda.org
 ```
 
-Build APK Android (tanpa Android Studio):
+Setiap push ke `main` membangun APK di GitHub Actions dan menerbitkannya di [Releases](https://github.com/stephenprasetyachrismawan/AlkitabScroll/releases). Build manual: `npx eas-cli@latest build -p android --profile preview`.
 
-```bash
-npx eas-cli@latest build -p android --profile preview
-```
-
-### Perintah lain
-
-```bash
-npm test              # tes unit algoritma
-npm run typecheck     # TypeScript
-npx expo lint         # lint
-npm run fetch-verses  # ambil ulang teks ayat dari sabda.org
-```
-
-## Struktur
+### Struktur
 
 ```
 src/app/            layar (Expo Router)
-  (tabs)/           Beranda, Jelajah, Pesan, Profil
-  login, mood       gerbang harian
-  comments/, chat/, status/, user/, post/, category/
-src/components/     VerseCard, Feed, SelahBreak, ShareSheet, ProfileView, StatusRow
-src/lib/            algorithm (route stack), api (Supabase), categories (gaya), moods, i18n
+src/components/     VerseCard, Feed, karakter, widget, chat, journey
+src/lib/            algoritma feed, Supabase, kategori, mood, i18n
 data/verses.json    teks ayat (hasil fetch)
 supabase/           skema database + RLS
+video/              video cerita di atas (HyperFrames), lihat video/README.md
+docs/               algoritma feed dan media README
 ```
+
+Algoritma feed ("route stack": mood > simpan > suka > lama melihat > acak) dijelaskan di [docs/ALGORITMA.md](docs/ALGORITMA.md).
+
+</details>

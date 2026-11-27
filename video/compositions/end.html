@@ -1,0 +1,114 @@
+<template>
+  <style>
+
+@font-face{font-family:'Gabarito';font-weight:700;src:url('assets/fonts/Gabarito_700Bold.ttf')}
+@font-face{font-family:'Gabarito';font-weight:600;src:url('assets/fonts/Gabarito_600SemiBold.ttf')}
+@font-face{font-family:'Figtree';font-weight:400;src:url('assets/fonts/Figtree_400Regular.ttf')}
+@font-face{font-family:'Figtree';font-weight:500;src:url('assets/fonts/Figtree_500Medium.ttf')}
+@font-face{font-family:'Figtree';font-weight:700;src:url('assets/fonts/Figtree_700Bold.ttf')}
+@font-face{font-family:'Lora';font-weight:400;src:url('assets/fonts/Lora_400Regular.ttf')}
+@font-face{font-family:'Lora';font-weight:500;font-style:italic;src:url('assets/fonts/Lora_500Medium_Italic.ttf')}
+@font-face{font-family:'Lora';font-weight:600;src:url('assets/fonts/Lora_600SemiBold.ttf')}
+@font-face{font-family:'Caveat';font-weight:500;src:url('assets/fonts/Caveat_500Medium.ttf')}
+
+
+#root{position:absolute;inset:0;overflow:hidden;background:#F7F1E3;font-family:'Figtree';color:#221D17}
+#root *{box-sizing:border-box}
+.abs{position:absolute}
+.phone{position:absolute;width:500px;height:1000px;border-radius:64px;background:#1E1A16;padding:14px;}
+.screen{position:absolute;inset:14px;border-radius:52px;overflow:hidden;background:#F7F1E3}
+.status{position:absolute;left:0;right:0;top:0;height:54px;display:flex;justify-content:space-between;align-items:center;padding:0 38px;font:600 22px 'Figtree';color:#221D17;z-index:5}
+.title{font:700 84px/1.04 'Gabarito';letter-spacing:-0.02em;color:#221D17}
+.sub{font:500 34px/1.35 'Figtree';color:#655F56}
+.hand{font:500 44px/1.1 'Caveat';color:#9A6A3A}
+.chunky{background:#FFFBF2;border:2px solid #DDD3BF;border-radius:26px;box-shadow:0 7px 0 #DDD3BF;}
+.verse{font:500 34px/1.42 'Lora';font-style:italic}
+.ref{font:700 24px 'Figtree';letter-spacing:0.02em}
+.sprite{position:absolute;background-repeat:no-repeat}
+.word{display:inline-block;margin-right:0.24em}
+
+
+#root{background:#F7F1E3}
+#e-night{position:absolute;inset:0;background:#E9E1D0}
+#e-selo{left:760px;top:250px}
+#e-l1{left:0;right:0;top:700px;text-align:center;font:700 80px 'Gabarito'}
+#e-l2{left:0;right:0;top:808px;text-align:center}
+#e-mark{left:0;right:0;top:330px;text-align:center}
+.eb{display:inline-block;width:48px;height:150px;border-radius:12px;background:#9A6A3A;margin:0 10px}
+#e-word{left:0;right:0;top:520px;text-align:center;font:700 200px/1 'Gabarito';letter-spacing:-0.04em}
+#e-cta{left:660px;top:790px;width:600px;height:96px;border-radius:30px;background:#9A6A3A;color:#FFFBF2;font:700 36px/96px 'Figtree';text-align:center;box-shadow:0 8px 0 #6E4A26}
+#e-url{left:0;right:0;top:920px;text-align:center;font:500 28px 'Figtree';color:#655F56}
+
+  </style>
+  <div id="root" data-composition-id="end" data-width="1920" data-height="1080" data-layout-allow-overlap data-layout-allow-overflow>
+
+<div id="e-night"></div>
+<div id="e-selo" class="sprite"></div>
+<div id="e-l1" class="abs"><span class="word">Cukup</span><span class="word">untuk</span><span class="word">hari</span><span class="word">ini.</span></div>
+<div id="e-l2" class="abs sub"><span class="word">Aplikasi</span><span class="word">yang</span><span class="word">menyuruhmu</span><span class="word">berhenti.</span></div>
+<div id="e-mark" class="abs"><span id="e-b1" class="eb"></span><span id="e-b2" class="eb"></span></div>
+<div id="e-word" class="abs">Selah</div>
+<div id="e-cta" class="abs">Unduh APK gratis</div>
+<div id="e-url" class="abs">github.com/stephenprasetyachrismawan/AlkitabScroll</div>
+
+  </div>
+  <script>
+(() => {
+
+const SPR = {"selo-sway": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "selo-hop": {"frames": 39, "cols": 10, "rows": 4, "fps": 15}, "selo-pray": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "selo-sleep": {"frames": 60, "cols": 10, "rows": 6, "fps": 15}, "selo-love": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "selo-wave": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "selo-sing": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "dara-fly": {"frames": 45, "cols": 10, "rows": 5, "fps": 15}, "dara-glide": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "arka-roar": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "arka-stand": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "arka-guard": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "pipi-peck": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "pipi-lookup": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "lumi-glow": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}};
+// Plays one of the app's real character loops (captured frame by frame from
+// the React Native components) on a sprite element, at the app's own speed.
+function sprite(tl, sel, key, start, dur, size) {
+  const m = SPR[key], el = document.querySelector(sel), o = { f: 0 };
+  el.style.backgroundImage = "url('assets/sprites/" + key + ".webp')";
+  el.style.backgroundSize = (m.cols * size) + 'px ' + (m.rows * size) + 'px';
+  el.style.width = size + 'px'; el.style.height = size + 'px';
+  const paint = () => { const i = Math.floor(o.f) % m.frames;
+    el.style.backgroundPosition = (-(i % m.cols) * size) + 'px ' + (-Math.floor(i / m.cols) * size) + 'px'; };
+  paint();
+  tl.fromTo(o, { f: 0 }, { f: dur * m.fps, duration: dur, ease: 'none', onUpdate: paint }, start);
+}
+// Word-by-word blur-in for a title (no translate).
+function words(tl, sel, at, gap) {
+  document.querySelectorAll(sel + ' .word').forEach((w, i) => {
+    tl.fromTo(w, { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.16, ease: 'power4.out' }, at + i * (gap || 0.07));
+  });
+}
+function wordsOut(tl, sel, at) {
+  tl.to(sel, { opacity: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power3.in' }, at);
+}
+// Typewriter: reveal text one character at a time, deterministic on seek.
+function typer(tl, sel, text, start, dur) {
+  const el = document.querySelector(sel), o = { n: 0 };
+  const paint = () => { el.textContent = text.slice(0, Math.round(o.n)); };
+  paint();
+  tl.fromTo(o, { n: 0 }, { n: text.length, duration: dur, ease: 'none', onUpdate: paint }, start);
+}
+// Rolling counter.
+function counter(tl, sel, from, to, start, dur, suffix) {
+  const el = document.querySelector(sel), o = { v: from };
+  const paint = () => { const v = Math.round(o.v); el.textContent = (to >= 99 && v >= 99 ? '99+' : v) + (suffix || ''); };
+  paint();
+  tl.fromTo(o, { v: from }, { v: to, duration: dur, ease: 'power1.in', onUpdate: paint }, start);
+}
+
+const tl = gsap.timeline({ paused: true });
+
+gsap.set('#e-l1 .word, #e-l2 .word', { opacity: 0 });
+gsap.set(['#e-b1', '#e-b2', '#e-word', '#e-cta', '#e-url'], { opacity: 0 });
+sprite(tl, '#e-selo', 'selo-sleep', 0, 3.4, 400);
+tl.fromTo('#e-selo', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power4.out' }, 0.1);
+words(tl, '#e-l1', 0.6, 0.1);
+words(tl, '#e-l2', 1.4, 0.07);
+// clear the stage; the pause mark drops in and the name wipes in beside it
+tl.to(['#e-selo', '#e-l1', '#e-l2'], { opacity: 0, filter: 'blur(8px)', duration: 0.22, ease: 'power3.in' }, 3.2);
+tl.fromTo('#e-b1', { opacity: 1, y: -700 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power4.in' }, 3.4);
+tl.fromTo('#e-b2', { opacity: 1, y: -700 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power4.in' }, 3.55);
+tl.fromTo('#e-word', { opacity: 1, clipPath: 'inset(0 100% 0 0)' }, { opacity: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.5, ease: 'power3.out' }, 4.0);
+tl.fromTo('#e-cta', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: 'expo.out' }, 4.4);
+tl.fromTo('#e-url', { opacity: 0 }, { opacity: 1, duration: 0.3 }, 4.6);
+
+window.__timelines["end"] = tl;
+})();
+  </script>
+</template>
