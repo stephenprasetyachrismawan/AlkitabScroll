@@ -1,29 +1,9 @@
-import { Lora_400Regular } from '@expo-google-fonts/lora/400Regular';
-import { Lora_500Medium_Italic } from '@expo-google-fonts/lora/500Medium_Italic';
-import { Lora_600SemiBold } from '@expo-google-fonts/lora/600SemiBold';
-import { PlayfairDisplay_500Medium } from '@expo-google-fonts/playfair-display/500Medium';
-import { PlayfairDisplay_700Bold } from '@expo-google-fonts/playfair-display/700Bold';
-import { Nunito_400Regular } from '@expo-google-fonts/nunito/400Regular';
-import { Nunito_600SemiBold } from '@expo-google-fonts/nunito/600SemiBold';
-import { Nunito_700Bold } from '@expo-google-fonts/nunito/700Bold';
-import { Caveat_500Medium } from '@expo-google-fonts/caveat/500Medium';
-import { CormorantGaramond_500Medium } from '@expo-google-fonts/cormorant-garamond/500Medium';
-import { CormorantGaramond_600SemiBold_Italic } from '@expo-google-fonts/cormorant-garamond/600SemiBold_Italic';
 import type { FontKey } from './categories';
 
-export const FONT_ASSETS = {
-  Lora_400Regular,
-  Lora_500Medium_Italic,
-  Lora_600SemiBold,
-  PlayfairDisplay_500Medium,
-  PlayfairDisplay_700Bold,
-  Nunito_400Regular,
-  Nunito_600SemiBold,
-  Nunito_700Bold,
-  Caveat_500Medium,
-  CormorantGaramond_500Medium,
-  CormorantGaramond_600SemiBold_Italic,
-};
+// Font files live in assets/fonts as Latin subsets of the Google Fonts originals (about half
+// the size). On Android they are embedded at build time by the expo-font config plugin
+// (app.json), so the first frame never waits on a font load; see useAppFonts.*.ts.
+// The file name doubles as the family name below.
 
 /** Verse font per style key. `charWidth` = average glyph width in em, used to fit text. */
 export const VERSE_FONTS: Record<FontKey, { family: string; charWidth: number; lineHeight: number; max: number }> = {

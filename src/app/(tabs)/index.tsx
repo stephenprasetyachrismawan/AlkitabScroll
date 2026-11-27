@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppState, StyleSheet, Text, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Aurora } from '../../components/Aurora';
@@ -62,7 +62,8 @@ export default function Home() {
   return (
     <View style={{ flex: 1 }}>
       <Aurora />
-      <BackgroundMusic playing={musicPlaying} />
+      {/* Unmounted when music is off, so the hidden YouTube WebView costs nothing. */}
+      {music ? <BackgroundMusic playing={musicPlaying} /> : null}
       {!reels ? bar : null}
       <Feed header={<StatusRow key={statusKey} />} onSelahVisible={setSelahVisible} onRefresh={() => setStatusKey((k) => k + 1)} />
       {reels ? bar : null}
