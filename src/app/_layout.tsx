@@ -2,19 +2,21 @@ import { useEffect } from 'react';
 import { ActivityIndicator, Platform, View } from 'react-native';
 import { Stack, router, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useFonts } from 'expo-font';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { AuthProvider, useAuth } from '../lib/auth';
+import { DailyProvider } from '../lib/daily';
 import { EngagementProvider, useEngagement } from '../lib/engagement';
-import { FONT_ASSETS } from '../lib/fonts';
 import { SettingsProvider, useSettings } from '../lib/settings';
+import { useAppFonts } from '../lib/useAppFonts';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { NotificationsManager } from '../components/NotificationsManager';
+import { Celebration } from '../components/Celebration';
+import { ToastProvider } from '../components/Toast';
 import { WidgetSync } from '../components/WidgetSync';
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts(FONT_ASSETS);
+  const fontsLoaded = useAppFonts();
   if (!fontsLoaded) return null;
   return (
     <SafeAreaProvider>
@@ -22,7 +24,12 @@ export default function RootLayout() {
       <SettingsProvider>
         <AuthProvider>
           <EngagementProvider>
-            <Gate />
+            <DailyProvider>
+              <ToastProvider>
+                <Gate />
+                <Celebration />
+              </ToastProvider>
+            </DailyProvider>
           </EngagementProvider>
         </AuthProvider>
       </SettingsProvider>
@@ -67,11 +74,13 @@ function Gate() {
       <Stack
         screenOptions={{
           headerShown: false,
-          animation: 'fade_from_bottom',
+          animation: 'slide_from_right',
+          animationDuration: 280,
           contentStyle: { backgroundColor: colors.bg },
-          headerStyle: { backgroundColor: colors.card },
+          headerStyle: { backgroundColor: colors.bg },
+          headerShadowVisible: false,
           headerTintColor: colors.text,
-          headerTitleStyle: { fontFamily: 'Nunito_700Bold' },
+          headerTitleStyle: { fontFamily: 'Gabarito_700Bold' },
         }}
       >
         <Stack.Screen name="(tabs)" options={{ animation: 'fade' }} />

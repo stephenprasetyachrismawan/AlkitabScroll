@@ -25,41 +25,57 @@ type Settings = {
 };
 
 export type Palette = {
+  /** page ground: warm paper */
   bg: string;
+  /** raised things: cards, sheets, inputs */
   card: string;
+  /** a step darker than the ground: wells, idle chips */
+  surface: string;
   text: string;
   muted: string;
   border: string;
   primary: string;
+  /** text on the primary colour */
+  onPrimary: string;
+  /** the ledge under a chunky button: primary, a few steps darker */
+  ledge: string;
   danger: string;
-  /** soft background gradient behind glass surfaces */
-  aurora: [string, string, string];
+  success: string;
   /** tinted wash used for selected / active states */
   primarySoft: string;
 };
 
+// Tokens from taste-skill's brand dealer, fed the app's own colours
+// (adaptive-icon parchment #F2E4BE and the notification brown #9A6A3A):
+// bg #f7f1e3, surface #ebe5d7, ink #221d17, muted #655f56, accent #9a6a3a.
 const LIGHT: Palette = {
-  bg: '#FBF7F2',
-  card: '#FFFFFF',
-  text: '#1E1A16',
-  muted: '#6F665C',
-  border: '#ECE3D8',
+  bg: '#F7F1E3',
+  card: '#FFFBF2',
+  surface: '#EBE5D7',
+  text: '#221D17',
+  muted: '#655F56',
+  border: '#DED6C5',
   primary: '#9A6A3A',
-  danger: '#C0392B',
-  aurora: ['#FDF8F1', '#F5EEF8', '#EAF2FB'],
-  primarySoft: 'rgba(154,106,58,0.12)',
+  onPrimary: '#FFFFFF',
+  ledge: '#6E4A26',
+  danger: '#B3402E',
+  success: '#4F7A3A',
+  primarySoft: 'rgba(154,106,58,0.13)',
 };
 
 const DARK: Palette = {
-  bg: '#100E14',
-  card: '#1B1820',
-  text: '#F4EFE8',
-  muted: '#A69C92',
-  border: '#2C2730',
-  primary: '#E2B47C',
-  danger: '#EC6F62',
-  aurora: ['#120F18', '#1A1426', '#0E1820'],
-  primarySoft: 'rgba(226,180,124,0.16)',
+  bg: '#1A1612',
+  card: '#26211B',
+  surface: '#2E2923',
+  text: '#F7F1E3',
+  muted: '#A39C90',
+  border: '#3A342C',
+  primary: '#D9A66B',
+  onPrimary: '#221D17',
+  ledge: '#9A6A3A',
+  danger: '#E2735F',
+  success: '#8DBA6E',
+  primarySoft: 'rgba(217,166,107,0.16)',
 };
 
 type Ctx = Settings & {

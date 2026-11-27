@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { Aurora } from '../../components/Aurora';
-import { useTabBarSpace } from '../../components/GlassTabBar';
+import { useTabBarSpace } from '../../components/TabBar';
 import { PressableScale } from '../../components/PressableScale';
 import { FadeInView } from '../../components/FadeInView';
 import { router, useFocusEffect } from 'expo-router';
@@ -27,7 +26,6 @@ export default function Inbox() {
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top + 8 }}>
-      <Aurora />
       <Text style={[styles.h, { color: colors.text }]}>{t('messages')}</Text>
       <FlatList
         data={rows}

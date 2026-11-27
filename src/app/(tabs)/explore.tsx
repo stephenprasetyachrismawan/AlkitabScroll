@@ -1,14 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Aurora } from '../../components/Aurora';
 import { Avatar } from '../../components/Avatar';
 import { FadeInView } from '../../components/FadeInView';
-import { Glass } from '../../components/Glass';
-import { useTabBarSpace } from '../../components/GlassTabBar';
+import { ChunkyPressable } from '../../components/ChunkyButton';
+import { Surface } from '../../components/Surface';
+import { useTabBarSpace } from '../../components/TabBar';
 import { PressableScale } from '../../components/PressableScale';
 import * as api from '../../lib/api';
 import { useAuth } from '../../lib/auth';
@@ -74,14 +73,24 @@ export default function Explore() {
   }, [searching, userId]);
 
   // Verse search runs locally over the bundled text.
+  // The lowercased text is built once per translation, and typing stays responsive because the
+  // filter runs on a deferred copy of the query.
+  const haystack = useMemo(
+    () =>
+      VERSES.map((v) => {
+        const p = passageText(v, translation);
+        return `${p.body}\n${p.title}\n${v.ref}`.toLowerCase();
+      }),
+    [translation],
+  );
+  const deferredTerm = useDeferredValue(term);
   const verseResults = useMemo(() => {
-    if (mode !== 'verses' || term.length < 2) return [];
-    const needle = term.toLowerCase();
-    return VERSES.filter((v) => {
-      const p = passageText(v, translation);
-      return p.body.toLowerCase().includes(needle) || p.title.toLowerCase().includes(needle) || v.ref.toLowerCase().includes(needle);
-    }).slice(0, 60);
-  }, [mode, term, translation]);
+    if (mode !== 'verses' || deferredTerm.length < 2) return [];
+    const needle = deferredTerm.toLowerCase();
+    const out: Verse[] = [];
+    for (let i = 0; i < VERSES.length && out.length < 60; i++) if (haystack[i].includes(needle)) out.push(VERSES[i]);
+    return out;
+  }, [mode, deferredTerm, haystack]);
 
   const toggleFollow = async (p: api.Profile) => {
     if (!userId) return;
@@ -114,9 +123,8 @@ export default function Explore() {
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top + 8 }}>
-      <Aurora />
       <View style={styles.searchRow}>
-        <Glass dark={dark} radius={20} strength={0.75} style={styles.search}>
+        <Surface radius={20} style={styles.search}>
           <Ionicons name="search" size={18} color={colors.muted} />
           <TextInput
             value={q}
@@ -134,7 +142,7 @@ export default function Explore() {
               <Ionicons name="close-circle" size={18} color={colors.muted} />
             </Pressable>
           ) : null}
-        </Glass>
+        </Surface>
         {searching ? (
           <Pressable onPress={close} hitSlop={8} style={styles.cancel}>
             <Text style={{ color: colors.primary, fontFamily: UI_FONT.bold }}>{t('cancel')}</Text>
@@ -155,30 +163,19 @@ export default function Explore() {
             const s = dark ? item.dark : item.light;
             return (
               <FadeInView style={{ flex: 1 }} delay={Math.min(index, 10) * 50}>
-                <PressableScale
-                  scaleTo={0.95}
-                  haptic
+                <ChunkyPressable
+                  face={s.paper}
+                  ledge={s.well}
+                  faceStyle={styles.tile}
                   onPress={() => router.push({ pathname: '/category/[key]', params: { key: item.key } })}
-                  accessibilityRole="button"
                   accessibilityLabel={item.label[lang]}
                 >
-                  <LinearGradient colors={s.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.tile}>
-                    <LinearGradient
-                      pointerEvents="none"
-                      colors={dark ? ['rgba(255,255,255,0.12)', 'rgba(255,255,255,0)'] : ['rgba(255,255,255,0.7)', 'rgba(255,255,255,0)']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 0.6, y: 0.6 }}
-                      style={StyleSheet.absoluteFill}
-                    />
-                    <View style={[styles.tileIcon, { backgroundColor: dark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.6)' }]}>
-                      <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={20} color={s.accent} />
-                    </View>
-                    <Text style={[styles.tileName, { color: s.text }]}>{item.label[lang]}</Text>
-                    <Text style={[styles.tileCount, { color: s.text }]}>
-                      {counts[item.key]} {lang === 'id' ? 'ayat' : 'verses'}
-                    </Text>
-                  </LinearGradient>
-                </PressableScale>
+                  <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={22} color={s.accent} style={styles.tileIcon} />
+                  <Text style={[styles.tileName, { color: s.text }]}>{item.label[lang]}</Text>
+                  <Text style={[styles.tileCount, { color: s.text }]}>
+                    {counts[item.key]} {lang === 'id' ? 'ayat' : 'verses'}
+                  </Text>
+                </ChunkyPressable>
               </FadeInView>
             );
           }}
@@ -191,7 +188,7 @@ export default function Explore() {
                 <PressableScale
                   key={m}
                   onPress={() => setMode(m)}
-                  style={[styles.seg, mode === m && { backgroundColor: colors.primary }]}
+                  style={[styles.seg, { borderColor: mode === m ? colors.primary : colors.border, backgroundColor: mode === m ? colors.primary : colors.card }]}
                   accessibilityRole="tab"
                   accessibilityState={{ selected: mode === m }}
                 >
@@ -269,8 +266,8 @@ function VerseRow({ verse }: { verse: Verse }) {
   const p = passageText(verse, translation);
   return (
     <PressableScale scaleTo={0.98} onPress={() => router.push({ pathname: '/post/[id]', params: { id: verse.id } })}>
-      <LinearGradient colors={s.gradient} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.verseRow}>
-        <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 14, lineHeight: 21 }} numberOfLines={3}>
+      <View style={[styles.verseRow, { backgroundColor: s.paper }]}>
+        <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 15, lineHeight: 23 }} numberOfLines={3}>
           {p.body}
         </Text>
         <View style={styles.verseMeta}>
@@ -279,7 +276,7 @@ function VerseRow({ verse }: { verse: Verse }) {
             {p.title} · {c.label[lang]}
           </Text>
         </View>
-      </LinearGradient>
+      </View>
     </PressableScale>
   );
 }
@@ -289,14 +286,14 @@ const styles = StyleSheet.create({
   search: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 14, minHeight: 48 },
   searchInput: { flex: 1, fontFamily: UI_FONT.regular, fontSize: 15, paddingVertical: 10 },
   cancel: { paddingVertical: 10 },
-  h: { fontFamily: UI_FONT.title, fontSize: 24, marginBottom: 4, marginTop: 6 },
+  h: { fontFamily: UI_FONT.title, fontSize: 28, letterSpacing: -0.6, marginBottom: 4, marginTop: 6 },
   sub: { fontFamily: UI_FONT.bold, fontSize: 13, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 6 },
-  tile: { borderRadius: 22, padding: 16, height: 124, justifyContent: 'flex-end', overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(255,255,255,0.5)' },
-  tileIcon: { position: 'absolute', top: 14, right: 14, width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center' },
+  tile: { padding: 16, height: 116, justifyContent: 'flex-end' },
+  tileIcon: { position: 'absolute', top: 14, left: 16 },
   tileName: { fontFamily: UI_FONT.bold, fontSize: 16 },
   tileCount: { fontFamily: UI_FONT.regular, fontSize: 12, opacity: 0.7 },
   segRow: { flexDirection: 'row', gap: 8, padding: 12 },
-  seg: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, minHeight: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.5)' },
+  seg: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, minHeight: 40, borderRadius: 20, borderWidth: 1.5 },
   segText: { fontFamily: UI_FONT.bold, fontSize: 13 },
   person: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8 },
   personMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },

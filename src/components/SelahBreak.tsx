@@ -1,13 +1,12 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { ReduceMotion, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { UI_FONT } from '../lib/fonts';
 import { EASE_IN_OUT } from '../lib/motion';
 import { useSettings } from '../lib/settings';
 import { passageText, type Verse } from '../lib/verses';
-import { Glass } from './Glass';
-import { PressableScale } from './PressableScale';
+import { Surface } from './Surface';
+import { ChunkyButton } from './ChunkyButton';
 import { YouTubeEmbed } from './YouTubeEmbed';
 
 // Verified peaceful instrumental worship videos (titles checked via YouTube oEmbed).
@@ -48,14 +47,14 @@ export function SelahBreak({ width, height, bottomInset = 0, index, verse, onCon
   const { body, title } = passageText(verse, translation);
 
   return (
-    <LinearGradient colors={['#1A1830', '#2A2242', '#3B2D52']} style={[styles.root, { width, height, paddingBottom: bottomInset }]}>
+    <View style={[styles.root, { width, height, paddingBottom: bottomInset }]}>
       <Breath />
       <Text style={styles.kicker}>SELAH</Text>
       <Text style={styles.title}>{t('selahTitle')}</Text>
       <Text style={styles.body}>{t('selahBody')}</Text>
-      <Glass dark radius={22} strength={0.3} style={{ padding: 8 }}>
+      <Surface tone="overlay" dark radius={16} style={{ padding: 6 }}>
         <YouTubeEmbed videoIds={[SELAH_VIDEOS[index % SELAH_VIDEOS.length]]} width={videoW} height={(videoW * 9) / 16} style={{ borderRadius: 16 }} />
-      </Glass>
+      </Surface>
       <View style={styles.verse}>
         <Text style={styles.verseText} numberOfLines={5}>
           “{body}”
@@ -63,29 +62,25 @@ export function SelahBreak({ width, height, bottomInset = 0, index, verse, onCon
         <Text style={styles.verseRef}>{title}</Text>
       </View>
       <View style={styles.row}>
-        <PressableScale onPress={onEnough} style={[styles.btn, styles.ghost]} accessibilityRole="button">
-          <Text style={styles.btnText}>{t('enoughToday')}</Text>
-        </PressableScale>
-        <PressableScale onPress={onContinue} style={[styles.btn, styles.solid]} accessibilityRole="button" haptic>
-          <Text style={[styles.btnText, { color: '#2A2242' }]}>{t('continueScroll')}</Text>
-        </PressableScale>
+        <ChunkyButton variant="secondary" label={t('enoughToday')} onPress={onEnough} face="#2A3326" ledge="#121710" ink={INK} style={styles.btn} />
+        <ChunkyButton label={t('continueScroll')} onPress={onContinue} face="#E8DFC8" ledge="#A89B7C" ink="#1C211A" style={styles.btn} />
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
+// Evening field, not a violet glow: deep moss ground, parchment ink, a sage breath.
+const INK = '#EFE8D6';
+
 const styles = StyleSheet.create({
-  root: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 14, overflow: 'hidden' },
-  breath: { position: 'absolute', width: 420, height: 420, borderRadius: 210, backgroundColor: '#8E7CC3' },
-  kicker: { color: '#CDBEF2', fontFamily: UI_FONT.bold, letterSpacing: 5, fontSize: 12 },
-  title: { color: '#fff', fontFamily: UI_FONT.title, fontSize: 26, textAlign: 'center' },
-  body: { color: '#E6DFF6', fontFamily: UI_FONT.serif, fontSize: 15, lineHeight: 23, textAlign: 'center', maxWidth: 480 },
+  root: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, gap: 14, overflow: 'hidden', backgroundColor: '#1C211A' },
+  breath: { position: 'absolute', width: 420, height: 420, borderRadius: 210, backgroundColor: '#5E7352' },
+  kicker: { color: '#B9C7A6', fontFamily: UI_FONT.bold, letterSpacing: 5, fontSize: 12 },
+  title: { color: INK, fontFamily: UI_FONT.title, fontSize: 28, letterSpacing: -0.5, textAlign: 'center' },
+  body: { color: '#D7D2C0', fontFamily: UI_FONT.serif, fontSize: 15, lineHeight: 23, textAlign: 'center', maxWidth: 480 },
   verse: { maxWidth: 480, alignItems: 'center', gap: 6 },
-  verseText: { color: '#F6F2FF', fontFamily: 'Lora_500Medium_Italic', fontSize: 15, lineHeight: 23, textAlign: 'center' },
-  verseRef: { color: '#CDBEF2', fontFamily: UI_FONT.serifBold, fontSize: 13 },
-  row: { flexDirection: 'row', gap: 12, marginTop: 6 },
-  btn: { paddingHorizontal: 20, minHeight: 48, justifyContent: 'center', borderRadius: 999 },
-  ghost: { borderWidth: 1, borderColor: 'rgba(205,190,242,0.7)', backgroundColor: 'rgba(255,255,255,0.06)' },
-  solid: { backgroundColor: '#F6F2FF' },
-  btnText: { color: '#F6F2FF', fontFamily: UI_FONT.bold, fontSize: 14 },
+  verseText: { color: INK, fontFamily: UI_FONT.serifItalic, fontSize: 15, lineHeight: 23, textAlign: 'center' },
+  verseRef: { color: '#B9C7A6', fontFamily: UI_FONT.bold, fontSize: 13 },
+  row: { flexDirection: 'row', gap: 12, marginTop: 6, alignSelf: 'stretch', maxWidth: 480 },
+  btn: { flex: 1 },
 });

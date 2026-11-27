@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState, type ReactElement, type ReactNode } from 'react';
 import {
   FlatList,
   Pressable,
@@ -9,7 +9,7 @@ import {
   View,
   type LayoutChangeEvent,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,15 +18,19 @@ import * as api from '../lib/api';
 import { CATEGORY_MAP } from '../lib/categories';
 import { useEngagement } from '../lib/engagement';
 import { UI_FONT } from '../lib/fonts';
-import { useSettings } from '../lib/settings';
+import { useSettings, type Palette } from '../lib/settings';
 import { supabase } from '../lib/supabase';
-import { VERSE_MAP, VERSES, type Verse } from '../lib/verses';
+import { VERSE_MAP, VERSES, type Translation, type Verse } from '../lib/verses';
+import type { Lang, StringKey } from '../lib/i18n';
 import { SelahBreak } from './SelahBreak';
 import { ShareSheet } from './ShareSheet';
 import { VerseCard } from './VerseCard';
-import { Glass } from './Glass';
-import { useTabBarSpace } from './GlassTabBar';
-import { DoubleTapLike, GlassAction, LIKE_RED, PopIcon } from './Interactions';
+import { Surface } from './Surface';
+import { useTabBarSpace } from './TabBar';
+import { CardAction, DoubleTapLike, LIKE_RED, PopIcon } from './Interactions';
+import { useToast } from './Toast';
+import { useDaily } from '../lib/daily';
+import { ChunkyButton } from './ChunkyButton';
 import { PressableScale } from './PressableScale';
 
 type Item =
@@ -73,6 +77,7 @@ function initialItems(session: FeedSession, routes: Route[], startVerseId: strin
 }
 
 const STATS_POLL_MS = 15_000;
+const VIEWABILITY = { itemVisiblePercentThreshold: 70 };
 
 type FeedProps = {
   /** Open this verse first, then continue with the algorithm. */
@@ -89,6 +94,8 @@ type FeedProps = {
 export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh }: FeedProps) {
   const { viewMode, translation, lang, dark, colors, t } = useSettings();
   const { routes, liked, saved, toggleLike, toggleSave, recordDwell } = useEngagement();
+  const { tick } = useDaily();
+  const toast = useToast();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const tabSpace = useTabBarSpace();
@@ -189,8 +196,12 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
   // Dwell tracking: a post that stays on screen long enough becomes a signal.
   const dwell = useRef<{ timer: ReturnType<typeof setTimeout> | null; record: (id: string) => void }>({ timer: null, record: recordDwell });
   useEffect(() => {
-    dwell.current.record = recordDwell;
-  }, [recordDwell]);
+    // a slow read feeds the algorithm and fills one of today's pips
+    dwell.current.record = (id: string) => {
+      recordDwell(id);
+      tick(id);
+    };
+  }, [recordDwell, tick]);
   const onViewable = useCallback(({ viewableItems }: { viewableItems: { item: Item }[] }) => {
     const d = dwell.current;
     if (d.timer) clearTimeout(d.timer);
@@ -215,10 +226,35 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
     },
     [liked, toggleLike],
   );
-  // Double-tap only ever likes (never un-likes), like every photo app.
-  const likeOnly = useCallback((v: Verse) => {
-    if (!liked.has(v.id)) like(v);
-  }, [liked, like]);
+
+  // Row callbacks read the latest handlers through a ref, so their identity never changes
+  // and memoized rows only re-render when their own data (likes, active, ...) changes.
+  const handlers = useRef({ like, liked, saved, toggleSave, toast, t });
+  useEffect(() => {
+    handlers.current = { like, liked, saved, toggleSave, toast, t };
+  }, [like, liked, saved, toggleSave, toast, t]);
+  const actions = useMemo<RowActions>(
+    () => ({
+      like: (v) => handlers.current.like(v),
+      // Double-tap only ever likes (never un-likes), like every photo app.
+      likeOnly: (v) => {
+        if (!handlers.current.liked.has(v.id)) handlers.current.like(v);
+      },
+      save: (v) => {
+        const h = handlers.current;
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+        const on = !h.saved.has(v.id);
+        h.toggleSave(v.id);
+        h.toast(h.t(on ? 'savedToast' : 'unsavedToast'), on ? 'bookmark' : 'bookmark-outline');
+      },
+      comment: (v) => router.push({ pathname: '/comments/[id]', params: { id: v.id } }),
+      share: (v) => setShareVerse(v),
+      continueAfter: (index) =>
+        listRef.current?.scrollToIndex({ index: Math.min(index + 1, itemsRef.current.length - 1), animated: true }),
+      enough: () => setEnded(true),
+    }),
+    [],
+  );
 
   const reels = viewMode === 'reels';
   const cardW = width - 24;
@@ -226,85 +262,34 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
 
   const renderItem = useCallback(
     ({ item, index }: { item: Item; index: number }) => {
-      if (item.kind === 'selah') {
-        return (
-          <SelahBreak
-            width={width}
-            height={reels ? height : Math.round(width * 1.5)}
-            bottomInset={reels ? tabSpace : 0}
-            index={item.n}
-            verse={item.verse}
-            onContinue={() => listRef.current?.scrollToIndex({ index: Math.min(index + 1, items.length - 1), animated: true })}
-            onEnough={() => setEnded(true)}
-          />
-        );
-      }
-      const v = item.verse;
-      const s = stats[v.id];
-      const actions: ActionProps = {
-        liked: liked.has(v.id),
-        saved: saved.has(v.id),
-        likes: s?.likes ?? 0,
-        comments: s?.comments ?? 0,
-        onLike: () => like(v),
-        onSave: () => {
-          Haptics.selectionAsync().catch(() => {});
-          toggleSave(v.id);
-        },
-        onComment: () => router.push({ pathname: '/comments/[id]', params: { id: v.id } }),
-        onShare: () => setShareVerse(v),
-      };
-      const reasonCat = CATEGORY_MAP[item.reason];
-      const active = item.key === activeKey;
-
-      if (reels) {
-        return (
-          <View style={{ width, height }}>
-            <DoubleTapLike onDoubleTap={() => likeOnly(v)} style={{ width, height }}>
-              <VerseCard
-                verse={v}
-                width={width}
-                height={height}
-                translation={translation}
-                lang={lang}
-                dark={dark}
-                category={category ?? item.reason}
-                badge={item.badge}
-                bottomInset={tabSpace}
-                rightInset={56}
-                topInset={insets.top + 56}
-                active={active}
-              />
-            </DoubleTapLike>
-            <View style={[styles.reelActions, { bottom: tabSpace + 28 }]}>
-              <GlassAction icon={actions.liked ? 'heart' : 'heart-outline'} on={actions.liked} onColor={LIKE_RED} label={actions.likes} onPress={actions.onLike} dark={dark} />
-              <GlassAction icon="chatbubble-outline" label={actions.comments} onPress={actions.onComment} dark={dark} />
-              <GlassAction icon={actions.saved ? 'bookmark' : 'bookmark-outline'} on={actions.saved} onColor={colors.primary} onPress={actions.onSave} dark={dark} />
-              <GlassAction icon="paper-plane-outline" onPress={actions.onShare} dark={dark} />
-            </View>
-          </View>
-        );
-      }
-
+      const s = item.kind === 'verse' ? stats[item.verse.id] : undefined;
       return (
-        <View style={styles.post}>
-          <View style={styles.postHeader}>
-            <Glass dark={dark} radius={20} strength={0.6} style={styles.postIcon}>
-              <Ionicons name={(reasonCat?.icon ?? 'sparkles-outline') as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
-            </Glass>
-            <View>
-              <Text style={[styles.postTitle, { color: colors.text }]}>{item.badge ?? 'Selah'}</Text>
-              <Text style={[styles.postSub, { color: colors.muted }]}>{reasonCat ? reasonCat.label[lang] : t('explore')}</Text>
-            </View>
-          </View>
-          <DoubleTapLike onDoubleTap={() => likeOnly(v)} style={[styles.postCard, { width: cardW, height: postH }]}>
-            <VerseCard verse={v} width={cardW} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} active={active} />
-          </DoubleTapLike>
-          <ActionRow {...actions} color={colors.text} muted={colors.muted} primary={colors.primary} t={t} />
-        </View>
+        <FeedRow
+          item={item}
+          index={index}
+          reels={reels}
+          width={width}
+          height={height}
+          cardW={cardW}
+          postH={postH}
+          tabSpace={tabSpace}
+          topInset={insets.top}
+          category={category}
+          translation={translation}
+          lang={lang}
+          dark={dark}
+          colors={colors}
+          t={t}
+          liked={item.kind === 'verse' && liked.has(item.verse.id)}
+          saved={item.kind === 'verse' && saved.has(item.verse.id)}
+          likes={s?.likes ?? 0}
+          comments={s?.comments ?? 0}
+          active={item.key === activeKey}
+          actions={actions}
+        />
       );
     },
-    [width, height, cardW, tabSpace, insets.top, reels, category, items.length, stats, liked, saved, like, likeOnly, toggleSave, translation, lang, dark, colors, postH, t, activeKey],
+    [width, height, cardW, postH, tabSpace, insets.top, reels, category, stats, liked, saved, translation, lang, dark, colors, t, activeKey, actions],
   );
 
   const onLayout = (e: LayoutChangeEvent) => setHeight(Math.round(e.nativeEvent.layout.height));
@@ -317,11 +302,9 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
   if (ended) {
     return (
       <View style={[styles.end, { backgroundColor: colors.bg }]}>
-        <Text style={styles.endEmoji}>🕊️</Text>
+        <Ionicons name="leaf-outline" size={44} color={colors.primary} />
         <Text style={[styles.endText, { color: colors.text }]}>{t('enoughBody')}</Text>
-        <Pressable onPress={() => setEnded(false)} style={[styles.endBtn, { borderColor: colors.border }]}>
-          <Text style={{ color: colors.muted, fontFamily: UI_FONT.semibold }}>{t('continueScroll')}</Text>
-        </Pressable>
+        <ChunkyButton variant="secondary" label={t('continueScroll')} onPress={() => setEnded(false)} />
       </View>
     );
   }
@@ -345,7 +328,7 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
           onEndReached={loadMore}
           onEndReachedThreshold={3}
           onViewableItemsChanged={onViewable}
-          viewabilityConfig={{ itemVisiblePercentThreshold: 70 }}
+          viewabilityConfig={VIEWABILITY}
           windowSize={5}
           initialNumToRender={3}
           maxToRenderPerBatch={4}
@@ -361,6 +344,153 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
     </View>
   );
 }
+
+type RowActions = {
+  like: (v: Verse) => void;
+  likeOnly: (v: Verse) => void;
+  save: (v: Verse) => void;
+  comment: (v: Verse) => void;
+  share: (v: Verse) => void;
+  continueAfter: (index: number) => void;
+  enough: () => void;
+};
+
+type RowProps = {
+  item: Item;
+  index: number;
+  reels: boolean;
+  width: number;
+  height: number;
+  cardW: number;
+  postH: number;
+  tabSpace: number;
+  topInset: number;
+  category?: string;
+  translation: Translation;
+  lang: Lang;
+  dark: boolean;
+  colors: Palette;
+  t: (key: StringKey) => string;
+  liked: boolean;
+  saved: boolean;
+  likes: number;
+  comments: number;
+  active: boolean;
+  actions: RowActions;
+};
+
+/**
+ * One feed cell. Memoized on plain props: scrolling to the next card, a like, or a
+ * counts refresh re-renders only the rows whose own values changed, not every mounted card.
+ */
+const FeedRow = memo(function FeedRow({
+  item,
+  index,
+  reels,
+  width,
+  height,
+  cardW,
+  postH,
+  tabSpace,
+  topInset,
+  category,
+  translation,
+  lang,
+  dark,
+  colors,
+  t,
+  liked,
+  saved,
+  likes,
+  comments,
+  active,
+  actions,
+}: RowProps) {
+  const v = item.verse;
+  const onLike = useCallback(() => actions.like(v), [actions, v]);
+  const onLikeOnly = useCallback(() => actions.likeOnly(v), [actions, v]);
+  const onSave = useCallback(() => actions.save(v), [actions, v]);
+  const onComment = useCallback(() => actions.comment(v), [actions, v]);
+  const onShare = useCallback(() => actions.share(v), [actions, v]);
+
+  if (item.kind === 'selah') {
+    return (
+      <SelahBreak
+        width={width}
+        height={reels ? height : Math.round(width * 1.5)}
+        bottomInset={reels ? tabSpace : 0}
+        index={item.n}
+        verse={item.verse}
+        onContinue={() => actions.continueAfter(index)}
+        onEnough={actions.enough}
+      />
+    );
+  }
+
+  const reasonCat = CATEGORY_MAP[item.reason];
+  const accent = CATEGORY_MAP[category ?? item.reason]?.[dark ? 'dark' : 'light'].accent ?? LIKE_RED;
+
+  // Reels: each card is its own screen and arrives in reading order. Posts scroll; they stand still.
+  if (reels) {
+    return (
+      <View style={{ width, height }}>
+        <DoubleTapLike onDoubleTap={onLikeOnly} style={{ width, height }} sparkColor={accent}>
+          <VerseCard
+            verse={v}
+            width={width}
+            height={height}
+            translation={translation}
+            lang={lang}
+            dark={dark}
+            category={category ?? item.reason}
+            badge={item.badge}
+            bottomInset={tabSpace}
+            rightInset={56}
+            topInset={topInset + 56}
+            active={active}
+          />
+        </DoubleTapLike>
+        <View style={[styles.reelActions, { bottom: tabSpace + 28 }]}>
+          <CardAction accessibilityLabel="like" icon={liked ? 'heart' : 'heart-outline'} on={liked} onColor={LIKE_RED} label={likes} onPress={onLike} dark={dark} />
+          <CardAction accessibilityLabel="comment" icon="chatbubble-outline" label={comments} onPress={onComment} dark={dark} />
+          <CardAction accessibilityLabel="save" icon={saved ? 'bookmark' : 'bookmark-outline'} on={saved} onColor={colors.primary} onPress={onSave} dark={dark} motion="fold" />
+          <CardAction accessibilityLabel="share" icon="paper-plane-outline" onPress={onShare} dark={dark} />
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.post}>
+      <View style={styles.postHeader}>
+        <Surface tone="well" radius={12} style={styles.postIcon}>
+          <Ionicons name={(reasonCat?.icon ?? 'sparkles-outline') as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
+        </Surface>
+        <View>
+          <Text style={[styles.postTitle, { color: colors.text }]}>{item.badge ?? 'Selah'}</Text>
+          <Text style={[styles.postSub, { color: colors.muted }]}>{reasonCat ? reasonCat.label[lang] : t('explore')}</Text>
+        </View>
+      </View>
+      <DoubleTapLike onDoubleTap={onLikeOnly} style={[styles.postCard, { width: cardW, height: postH, borderColor: colors.border }]} sparkColor={accent}>
+        <VerseCard verse={v} width={cardW} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} />
+      </DoubleTapLike>
+      <ActionRow
+        liked={liked}
+        saved={saved}
+        likes={likes}
+        comments={comments}
+        onLike={onLike}
+        onSave={onSave}
+        onComment={onComment}
+        onShare={onShare}
+        color={colors.text}
+        muted={colors.muted}
+        primary={colors.primary}
+        t={t}
+      />
+    </View>
+  );
+});
 
 type ActionProps = {
   liked: boolean;
@@ -388,7 +518,7 @@ function ActionRow({ color, muted, primary, t, ...a }: ActionProps & { color: st
         </IconBtn>
       </View>
       <IconBtn onPress={a.onSave} label="save">
-        <PopIcon name={a.saved ? 'bookmark' : 'bookmark-outline'} on={a.saved} color={a.saved ? primary : color} />
+        <PopIcon name={a.saved ? 'bookmark' : 'bookmark-outline'} on={a.saved} color={a.saved ? primary : color} motion="fold" />
       </IconBtn>
       <View style={{ width: '100%', paddingHorizontal: 8 }}>
         {a.likes > 0 ? <Text style={[styles.countText, { color }]}>{a.likes} ♥</Text> : null}
@@ -422,19 +552,14 @@ const styles = StyleSheet.create({
   postSub: { fontFamily: UI_FONT.regular, fontSize: 12 },
   postCard: {
     marginHorizontal: 12,
-    borderRadius: 28,
+    borderRadius: 20,
+    borderWidth: 1.5,
     overflow: 'hidden',
-    shadowColor: '#3A2A1A',
-    shadowOpacity: 0.14,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 5,
   },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 8, paddingTop: 6 },
   iconBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   countText: { fontFamily: UI_FONT.semibold, fontSize: 13, marginTop: 2 },
   end: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 16 },
-  endEmoji: { fontSize: 56 },
   endText: { fontFamily: UI_FONT.serif, fontSize: 20, textAlign: 'center', lineHeight: 30 },
   endBtn: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 18, paddingVertical: 10 },
 });
