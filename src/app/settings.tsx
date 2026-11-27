@@ -8,6 +8,8 @@ import { useAuth } from '../lib/auth';
 import { UI_FONT } from '../lib/fonts';
 import { useSettings, type ThemePref, type ViewMode } from '../lib/settings';
 import { TRANSLATIONS, type Translation } from '../lib/verses';
+import { UpdateCard } from '../components/UpdateCard';
+import { currentVersion } from '../lib/updater';
 
 export default function Settings() {
   const s = useSettings();
@@ -39,6 +41,7 @@ export default function Settings() {
   return (
     <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16, gap: 22 }}>
       <Stack.Screen options={{ title: t('settings') }} />
+      <UpdateCard />
       <Group title={t('notifications')} colors={colors}>
         {perm !== 'granted' && perm !== 'unsupported' ? (
           <View style={{ paddingVertical: 12, gap: 8 }}>
@@ -140,6 +143,11 @@ export default function Settings() {
           <Text style={{ color: colors.danger, fontFamily: UI_FONT.bold }}>{t('deleteAccount')}</Text>
         </Pressable>
       </View>
+      {currentVersion() ? (
+        <Text style={[styles.note, { color: colors.muted, textAlign: 'center' }]}>
+          Selah · {t('appVersion')} {currentVersion()}
+        </Text>
+      ) : null}
     </ScrollView>
   );
 }
