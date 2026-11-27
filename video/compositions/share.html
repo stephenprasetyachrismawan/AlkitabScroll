@@ -1,0 +1,150 @@
+<template>
+  <style>
+
+@font-face{font-family:'Gabarito';font-weight:700;src:url('assets/fonts/Gabarito_700Bold.ttf')}
+@font-face{font-family:'Gabarito';font-weight:600;src:url('assets/fonts/Gabarito_600SemiBold.ttf')}
+@font-face{font-family:'Figtree';font-weight:400;src:url('assets/fonts/Figtree_400Regular.ttf')}
+@font-face{font-family:'Figtree';font-weight:500;src:url('assets/fonts/Figtree_500Medium.ttf')}
+@font-face{font-family:'Figtree';font-weight:700;src:url('assets/fonts/Figtree_700Bold.ttf')}
+@font-face{font-family:'Lora';font-weight:400;src:url('assets/fonts/Lora_400Regular.ttf')}
+@font-face{font-family:'Lora';font-weight:500;font-style:italic;src:url('assets/fonts/Lora_500Medium_Italic.ttf')}
+@font-face{font-family:'Lora';font-weight:600;src:url('assets/fonts/Lora_600SemiBold.ttf')}
+@font-face{font-family:'Caveat';font-weight:500;src:url('assets/fonts/Caveat_500Medium.ttf')}
+
+
+#root{position:absolute;inset:0;overflow:hidden;background:#F7F1E3;font-family:'Figtree';color:#221D17}
+#root *{box-sizing:border-box}
+.abs{position:absolute}
+.phone{position:absolute;width:500px;height:1000px;border-radius:64px;background:#1E1A16;padding:14px;}
+.screen{position:absolute;inset:14px;border-radius:52px;overflow:hidden;background:#F7F1E3}
+.status{position:absolute;left:0;right:0;top:0;height:54px;display:flex;justify-content:space-between;align-items:center;padding:0 38px;font:600 22px 'Figtree';color:#221D17;z-index:5}
+.title{font:700 84px/1.04 'Gabarito';letter-spacing:-0.02em;color:#221D17}
+.sub{font:500 34px/1.35 'Figtree';color:#655F56}
+.hand{font:500 44px/1.1 'Caveat';color:#9A6A3A}
+.chunky{background:#FFFBF2;border:2px solid #DDD3BF;border-radius:26px;box-shadow:0 7px 0 #DDD3BF;}
+.verse{font:500 34px/1.42 'Lora';font-style:italic}
+.ref{font:700 24px 'Figtree';letter-spacing:0.02em}
+.sprite{position:absolute;background-repeat:no-repeat}
+.word{display:inline-block;margin-right:0.24em}
+
+
+#root{background:#F7F1E3}
+.scard{left:0;top:0;width:520px;height:900px;border-radius:40px;padding:80px 52px}
+.sk{font:700 22px 'Figtree';letter-spacing:0.14em}
+.mark{position:absolute;left:52px;bottom:60px;font:700 40px 'Gabarito'}
+#h-cards{left:150px;top:90px;width:520px;height:900px;z-index:20}
+#h-seed{left:720px;top:150px;width:420px;height:150px;border-radius:30px;background:#FFFBF2;border:2px solid #DDD3BF;box-shadow:0 7px 0 #DDD3BF;padding:26px 30px}
+#h-sn{font:700 44px 'Gabarito'}
+#h-sl{font:500 26px 'Figtree';color:#655F56;margin-top:6px}
+#h-chat .screen{background:#F7F1E3}
+#h-head{left:0;right:0;top:54px;height:96px;border-bottom:2px solid #DDD3BF;padding:20px 30px;display:flex;align-items:center;gap:16px}
+#h-av{width:56px;height:56px;border-radius:28px;background:#D9C3A3}
+#h-name{font:700 30px 'Gabarito'}
+#h-fs{margin-left:auto;font:700 28px 'Figtree';background:#FBE3D4;border-radius:22px;padding:6px 16px}
+#h-pr{left:30px;top:420px;width:400px;border-radius:28px;background:#FFFBF2;border:2px solid #DDD3BF;padding:24px}
+#h-pk{font:700 20px 'Figtree';letter-spacing:0.1em;color:#9A6A3A}
+#h-pt{font:500 30px/1.3 'Figtree';margin-top:10px}
+#h-pb{margin-top:20px;height:64px;border-radius:32px;background:#9A6A3A;color:#FFFBF2;font:700 26px/64px 'Figtree';text-align:center;box-shadow:0 6px 0 #6E4A26}
+#h-done{margin-top:16px;font:600 24px 'Figtree';color:#9A6A3A}
+#h-mini{left:150px;top:180px;width:290px;height:200px;border-radius:24px;background:#3E4A2F;padding:20px;color:#EFE8D2;font:500 20px/1.3 'Lora';font-style:italic}
+
+  </style>
+  <div id="root" data-composition-id="share" data-width="1920" data-height="1080" data-layout-allow-overlap data-layout-allow-overflow>
+
+<div id="h-cards" class="abs"><div id="h-th0" class="abs scard" style="background:#F6DDB8;color:#3B2414">
+  <div class="sk" style="color:#C0612B">TEMA · FAJAR</div>
+  <div class="verse" style="color:#3B2414;font-size:40px;margin-top:70px">Damai sejahtera Allah, yang melampaui segala akal, akan memelihara hati dan pikiranmu.</div>
+  <div class="ref" style="color:#3B2414;margin-top:34px;font-size:28px">— Filipi 4:7</div>
+  <div class="mark" style="color:#C0612B">Selah</div></div><div id="h-th1" class="abs scard" style="background:#3E4A2F;color:#EFE8D2">
+  <div class="sk" style="color:#C9B87A">TEMA · ZAITUN</div>
+  <div class="verse" style="color:#EFE8D2;font-size:40px;margin-top:70px">Damai sejahtera Allah, yang melampaui segala akal, akan memelihara hati dan pikiranmu.</div>
+  <div class="ref" style="color:#EFE8D2;margin-top:34px;font-size:28px">— Filipi 4:7</div>
+  <div class="mark" style="color:#C9B87A">Selah</div></div><div id="h-th2" class="abs scard" style="background:#1F3B4D;color:#EAF2F2">
+  <div class="sk" style="color:#8FC1C7">TEMA · GALILEA</div>
+  <div class="verse" style="color:#EAF2F2;font-size:40px;margin-top:70px">Damai sejahtera Allah, yang melampaui segala akal, akan memelihara hati dan pikiranmu.</div>
+  <div class="ref" style="color:#EAF2F2;margin-top:34px;font-size:28px">— Filipi 4:7</div>
+  <div class="mark" style="color:#8FC1C7">Selah</div></div></div>
+<div id="h-seed" class="abs"><div id="h-sn">🌱 3 benih</div><div id="h-sl">Penabur · Tunas · tema baru terbuka</div></div>
+<div id="h-t" class="abs title" style="left:720px;top:400px;width:440px;font-size:70px"><span class="word">Bagikan</span><span class="word">ayat,</span><span class="word">tabur</span><span class="word">benih.</span></div>
+<div id="h-chat" class="phone" style="left:1240px;top:40px"><div class="screen">
+  <div class="status"><span>19:05</span><span>▮▮▮ 54%</span></div>
+  <div id="h-head" class="abs"><div id="h-av"></div><div id="h-name">Rani</div><div id="h-fs">🔥 5</div></div>
+  <div id="h-mini" class="abs">Damai sejahtera Allah, yang melampaui segala akal…</div>
+  <div id="h-pr" class="abs"><div id="h-pk">PERMINTAAN DOA</div><div id="h-pt">Doakan ujianku besok ya 🙏</div>
+    <div id="h-pb">Aku doakan 🙏</div><div id="h-done">Menunggu didoakan…</div></div>
+</div></div>
+
+  </div>
+  <script>
+(() => {
+
+const SPR = {"selo-sway": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "selo-hop": {"frames": 39, "cols": 10, "rows": 4, "fps": 15}, "selo-pray": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "selo-sleep": {"frames": 60, "cols": 10, "rows": 6, "fps": 15}, "selo-love": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "selo-wave": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "selo-sing": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "dara-fly": {"frames": 45, "cols": 10, "rows": 5, "fps": 15}, "dara-glide": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "arka-roar": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "arka-stand": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "arka-guard": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "pipi-peck": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "pipi-lookup": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "lumi-glow": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}};
+// Plays one of the app's real character loops (captured frame by frame from
+// the React Native components) on a sprite element, at the app's own speed.
+function sprite(tl, sel, key, start, dur, size) {
+  const m = SPR[key], el = document.querySelector(sel), o = { f: 0 };
+  el.style.backgroundImage = "url('assets/sprites/" + key + ".webp')";
+  el.style.backgroundSize = (m.cols * size) + 'px ' + (m.rows * size) + 'px';
+  el.style.width = size + 'px'; el.style.height = size + 'px';
+  const paint = () => { const i = Math.floor(o.f) % m.frames;
+    el.style.backgroundPosition = (-(i % m.cols) * size) + 'px ' + (-Math.floor(i / m.cols) * size) + 'px'; };
+  paint();
+  tl.fromTo(o, { f: 0 }, { f: dur * m.fps, duration: dur, ease: 'none', onUpdate: paint }, start);
+}
+// Word-by-word blur-in for a title (no translate).
+function words(tl, sel, at, gap) {
+  document.querySelectorAll(sel + ' .word').forEach((w, i) => {
+    tl.fromTo(w, { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.16, ease: 'power4.out' }, at + i * (gap || 0.07));
+  });
+}
+function wordsOut(tl, sel, at) {
+  tl.to(sel, { opacity: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power3.in' }, at);
+}
+// Typewriter: reveal text one character at a time, deterministic on seek.
+function typer(tl, sel, text, start, dur) {
+  const el = document.querySelector(sel), o = { n: 0 };
+  const paint = () => { el.textContent = text.slice(0, Math.round(o.n)); };
+  paint();
+  tl.fromTo(o, { n: 0 }, { n: text.length, duration: dur, ease: 'none', onUpdate: paint }, start);
+}
+// Rolling counter.
+function counter(tl, sel, from, to, start, dur, suffix) {
+  const el = document.querySelector(sel), o = { v: from };
+  const paint = () => { const v = Math.round(o.v); el.textContent = (to >= 99 && v >= 99 ? '99+' : v) + (suffix || ''); };
+  paint();
+  tl.fromTo(o, { v: from }, { v: to, duration: dur, ease: 'power1.in', onUpdate: paint }, start);
+}
+
+const tl = gsap.timeline({ paused: true });
+
+gsap.set('#h-t .word', { opacity: 0 });
+gsap.set(['#h-th1', '#h-th2'], { opacity: 0 });
+tl.fromTo('#h-cards', { y: 1000 }, { y: 0, duration: 0.7, ease: 'expo.out' }, 0);
+// the card studio flips through themes
+tl.fromTo('#h-th1', { opacity: 0, clipPath: 'inset(0 0 100% 0 round 40px)' }, { opacity: 1, clipPath: 'inset(0 0 0% 0 round 40px)', duration: 0.4, ease: 'power3.inOut' }, 0.9);
+tl.fromTo('#h-th2', { opacity: 0, clipPath: 'inset(0 0 100% 0 round 40px)' }, { opacity: 1, clipPath: 'inset(0 0 0% 0 round 40px)', duration: 0.4, ease: 'power3.inOut' }, 1.6);
+tl.to('#h-th2', { opacity: 0, duration: 0.01 }, 2.15);
+tl.fromTo('#h-seed', { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.4, ease: 'expo.out' }, 1.1);
+const sn = document.querySelector('#h-sn'), so = { v: 2 };
+tl.fromTo(so, { v: 2 }, { v: 3, duration: 0.3, ease: 'none', onUpdate: () => { sn.textContent = '🌱 ' + Math.round(so.v) + ' benih'; } }, 1.5);
+words(tl, '#h-t', 1.0, 0.08);
+// the card is carried into a friend's chat
+tl.fromTo('#h-chat', { x: 800 }, { x: 0, duration: 0.6, ease: 'expo.out' }, 1.9);
+tl.to('#h-cards', { x: 1290, y: 140, scale: 0.42, transformOrigin: '0% 0%', duration: 0.6, ease: 'power3.inOut' }, 2.15);
+tl.to('#h-cards', { opacity: 0, duration: 0.12 }, 2.7);
+tl.fromTo('#h-mini', { opacity: 0 }, { opacity: 1, duration: 0.12 }, 2.68);
+tl.fromTo('#h-pr', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: 'expo.out' }, 3.2);
+tl.to('#h-pb', { y: 5, boxShadow: '0 1px 0 #6E4A26', duration: 0.09 }, 4.3);
+tl.to('#h-pb', { y: 0, boxShadow: '0 6px 0 #6E4A26', duration: 0.2, ease: 'power3.out' }, 4.39);
+const dn = document.querySelector('#h-done');
+tl.call(() => {}, null, 4.4);
+const dd = { v: 0 };
+tl.fromTo(dd, { v: 0 }, { v: 1, duration: 0.01, onUpdate: () => { dn.textContent = dd.v > 0.5 ? '🙏 Kamu sudah mendoakan ini' : 'Menunggu didoakan…'; } }, 4.45);
+const fs = document.querySelector('#h-fs'), fo = { v: 5 };
+tl.fromTo(fo, { v: 5 }, { v: 6, duration: 0.01, onUpdate: () => { fs.textContent = '🔥 ' + Math.round(fo.v); } }, 4.7);
+tl.fromTo('#h-fs', { scale: 1 }, { scale: 1.25, duration: 0.14, yoyo: true, repeat: 1, ease: 'power2.out' }, 4.7);
+
+window.__timelines["share"] = tl;
+})();
+  </script>
+</template>

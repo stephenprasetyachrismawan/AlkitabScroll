@@ -1,0 +1,118 @@
+<template>
+  <style>
+
+@font-face{font-family:'Gabarito';font-weight:700;src:url('assets/fonts/Gabarito_700Bold.ttf')}
+@font-face{font-family:'Gabarito';font-weight:600;src:url('assets/fonts/Gabarito_600SemiBold.ttf')}
+@font-face{font-family:'Figtree';font-weight:400;src:url('assets/fonts/Figtree_400Regular.ttf')}
+@font-face{font-family:'Figtree';font-weight:500;src:url('assets/fonts/Figtree_500Medium.ttf')}
+@font-face{font-family:'Figtree';font-weight:700;src:url('assets/fonts/Figtree_700Bold.ttf')}
+@font-face{font-family:'Lora';font-weight:400;src:url('assets/fonts/Lora_400Regular.ttf')}
+@font-face{font-family:'Lora';font-weight:500;font-style:italic;src:url('assets/fonts/Lora_500Medium_Italic.ttf')}
+@font-face{font-family:'Lora';font-weight:600;src:url('assets/fonts/Lora_600SemiBold.ttf')}
+@font-face{font-family:'Caveat';font-weight:500;src:url('assets/fonts/Caveat_500Medium.ttf')}
+
+
+#root{position:absolute;inset:0;overflow:hidden;background:#F7F1E3;font-family:'Figtree';color:#221D17}
+#root *{box-sizing:border-box}
+.abs{position:absolute}
+.phone{position:absolute;width:500px;height:1000px;border-radius:64px;background:#1E1A16;padding:14px;}
+.screen{position:absolute;inset:14px;border-radius:52px;overflow:hidden;background:#F7F1E3}
+.status{position:absolute;left:0;right:0;top:0;height:54px;display:flex;justify-content:space-between;align-items:center;padding:0 38px;font:600 22px 'Figtree';color:#221D17;z-index:5}
+.title{font:700 84px/1.04 'Gabarito';letter-spacing:-0.02em;color:#221D17}
+.sub{font:500 34px/1.35 'Figtree';color:#655F56}
+.hand{font:500 44px/1.1 'Caveat';color:#9A6A3A}
+.chunky{background:#FFFBF2;border:2px solid #DDD3BF;border-radius:26px;box-shadow:0 7px 0 #DDD3BF;}
+.verse{font:500 34px/1.42 'Lora';font-style:italic}
+.ref{font:700 24px 'Figtree';letter-spacing:0.02em}
+.sprite{position:absolute;background-repeat:no-repeat}
+.word{display:inline-block;margin-right:0.24em}
+
+
+.mbtn{position:absolute;width:200px;height:156px;text-align:center;padding-top:22px}
+.em{font-size:58px;line-height:1}
+.ml{margin-top:12px;font:600 26px 'Figtree'}
+#m-q{left:34px;top:150px;width:410px;font:700 46px/1.08 'Gabarito'}
+#m-hello{left:34px;top:104px;font:600 24px 'Figtree';color:#9A6A3A}
+#m-thanks{left:40px;top:880px;width:392px;height:66px;border-radius:33px;background:#221D17;color:#F7F1E3;font:600 24px/66px 'Figtree';text-align:center}
+#m-ground{left:0;top:860px;width:1100px;height:4px;background:#DDD3BF;border-radius:2px}
+
+  </style>
+  <div id="root" data-composition-id="mood" data-width="1920" data-height="1080" data-layout-allow-overlap data-layout-allow-overflow>
+
+<div id="m-t1" class="abs title" style="left:150px;top:190px;width:860px"><span class="word">Selo</span><span class="word">bertanya</span><span class="word">satu</span><span class="word">hal</span><span class="word">dulu.</span></div>
+<div id="m-t2" class="abs sub" style="left:150px;top:400px;width:760px"><span class="word">Ayat</span><span class="word">hari</span><span class="word">ini</span><span class="word">disusun</span><span class="word">dari</span><span class="word">jawabanmu.</span></div>
+<div id="m-ground" class="abs"></div>
+<div id="m-selo" class="abs" style="left:520px;top:600px;width:260px;height:260px"><div id="m-selo-a" class="sprite" style="left:0;top:0"></div><div id="m-selo-b" class="sprite" style="left:0;top:0;opacity:0"></div></div>
+<div id="m-phone" class="phone" style="left:1180px;top:40px"><div class="screen">
+  <div class="status"><span>07:12</span><span>▮▮▮ 96%</span></div>
+  <div id="m-hello" class="abs">Halo</div>
+  <div id="m-q" class="abs">Bagaimana perasaanmu hari ini?</div>
+  <div id="m-b0" class="chunky mbtn" style="left:30px;top:340px"><div class="em">😊</div><div class="ml">Senang</div></div><div id="m-b1" class="chunky mbtn" style="left:248px;top:340px"><div class="em">😢</div><div class="ml">Sedih</div></div><div id="m-b2" class="chunky mbtn" style="left:30px;top:518px"><div class="em">😰</div><div class="ml">Cemas</div></div><div id="m-b3" class="chunky mbtn" style="left:248px;top:518px"><div class="em">😩</div><div class="ml">Lelah</div></div><div id="m-b4" class="chunky mbtn" style="left:30px;top:696px"><div class="em">😠</div><div class="ml">Marah</div></div><div id="m-b5" class="chunky mbtn" style="left:248px;top:696px"><div class="em">🙏</div><div class="ml">Bersyukur</div></div>
+  <div id="m-thanks" class="abs">Terima kasih sudah jujur.</div>
+</div></div>
+
+  </div>
+  <script>
+(() => {
+
+const SPR = {"selo-sway": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "selo-hop": {"frames": 39, "cols": 10, "rows": 4, "fps": 15}, "selo-pray": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "selo-sleep": {"frames": 60, "cols": 10, "rows": 6, "fps": 15}, "selo-love": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "selo-wave": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "selo-sing": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "dara-fly": {"frames": 45, "cols": 10, "rows": 5, "fps": 15}, "dara-glide": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "arka-roar": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "arka-stand": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "arka-guard": {"frames": 54, "cols": 10, "rows": 6, "fps": 15}, "pipi-peck": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}, "pipi-lookup": {"frames": 48, "cols": 10, "rows": 5, "fps": 15}, "lumi-glow": {"frames": 42, "cols": 10, "rows": 5, "fps": 15}};
+// Plays one of the app's real character loops (captured frame by frame from
+// the React Native components) on a sprite element, at the app's own speed.
+function sprite(tl, sel, key, start, dur, size) {
+  const m = SPR[key], el = document.querySelector(sel), o = { f: 0 };
+  el.style.backgroundImage = "url('assets/sprites/" + key + ".webp')";
+  el.style.backgroundSize = (m.cols * size) + 'px ' + (m.rows * size) + 'px';
+  el.style.width = size + 'px'; el.style.height = size + 'px';
+  const paint = () => { const i = Math.floor(o.f) % m.frames;
+    el.style.backgroundPosition = (-(i % m.cols) * size) + 'px ' + (-Math.floor(i / m.cols) * size) + 'px'; };
+  paint();
+  tl.fromTo(o, { f: 0 }, { f: dur * m.fps, duration: dur, ease: 'none', onUpdate: paint }, start);
+}
+// Word-by-word blur-in for a title (no translate).
+function words(tl, sel, at, gap) {
+  document.querySelectorAll(sel + ' .word').forEach((w, i) => {
+    tl.fromTo(w, { opacity: 0, filter: 'blur(6px)' }, { opacity: 1, filter: 'blur(0px)', duration: 0.16, ease: 'power4.out' }, at + i * (gap || 0.07));
+  });
+}
+function wordsOut(tl, sel, at) {
+  tl.to(sel, { opacity: 0, filter: 'blur(8px)', duration: 0.2, ease: 'power3.in' }, at);
+}
+// Typewriter: reveal text one character at a time, deterministic on seek.
+function typer(tl, sel, text, start, dur) {
+  const el = document.querySelector(sel), o = { n: 0 };
+  const paint = () => { el.textContent = text.slice(0, Math.round(o.n)); };
+  paint();
+  tl.fromTo(o, { n: 0 }, { n: text.length, duration: dur, ease: 'none', onUpdate: paint }, start);
+}
+// Rolling counter.
+function counter(tl, sel, from, to, start, dur, suffix) {
+  const el = document.querySelector(sel), o = { v: from };
+  const paint = () => { const v = Math.round(o.v); el.textContent = (to >= 99 && v >= 99 ? '99+' : v) + (suffix || ''); };
+  paint();
+  tl.fromTo(o, { v: from }, { v: to, duration: dur, ease: 'power1.in', onUpdate: paint }, start);
+}
+
+const tl = gsap.timeline({ paused: true });
+
+gsap.set('#m-t1 .word, #m-t2 .word', { opacity: 0 }); gsap.set('#m-thanks', { opacity: 0 });
+// a new morning: the phone slides in from the right
+tl.fromTo('#m-phone', { x: 760 }, { x: 0, duration: 0.7, ease: 'expo.out' }, 0.0);
+document.querySelectorAll('.mbtn').forEach((b, i) => tl.fromTo(b, { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.3, ease: 'power4.out' }, 0.35 + i * 0.06));
+// Selo hops in from the left and waves
+sprite(tl, '#m-selo-a', 'selo-hop', 0, 2.6, 260);
+tl.fromTo('#m-selo', { x: -760 }, { x: 0, duration: 2.6, ease: 'power1.out' }, 0);
+words(tl, '#m-t1', 0.5, 0.08);
+words(tl, '#m-t2', 1.3, 0.07);
+// tap "Lelah": the chunky button presses into its ledge
+tl.to('#m-b3', { y: 6, boxShadow: '0 1px 0 #DDD3BF', borderColor: '#9A6A3A', duration: 0.09, ease: 'power2.out' }, 2.75);
+tl.to('#m-b3', { y: 0, boxShadow: '0 7px 0 #9A6A3A', backgroundColor: '#F3E6D3', duration: 0.24, ease: 'power3.out' }, 2.86);
+tl.fromTo('#m-thanks', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.3, ease: 'expo.out' }, 3.0);
+sprite(tl, '#m-selo-b', 'selo-wave', 2.6, 2.9, 260);
+tl.set('#m-selo-a', { opacity: 0 }, 2.6); tl.set('#m-selo-b', { opacity: 1 }, 2.6);
+// "Lelah" grows into the next world
+tl.to('#m-b3', { scale: 9, duration: 0.65, ease: 'power3.in', transformOrigin: '50% 50%', backgroundColor: '#E6EAF0' }, 4.85);
+
+window.__timelines["mood"] = tl;
+})();
+  </script>
+</template>

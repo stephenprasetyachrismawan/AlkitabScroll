@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #F7F1E3; }
+      #root { width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="57.5" data-width="1920" data-height="1080">
+      <div id="doom" data-composition-id="doom" data-composition-src="compositions/doom.html" data-start="0.00" data-duration="6.0" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="selah" data-composition-id="selah" data-composition-src="compositions/selah.html" data-start="6.00" data-duration="5.5" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="mood" data-composition-id="mood" data-composition-src="compositions/mood.html" data-start="11.50" data-duration="5.5" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="verses" data-composition-id="verses" data-composition-src="compositions/verses.html" data-start="17.00" data-duration="10.0" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="garden" data-composition-id="garden" data-composition-src="compositions/garden.html" data-start="27.00" data-duration="6.0" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="curhat" data-composition-id="curhat" data-composition-src="compositions/curhat.html" data-start="33.00" data-duration="6.5" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="journey" data-composition-id="journey" data-composition-src="compositions/journey.html" data-start="39.50" data-duration="5.0" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="share" data-composition-id="share" data-composition-src="compositions/share.html" data-start="44.50" data-duration="6.0" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+      <div id="end" data-composition-id="end" data-composition-src="compositions/end.html" data-start="50.50" data-duration="7.0" data-track-index="1" data-track-kind="graphics" data-width="1920" data-height="1080"></div>
+    </div>
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
