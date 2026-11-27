@@ -476,7 +476,16 @@ const FeedRow = memo(function FeedRow({
         </View>
       </View>
       <DoubleTapLike onDoubleTap={onLikeOnly} style={[styles.postCard, { width: cardW, height: postH, borderColor: colors.border }]} sparkColor={accent}>
-        <VerseCard verse={v} width={cardW} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} />
+        <VerseCard
+          verse={v}
+          width={cardW}
+          height={postH}
+          translation={translation}
+          lang={lang}
+          dark={dark}
+          category={category ?? item.reason}
+          characterPlaying={active}
+        />
       </DoubleTapLike>
       <ActionRow
         liked={liked}
