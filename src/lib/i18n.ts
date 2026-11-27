@@ -167,6 +167,34 @@ const dict = {
   appVersion: { id: 'Versi', en: 'Version' },
   characters: { id: 'Karakter', en: 'Characters' },
   charactersHint: { id: 'Selo dan teman-teman beraksi sesuai isi ayat', en: 'Selo and friends act out each verse' },
+  // sharing as sowing
+  shareCard: { id: 'Bagikan kartu ke Story / WA', en: 'Share card to Story / WhatsApp' },
+  seedsToGo: { id: 'benih lagi menuju', en: 'more seeds to' },
+  opensTheme: { id: 'buka tema', en: 'opens' },
+  sowerMax: { id: 'Pohonmu sudah rindang. Terus menabur.', en: 'Your tree is full grown. Keep sowing.' },
+  sharedThisWeek: { id: 'Hari kamu menabur minggu ini', en: 'Days you shared this week' },
+  sowerNewStage: { id: 'Tahap baru', en: 'New stage' },
+  sowerBody: {
+    id: 'Setiap ayat yang kamu bagikan adalah benih. Ada yang jatuh di tanah yang baik.',
+    en: 'Every verse you share is a seed. Some fall on good soil.',
+  },
+  themeOpened: { id: 'Tema kartu terbuka:', en: 'Card theme opened:' },
+  tryTheme: { id: 'Coba tema ini', en: 'Try this theme' },
+  locked: { id: 'terkunci', en: 'locked' },
+  lockedHint: { id: 'Bagikan ayat untuk menumbuhkan benih. Tema ini terbuka di benih ke-', en: 'Share verses to grow seeds. This theme opens at seed' },
+  back: { id: 'Kembali', en: 'Back' },
+  // friend streaks
+  streakDaysWith: { id: 'hari bareng', en: 'days with' },
+  streakAtRisk: {
+    id: 'Api kalian belum menyala hari ini. Kirim satu ayat untuk menyemangati.',
+    en: "Your flame isn't lit today yet. Send a verse to encourage them.",
+  },
+  streakTheirTurn: { id: 'Kamu sudah kirim hari ini. Tinggal giliran', en: "You've sent today. Waiting on" },
+  streakStart: { id: 'Saling kirim ayat setiap hari untuk menyalakan api bareng.', en: 'Send each other a verse every day to light a shared flame.' },
+  streakSend: { id: 'Kirim', en: 'Send' },
+  streakShuffle: { id: 'Ayat lain', en: 'Another verse' },
+  streakLit: { id: 'Api menyala:', en: 'Flame lit:' },
+  streakDaysShort: { id: 'hari', en: 'days' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type StringKey = keyof typeof dict;

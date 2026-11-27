@@ -279,6 +279,20 @@ export async function sendMessage(me: string, to: string, body: string, verseId?
   check(await supabase.from('messages').insert({ sender_id: me, recipient_id: to, body: body.trim(), verse_id: verseId ?? null }));
 }
 
+/** My sent and received messages (sender, recipient, time only) since `days` ago, for friend streaks. */
+export async function recentMessages(me: string, days = 60): Promise<Pick<Message, 'sender_id' | 'recipient_id' | 'created_at'>[]> {
+  const since = new Date(Date.now() - days * 86400_000).toISOString();
+  return check(
+    await supabase
+      .from('messages')
+      .select('sender_id, recipient_id, created_at')
+      .or(`sender_id.eq.${me},recipient_id.eq.${me}`)
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(5000),
+  ) as Pick<Message, 'sender_id' | 'recipient_id' | 'created_at'>[];
+}
+
 export async function markRead(me: string, other: string) {
   await supabase
     .from('messages')

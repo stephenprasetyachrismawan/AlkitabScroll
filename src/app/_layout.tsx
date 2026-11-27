@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { DailyProvider } from '../lib/daily';
+import { SowingProvider } from '../lib/sowingContext';
 import { EngagementProvider, useEngagement } from '../lib/engagement';
 import { JourneyProvider } from '../lib/journey/progress';
 import { SettingsProvider, useSettings } from '../lib/settings';
@@ -13,6 +14,7 @@ import { useAppFonts } from '../lib/useAppFonts';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { NotificationsManager } from '../components/NotificationsManager';
 import { Celebration } from '../components/Celebration';
+import { SowingCelebration } from '../components/Sowing';
 import { ToastProvider } from '../components/Toast';
 import { WidgetSync } from '../components/WidgetSync';
 
@@ -27,10 +29,13 @@ export default function RootLayout() {
           <EngagementProvider>
             <DailyProvider>
               <JourneyProvider>
-                <ToastProvider>
-                  <Gate />
-                  <Celebration />
-                </ToastProvider>
+                <SowingProvider>
+                  <ToastProvider>
+                    <Gate />
+                    <Celebration />
+                    <SowingCelebration />
+                  </ToastProvider>
+                </SowingProvider>
               </JourneyProvider>
             </DailyProvider>
           </EngagementProvider>

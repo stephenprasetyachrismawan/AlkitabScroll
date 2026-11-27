@@ -6,6 +6,7 @@ import { useHeaderHeight } from 'expo-router/react-navigation';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../../components/Avatar';
+import { StreakFlame, StreakNudge } from '../../components/FriendStreak';
 import * as api from '../../lib/api';
 import { useAuth } from '../../lib/auth';
 import { CATEGORY_MAP } from '../../lib/categories';
@@ -15,6 +16,8 @@ import { useSettings } from '../../lib/settings';
 import { supabase } from '../../lib/supabase';
 import { openChat } from '../../lib/notifications';
 import { passageText, VERSE_MAP } from '../../lib/verses';
+import { friendStreak } from '../../lib/friendStreak';
+import { useSowing } from '../../lib/sowingContext';
 
 export default function Chat() {
   const { id: other } = useLocalSearchParams<{ id: string }>();
@@ -26,6 +29,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<api.Message[]>([]);
   const [text, setText] = useState('');
   const listRef = useRef<FlatList<api.Message>>(null);
+  const { sowSeed } = useSowing();
 
   // Silence alerts for the conversation on screen.
   useEffect(() => {
@@ -80,6 +84,7 @@ export default function Chat() {
               </Text>
             </Pressable>
           ),
+          headerRight: () => (me ? <StreakFlame streak={friendStreak(messages, me, other)} size={17} /> : null),
         }}
       />
       <FlatList
@@ -121,6 +126,23 @@ export default function Chat() {
           );
         }}
       />
+      {me ? (
+        <StreakNudge
+          me={me}
+          other={other}
+          partnerName={partner?.display_name ?? ''}
+          messages={messages}
+          onSend={async (verseId) => {
+            try {
+              await api.sendMessage(me, other, '', verseId);
+              sowSeed('friend', verseId);
+              setMessages(await api.conversation(me, other));
+            } catch {
+              Alert.alert('Selah', t('errorGeneric'));
+            }
+          }}
+        />
+      ) : null}
       <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card, paddingBottom: Math.max(insets.bottom, 12) }]}>
         <TextInput
           value={text}
