@@ -25,9 +25,12 @@ import type { Lang, StringKey } from '../lib/i18n';
 import { SelahBreak } from './SelahBreak';
 import { ShareSheet } from './ShareSheet';
 import { VerseCard } from './VerseCard';
-import { Glass } from './Glass';
-import { useTabBarSpace } from './GlassTabBar';
-import { DoubleTapLike, GlassAction, LIKE_RED, PopIcon } from './Interactions';
+import { Surface } from './Surface';
+import { useTabBarSpace } from './TabBar';
+import { CardAction, DoubleTapLike, LIKE_RED, PopIcon } from './Interactions';
+import { useToast } from './Toast';
+import { useDaily } from '../lib/daily';
+import { ChunkyButton } from './ChunkyButton';
 import { PressableScale } from './PressableScale';
 
 type Item =
@@ -91,6 +94,8 @@ type FeedProps = {
 export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh }: FeedProps) {
   const { viewMode, translation, lang, dark, colors, t } = useSettings();
   const { routes, liked, saved, toggleLike, toggleSave, recordDwell } = useEngagement();
+  const { tick } = useDaily();
+  const toast = useToast();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const tabSpace = useTabBarSpace();
@@ -191,8 +196,12 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
   // Dwell tracking: a post that stays on screen long enough becomes a signal.
   const dwell = useRef<{ timer: ReturnType<typeof setTimeout> | null; record: (id: string) => void }>({ timer: null, record: recordDwell });
   useEffect(() => {
-    dwell.current.record = recordDwell;
-  }, [recordDwell]);
+    // a slow read feeds the algorithm and fills one of today's pips
+    dwell.current.record = (id: string) => {
+      recordDwell(id);
+      tick(id);
+    };
+  }, [recordDwell, tick]);
   const onViewable = useCallback(({ viewableItems }: { viewableItems: { item: Item }[] }) => {
     const d = dwell.current;
     if (d.timer) clearTimeout(d.timer);
@@ -220,10 +229,10 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
 
   // Row callbacks read the latest handlers through a ref, so their identity never changes
   // and memoized rows only re-render when their own data (likes, active, ...) changes.
-  const handlers = useRef({ like, liked, toggleSave });
+  const handlers = useRef({ like, liked, saved, toggleSave, toast, t });
   useEffect(() => {
-    handlers.current = { like, liked, toggleSave };
-  }, [like, liked, toggleSave]);
+    handlers.current = { like, liked, saved, toggleSave, toast, t };
+  }, [like, liked, saved, toggleSave, toast, t]);
   const actions = useMemo<RowActions>(
     () => ({
       like: (v) => handlers.current.like(v),
@@ -232,8 +241,11 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
         if (!handlers.current.liked.has(v.id)) handlers.current.like(v);
       },
       save: (v) => {
-        Haptics.selectionAsync().catch(() => {});
-        handlers.current.toggleSave(v.id);
+        const h = handlers.current;
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+        const on = !h.saved.has(v.id);
+        h.toggleSave(v.id);
+        h.toast(h.t(on ? 'savedToast' : 'unsavedToast'), on ? 'bookmark' : 'bookmark-outline');
       },
       comment: (v) => router.push({ pathname: '/comments/[id]', params: { id: v.id } }),
       share: (v) => setShareVerse(v),
@@ -290,11 +302,9 @@ export function Feed({ startVerseId, category, header, onSelahVisible, onRefresh
   if (ended) {
     return (
       <View style={[styles.end, { backgroundColor: colors.bg }]}>
-        <Text style={styles.endEmoji}>🕊️</Text>
+        <Ionicons name="leaf-outline" size={44} color={colors.primary} />
         <Text style={[styles.endText, { color: colors.text }]}>{t('enoughBody')}</Text>
-        <Pressable onPress={() => setEnded(false)} style={[styles.endBtn, { borderColor: colors.border }]}>
-          <Text style={{ color: colors.muted, fontFamily: UI_FONT.semibold }}>{t('continueScroll')}</Text>
-        </Pressable>
+        <ChunkyButton variant="secondary" label={t('continueScroll')} onPress={() => setEnded(false)} />
       </View>
     );
   }
@@ -418,11 +428,13 @@ const FeedRow = memo(function FeedRow({
   }
 
   const reasonCat = CATEGORY_MAP[item.reason];
+  const accent = CATEGORY_MAP[category ?? item.reason]?.[dark ? 'dark' : 'light'].accent ?? LIKE_RED;
 
+  // Reels: each card is its own screen and arrives in reading order. Posts scroll; they stand still.
   if (reels) {
     return (
       <View style={{ width, height }}>
-        <DoubleTapLike onDoubleTap={onLikeOnly} style={{ width, height }}>
+        <DoubleTapLike onDoubleTap={onLikeOnly} style={{ width, height }} sparkColor={accent}>
           <VerseCard
             verse={v}
             width={width}
@@ -439,10 +451,10 @@ const FeedRow = memo(function FeedRow({
           />
         </DoubleTapLike>
         <View style={[styles.reelActions, { bottom: tabSpace + 28 }]}>
-          <GlassAction icon={liked ? 'heart' : 'heart-outline'} on={liked} onColor={LIKE_RED} label={likes} onPress={onLike} dark={dark} />
-          <GlassAction icon="chatbubble-outline" label={comments} onPress={onComment} dark={dark} />
-          <GlassAction icon={saved ? 'bookmark' : 'bookmark-outline'} on={saved} onColor={colors.primary} onPress={onSave} dark={dark} />
-          <GlassAction icon="paper-plane-outline" onPress={onShare} dark={dark} />
+          <CardAction accessibilityLabel="like" icon={liked ? 'heart' : 'heart-outline'} on={liked} onColor={LIKE_RED} label={likes} onPress={onLike} dark={dark} />
+          <CardAction accessibilityLabel="comment" icon="chatbubble-outline" label={comments} onPress={onComment} dark={dark} />
+          <CardAction accessibilityLabel="save" icon={saved ? 'bookmark' : 'bookmark-outline'} on={saved} onColor={colors.primary} onPress={onSave} dark={dark} motion="fold" />
+          <CardAction accessibilityLabel="share" icon="paper-plane-outline" onPress={onShare} dark={dark} />
         </View>
       </View>
     );
@@ -451,16 +463,16 @@ const FeedRow = memo(function FeedRow({
   return (
     <View style={styles.post}>
       <View style={styles.postHeader}>
-        <Glass dark={dark} radius={20} strength={0.6} style={styles.postIcon}>
+        <Surface tone="well" radius={12} style={styles.postIcon}>
           <Ionicons name={(reasonCat?.icon ?? 'sparkles-outline') as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
-        </Glass>
+        </Surface>
         <View>
           <Text style={[styles.postTitle, { color: colors.text }]}>{item.badge ?? 'Selah'}</Text>
           <Text style={[styles.postSub, { color: colors.muted }]}>{reasonCat ? reasonCat.label[lang] : t('explore')}</Text>
         </View>
       </View>
-      <DoubleTapLike onDoubleTap={onLikeOnly} style={[styles.postCard, { width: cardW, height: postH }]}>
-        <VerseCard verse={v} width={cardW} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} active={active} />
+      <DoubleTapLike onDoubleTap={onLikeOnly} style={[styles.postCard, { width: cardW, height: postH, borderColor: colors.border }]} sparkColor={accent}>
+        <VerseCard verse={v} width={cardW} height={postH} translation={translation} lang={lang} dark={dark} category={category ?? item.reason} />
       </DoubleTapLike>
       <ActionRow
         liked={liked}
@@ -506,7 +518,7 @@ function ActionRow({ color, muted, primary, t, ...a }: ActionProps & { color: st
         </IconBtn>
       </View>
       <IconBtn onPress={a.onSave} label="save">
-        <PopIcon name={a.saved ? 'bookmark' : 'bookmark-outline'} on={a.saved} color={a.saved ? primary : color} />
+        <PopIcon name={a.saved ? 'bookmark' : 'bookmark-outline'} on={a.saved} color={a.saved ? primary : color} motion="fold" />
       </IconBtn>
       <View style={{ width: '100%', paddingHorizontal: 8 }}>
         {a.likes > 0 ? <Text style={[styles.countText, { color }]}>{a.likes} ♥</Text> : null}
@@ -540,19 +552,14 @@ const styles = StyleSheet.create({
   postSub: { fontFamily: UI_FONT.regular, fontSize: 12 },
   postCard: {
     marginHorizontal: 12,
-    borderRadius: 28,
+    borderRadius: 20,
+    borderWidth: 1.5,
     overflow: 'hidden',
-    shadowColor: '#3A2A1A',
-    shadowOpacity: 0.14,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 5,
   },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', paddingHorizontal: 8, paddingTop: 6 },
   iconBtn: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   countText: { fontFamily: UI_FONT.semibold, fontSize: 13, marginTop: 2 },
   end: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 16 },
-  endEmoji: { fontSize: 56 },
   endText: { fontFamily: UI_FONT.serif, fontSize: 20, textAlign: 'center', lineHeight: 30 },
   endBtn: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 18, paddingVertical: 10 },
 });

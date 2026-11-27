@@ -1,13 +1,13 @@
 import { Tabs } from 'expo-router';
-import { GlassTabBar } from '../../components/GlassTabBar';
+import { TabBar } from '../../components/TabBar';
 import { useSettings } from '../../lib/settings';
 
 export default function TabsLayout() {
-  const { t } = useSettings();
+  const { t, colors } = useSettings();
   return (
     <Tabs
-      tabBar={(props) => <GlassTabBar {...props} />}
-      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: 'transparent' } }}
+      tabBar={(props) => <TabBar {...props} />}
+      screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: colors.bg } }}
     >
       <Tabs.Screen name="index" options={{ title: t('home') }} />
       <Tabs.Screen name="explore" options={{ title: t('explore') }} />

@@ -1,12 +1,12 @@
 # Fonts
 
 Latin subsets of Google Fonts families, all under the SIL Open Font License 1.1
-(https://openfontlicense.org): Lora, Playfair Display, Nunito, Caveat, Cormorant Garamond.
+(https://openfontlicense.org): Lora, Caveat, Gabarito, Figtree.
 
 Subsetting keeps Basic Latin, Latin-1, Latin Extended A/B and Additional, punctuation,
 currency and a few symbols (♥ ™ arrows), which covers Indonesian and English. Characters outside the
 subset (emoji, other scripts in comments or chat) fall back to the system font.
-It cuts the font payload from about 2.0 MB to 1.05 MB.
+Nine files, about 0.6 MB in all.
 
 To regenerate from a full TTF (`pip install fonttools`):
 

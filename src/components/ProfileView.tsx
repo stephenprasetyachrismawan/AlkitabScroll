@@ -3,11 +3,9 @@ import { Alert, FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { timing } from '../lib/motion';
 import { FadeInView } from './FadeInView';
-import { Aurora } from './Aurora';
-import { Glass } from './Glass';
-import { useTabBarSpace } from './GlassTabBar';
+import { Surface } from './Surface';
+import { useTabBarSpace } from './TabBar';
 import { PressableScale } from './PressableScale';
-import { LinearGradient } from 'expo-linear-gradient';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, useFocusEffect } from 'expo-router';
 import * as api from '../lib/api';
@@ -111,9 +109,9 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
         </View>
         {isMe ? (
           <PressableScale onPress={() => router.push('/settings')} style={{ position: 'absolute', right: 12, top: 0 }} accessibilityRole="button" accessibilityLabel={t('settings')}>
-            <Glass dark={dark} radius={22} strength={0.6} style={styles.roundBtn}>
+            <Surface radius={22} style={styles.roundBtn}>
               <Ionicons name="settings-outline" size={20} color={colors.text} />
-            </Glass>
+            </Surface>
           </PressableScale>
         ) : null}
       </View>
@@ -129,7 +127,7 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
             <Btn label={t('editProfile')} onPress={() => router.push('/edit-profile')} colors={colors} />
           </View>
           {moods.length ? (
-            <Glass dark={dark} radius={20} strength={0.6} style={styles.moodBox}>
+            <Surface radius={20} style={styles.moodBox}>
               <Text style={[styles.moodTitle, { color: colors.muted }]}>{t('moodHistory')}</Text>
               <View style={styles.moodRow}>
                 {[...moods].reverse().map((m) => (
@@ -139,7 +137,7 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
                   </View>
                 ))}
               </View>
-            </Glass>
+            </Surface>
           ) : null}
         </>
       ) : (
@@ -153,9 +151,9 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
             <Text style={{ color: colors.danger, fontFamily: UI_FONT.semibold, flex: 1 }}>{t('block')} ✓</Text>
           )}
           <PressableScale onPress={more} accessibilityRole="button" accessibilityLabel="more">
-            <Glass dark={dark} radius={14} strength={0.6} style={styles.moreBtn}>
+            <Surface radius={14} style={styles.moreBtn}>
               <Ionicons name="ellipsis-horizontal" size={18} color={colors.text} />
-            </Glass>
+            </Surface>
           </PressableScale>
         </View>
       )}
@@ -173,7 +171,6 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
 
   return (
     <View style={{ flex: 1 }}>
-    <Aurora />
     <FlatList
       key={tab}
       data={data}
@@ -191,14 +188,14 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
         return (
           <FadeInView distance={0}>
           <PressableScale scaleTo={0.95} onPress={() => router.push({ pathname: '/post/[id]', params: { id: v.id } })}>
-            <LinearGradient colors={s.gradient} style={{ width: cell, height: cell * 1.33, padding: 8, justifyContent: 'space-between' }}>
+            <View style={[{ width: cell, height: cell * 1.33, padding: 8, justifyContent: 'space-between' }, { backgroundColor: s.paper }]}>
               <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 11, lineHeight: 15 }} numberOfLines={6}>
                 {p.body}
               </Text>
               <Text style={{ color: s.text, fontFamily: UI_FONT.bold, fontSize: 10 }} numberOfLines={1}>
                 {p.title}
               </Text>
-            </LinearGradient>
+            </View>
           </PressableScale>
           </FadeInView>
         );
@@ -223,7 +220,7 @@ function Btn({ label, onPress, primary, colors }: { label: string; onPress: () =
       <View
         style={[
           styles.btn,
-          primary ? { backgroundColor: colors.primary } : { backgroundColor: colors.card + 'B3', borderColor: 'rgba(255,255,255,0.7)', borderWidth: 1 },
+          primary ? { backgroundColor: colors.primary } : { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1.5 },
         ]}
       >
         <Text style={{ color: primary ? '#fff' : colors.text, fontFamily: UI_FONT.bold, fontSize: 14 }}>{label}</Text>
