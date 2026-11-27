@@ -125,6 +125,26 @@ const dict = {
   newMessageFrom: { id: 'Pesan baru dari', en: 'New message from' },
   music: { id: 'Musik latar', en: 'Background music' },
   musicHint: { id: 'Instrumental tenang saat menggulir ayat', en: 'Calm instrumentals while you scroll' },
+  updateTitle: { id: 'Versi baru Selah siap', en: 'A new Selah is ready' },
+  updateNow: { id: 'Perbarui Selah', en: 'Update Selah' },
+  updateDownloading: { id: 'Mengunduh', en: 'Downloading' },
+  updateInstall: { id: 'Pasang pembaruan', en: 'Install update' },
+  updateCancel: { id: 'Batalkan', en: 'Cancel' },
+  updateRetry: { id: 'Coba lagi', en: 'Try again' },
+  updateOpenGithub: { id: 'Unduh lewat GitHub', en: 'Download from GitHub' },
+  updateFailed: {
+    id: 'Unduhan terputus. Periksa koneksi lalu coba lagi.',
+    en: 'The download stopped. Check your connection and try again.',
+  },
+  updateNote: {
+    id: 'Android akan bertanya "Perbarui aplikasi ini?". Ketuk Perbarui. Versi lama langsung diganti, akun dan datamu tetap aman.',
+    en: 'Android will ask "Update this app?". Tap Update. The old version is replaced in place, and your account and data stay put.',
+  },
+  updatePermission: {
+    id: 'Pertama kali, Android minta izin "Instal aplikasi tidak dikenal" untuk Selah. Nyalakan, lalu kembali ke sini.',
+    en: 'The first time, Android asks to allow "Install unknown apps" for Selah. Turn it on, then come back.',
+  },
+  appVersion: { id: 'Versi', en: 'Version' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type StringKey = keyof typeof dict;

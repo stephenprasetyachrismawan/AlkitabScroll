@@ -23,6 +23,13 @@ jobs:
       EXPO_PUBLIC_SUPABASE_URL: https://yepkpeidgmwjsfggnhbw.supabase.co
       EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_BQ-ey5WMoIoypR-bhc7RWQ_K6feCRVc
       RELEASE_TAG: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v1.0.{0}', github.run_number) }}
+      # app.config.js turns RELEASE_TAG into versionName/versionCode. "github" keeps the in-app
+      # updater; a Google Play build would use SELAH_CHANNEL=play.
+      SELAH_CHANNEL: github
+      # SHA-256 of the certificate every Selah APK has been signed with so far. Android only
+      # installs an update over the old app when this stays the same, so the build fails loudly
+      # if it ever changes by accident.
+      EXPECTED_CERT_SHA256: fac61745dc0903786fb9ede62a962b399f7348f0bb6f899b8332667591033b9c
     steps:
       - uses: actions/checkout@v4
 
@@ -56,6 +63,13 @@ jobs:
       - name: Rename APK
         run: cp android/app/build/outputs/apk/release/app-release.apk "Selah-${RELEASE_TAG}.apk"
 
+      - name: Check signing certificate
+        run: |
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs "Selah-${RELEASE_TAG}.apk" | tee certs.txt
+          grep -qi "certificate SHA-256 digest: ${EXPECTED_CERT_SHA256}" certs.txt || {
+            echo "::error::APK signing certificate changed. Installed apps will refuse this update."; exit 1; }
+
       - name: APK size
         run: |
           ls -l "Selah-${RELEASE_TAG}.apk"
@@ -83,4 +97,5 @@ jobs:
             2. Buka file-nya. Jika diminta, izinkan "Instal aplikasi tidak dikenal" untuk browser/File Manager.
             3. Buka Selah, lalu masuk dengan Google.
 
-            Jika versi lama terpasang dan pemasangan gagal, hapus dulu versi lama.
+            Sudah punya Selah? Cukup pasang di atasnya: versi lama diganti dan datamu tetap ada.
+            Mulai versi ini, pembaruan berikutnya muncul sendiri di **Pengaturan** dan bisa dipasang dari aplikasi.
