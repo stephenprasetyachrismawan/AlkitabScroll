@@ -36,6 +36,8 @@ export type VerseWidgetProps = {
   done: boolean;
   /** e.g. "hari berturut-turut" */
   streakLabel: string;
+  /** phone font scale when the app last synced (Android: widget text is in sp and grows with it) */
+  fs?: number;
 };
 
 export type Streak = { last: string; count: number };

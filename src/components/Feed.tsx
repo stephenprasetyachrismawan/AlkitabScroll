@@ -4,11 +4,11 @@ import {
   Pressable,
   RefreshControl,
   StyleSheet,
-  Text,
   useWindowDimensions,
   View,
   type LayoutChangeEvent,
 } from 'react-native';
+import { Text } from './Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
@@ -466,9 +466,13 @@ const FeedRow = memo(function FeedRow({
         <Surface tone="well" radius={12} style={styles.postIcon}>
           <Ionicons name={(reasonCat?.icon ?? 'sparkles-outline') as keyof typeof Ionicons.glyphMap} size={18} color={colors.primary} />
         </Surface>
-        <View>
-          <Text style={[styles.postTitle, { color: colors.text }]}>{item.badge ?? 'Selah'}</Text>
-          <Text style={[styles.postSub, { color: colors.muted }]}>{reasonCat ? reasonCat.label[lang] : t('explore')}</Text>
+        <View style={styles.postHeadText}>
+          <Text style={[styles.postTitle, { color: colors.text }]} numberOfLines={1}>
+            {item.badge ?? 'Selah'}
+          </Text>
+          <Text style={[styles.postSub, { color: colors.muted }]} numberOfLines={1}>
+            {reasonCat ? reasonCat.label[lang] : t('explore')}
+          </Text>
         </View>
       </View>
       <DoubleTapLike onDoubleTap={onLikeOnly} style={[styles.postCard, { width: cardW, height: postH, borderColor: colors.border }]} sparkColor={accent}>
@@ -548,6 +552,7 @@ const styles = StyleSheet.create({
   post: { marginBottom: 18 },
   postHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 10 },
   postIcon: { width: 38, height: 38, alignItems: 'center', justifyContent: 'center' },
+  postHeadText: { flex: 1 },
   postTitle: { fontFamily: UI_FONT.bold, fontSize: 14 },
   postSub: { fontFamily: UI_FONT.regular, fontSize: 12 },
   postCard: {

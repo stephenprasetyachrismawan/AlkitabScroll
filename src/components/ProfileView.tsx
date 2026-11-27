@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Text } from './Text';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { timing } from '../lib/motion';
 import { FadeInView } from './FadeInView';
@@ -102,7 +103,7 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
     <View style={{ paddingTop: topInset }}>
       <View style={styles.top}>
         <Avatar profile={profile} size={84} />
-        <View style={styles.stats}>
+        <View style={[styles.stats, isMe && styles.statsBesideGear]}>
           <Stat n={isMe ? engagement.likedOrder.length : otherLists.liked.length} label={t('liked')} color={colors.text} muted={colors.muted} />
           <Stat n={counts.followers} label={t('followers')} color={colors.text} muted={colors.muted} />
           <Stat n={counts.following} label={t('following')} color={colors.text} muted={colors.muted} />
@@ -117,7 +118,9 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
       </View>
       <View style={styles.info}>
         <Text style={[styles.name, { color: colors.text }]}>{profile?.display_name}</Text>
-        <Text style={[styles.username, { color: colors.muted }]}>@{profile?.username}</Text>
+        <Text style={[styles.username, { color: colors.muted }]} numberOfLines={1}>
+          @{profile?.username}
+        </Text>
         {profile?.bio ? <Text style={[styles.bio, { color: colors.text }]}>{profile.bio}</Text> : null}
       </View>
 
@@ -189,10 +192,10 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
           <FadeInView distance={0}>
           <PressableScale scaleTo={0.95} onPress={() => router.push({ pathname: '/post/[id]', params: { id: v.id } })}>
             <View style={[{ width: cell, height: cell * 1.33, padding: 8, justifyContent: 'space-between' }, { backgroundColor: s.paper }]}>
-              <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 11, lineHeight: 15 }} numberOfLines={6}>
+              <Text style={{ color: s.text, fontFamily: 'Lora_500Medium_Italic', fontSize: 11, lineHeight: 15 }} numberOfLines={6} maxFontSizeMultiplier={1.2}>
                 {p.body}
               </Text>
-              <Text style={{ color: s.text, fontFamily: UI_FONT.bold, fontSize: 10 }} numberOfLines={1}>
+              <Text style={{ color: s.text, fontFamily: UI_FONT.bold, fontSize: 10 }} numberOfLines={1} maxFontSizeMultiplier={1.2}>
                 {p.title}
               </Text>
             </View>
@@ -207,9 +210,13 @@ export function ProfileView({ userId: targetId, topInset = 0 }: { userId: string
 
 function Stat({ n, label, color, muted }: { n: number; label: string; color: string; muted: string }) {
   return (
-    <View style={{ alignItems: 'center', minWidth: 64 }}>
-      <Text style={{ color, fontFamily: UI_FONT.bold, fontSize: 18 }}>{n}</Text>
-      <Text style={{ color: muted, fontFamily: UI_FONT.regular, fontSize: 12 }}>{label}</Text>
+    <View style={{ alignItems: 'center', flex: 1, minWidth: 0 }}>
+      <Text style={{ color, fontFamily: UI_FONT.bold, fontSize: 18 }} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+        {n}
+      </Text>
+      <Text style={{ color: muted, fontFamily: UI_FONT.regular, fontSize: 12 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75} maxFontSizeMultiplier={1.3}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -223,7 +230,9 @@ function Btn({ label, onPress, primary, colors }: { label: string; onPress: () =
           primary ? { backgroundColor: colors.primary } : { backgroundColor: colors.card, borderColor: colors.border, borderWidth: 1.5 },
         ]}
       >
-        <Text style={{ color: primary ? '#fff' : colors.text, fontFamily: UI_FONT.bold, fontSize: 14 }}>{label}</Text>
+        <Text style={{ color: primary ? '#fff' : colors.text, fontFamily: UI_FONT.bold, fontSize: 14 }} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+          {label}
+        </Text>
       </View>
     </PressableScale>
   );
@@ -231,13 +240,15 @@ function Btn({ label, onPress, primary, colors }: { label: string; onPress: () =
 
 const styles = StyleSheet.create({
   top: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 12, gap: 16 },
-  stats: { flexDirection: 'row', flex: 1, justifyContent: 'space-around' },
+  stats: { flexDirection: 'row', flex: 1, justifyContent: 'space-around', gap: 4 },
+  /** keeps the counts clear of the settings button at the top right */
+  statsBesideGear: { paddingRight: 44 },
   info: { paddingHorizontal: 16, paddingTop: 10, gap: 2 },
   name: { fontFamily: UI_FONT.bold, fontSize: 17 },
   username: { fontFamily: UI_FONT.regular, fontSize: 13 },
   bio: { fontFamily: UI_FONT.regular, fontSize: 14, marginTop: 4, lineHeight: 20 },
   buttons: { flexDirection: 'row', gap: 8, paddingHorizontal: 16, paddingTop: 12, alignItems: 'center' },
-  btn: { alignItems: 'center', justifyContent: 'center', minHeight: 44, borderRadius: 14 },
+  btn: { alignItems: 'center', justifyContent: 'center', minHeight: 44, borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6 },
   moreBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   roundBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   moodBox: { marginHorizontal: 16, marginTop: 12, padding: 12, gap: 8 },

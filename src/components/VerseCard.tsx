@@ -1,5 +1,6 @@
 import { memo, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text, useFontScale } from './Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming, type SharedValue } from 'react-native-reanimated';
 import { DURATION, enter } from '../lib/motion';
@@ -29,6 +30,8 @@ type Props = {
    * (tags, verse, reference) each time it becomes active. Omit for static cards.
    */
   active?: boolean;
+  /** Image export: ignore the phone's font size so shared pictures look the same everywhere. */
+  print?: boolean;
 };
 
 /** One part of the card rising into place; `p` goes 0 → 1. */
@@ -74,7 +77,12 @@ function VerseCardBase({
   rightInset = 0,
   topInset = 0,
   active,
+  print,
 }: Props) {
+  // Text on the card grows with the phone's font size (capped), and the verse is fitted
+  // to whatever room is left, so a large setting never pushes text off the card.
+  const phoneScale = useFontScale(1.3);
+  const scale = print ? 1 : phoneScale;
   const animate = active !== undefined;
   const pTags = useSharedValue(animate ? 0 : 1);
   const pBody = useSharedValue(animate ? 0 : 1);
@@ -111,12 +119,14 @@ function VerseCardBase({
   const padX = Math.max(22, width * 0.07);
   const padTop = Math.max(24, height * 0.05) + topInset;
   const framed = layout === 2;
-  const tagsH = 30;
+  const tagsH = 30 * scale;
   const boxW = width - padX * 2 - rightInset - (framed ? 40 : 0);
   // reserved: tags, reference row, copyright line, frame padding, quote mark
-  const boxH = height - padTop - bottomInset - tagsH - 100 - (framed ? 76 : 0) - (layout === 1 ? 50 : 0);
+  const boxH = height - padTop - bottomInset - tagsH - 100 * scale - (framed ? 76 : 0) - (layout === 1 ? 50 : 0);
   const fitText = multi ? parts.map((p) => `${p.n} ${p.text}`).join(' ') : body;
-  const fontSize = fitFontSize(fitText, boxW, boxH, font);
+  // The verse is sized here, not by the system: a bigger font setting raises the ceiling,
+  // then fitting brings it back down if the passage is long.
+  const fontSize = fitFontSize(fitText, boxW, boxH, { ...font, max: Math.round(font.max * scale) });
   const align = layout === 1 ? 'left' : 'center';
   const copyright = TRANSLATIONS.find((x) => x.key === translation)?.copyright ?? '';
 
@@ -132,20 +142,27 @@ function VerseCardBase({
         <Animated.View style={[styles.tags, { justifyContent: align === 'left' ? 'flex-start' : 'center' }, tagsStyle]}>
           {badge ? (
             <View style={[styles.stamp, { borderColor: style.accent }]}>
-              <Text style={[styles.stampText, { color: style.accent }]}>{badge}</Text>
+              <Text style={[styles.stampText, { color: style.accent }]} maxFontSizeMultiplier={scale} numberOfLines={1}>
+                {badge}
+              </Text>
             </View>
           ) : null}
           <View style={styles.kickerRow}>
             <Ionicons name={cat.icon as keyof typeof Ionicons.glyphMap} size={13} color={style.accent} />
-            <Text style={[styles.kicker, { color: style.text }]} numberOfLines={1}>
+            <Text style={[styles.kicker, { color: style.text }]} maxFontSizeMultiplier={scale} numberOfLines={1}>
               {kicker.toUpperCase()}
             </Text>
           </View>
         </Animated.View>
 
         <Animated.View style={[styles.body, layout === 2 && [styles.framed, { borderColor: style.accent + '55' }], bodyStyle]}>
-          {layout === 1 ? <Text style={[styles.quoteMark, { color: style.accent }]}>“</Text> : null}
+          {layout === 1 ? (
+            <Text allowFontScaling={false} style={[styles.quoteMark, { color: style.accent }]}>
+              “
+            </Text>
+          ) : null}
           <Text
+            allowFontScaling={false}
             style={{
               color: style.text,
               fontFamily: font.family,
@@ -156,8 +173,8 @@ function VerseCardBase({
           >
             {multi
               ? parts.map((p, i) => (
-                  <Text key={p.n}>
-                    <Text style={{ fontSize: fontSize * 0.5, color: style.accent, fontFamily: UI_FONT.bold }}>{p.n} </Text>
+                  <Text key={p.n} allowFontScaling={false}>
+                    <Text allowFontScaling={false} style={{ fontSize: fontSize * 0.5, color: style.accent, fontFamily: UI_FONT.bold }}>{p.n} </Text>
                     {p.text}
                     {i < parts.length - 1 ? ' ' : ''}
                   </Text>
@@ -166,12 +183,16 @@ function VerseCardBase({
           </Text>
           <Animated.View style={[styles.refRow, { justifyContent: align === 'left' ? 'flex-start' : 'center' }, refStyle]}>
             <View style={[styles.rule, { backgroundColor: style.accent }]} />
-            <Text style={[styles.ref, { color: style.text }]}>{title}</Text>
+            <Text style={[styles.ref, { color: style.text }]} maxFontSizeMultiplier={scale} numberOfLines={2}>
+              {title}
+            </Text>
             {align === 'left' ? null : <View style={[styles.rule, { backgroundColor: style.accent }]} />}
           </Animated.View>
         </Animated.View>
 
-        <Text style={[styles.copyright, { color: style.text }]}>{copyright}</Text>
+        <Text style={[styles.copyright, { color: style.text }]} maxFontSizeMultiplier={scale} numberOfLines={2}>
+          {copyright}
+        </Text>
       </View>
     </View>
   );

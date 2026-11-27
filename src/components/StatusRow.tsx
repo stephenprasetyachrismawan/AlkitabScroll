@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import { router, useFocusEffect } from 'expo-router';
 import * as api from '../lib/api';
 import { useAuth } from '../lib/auth';
@@ -43,18 +44,20 @@ export function StatusRow() {
           <Avatar profile={profile} size={62} ring={mine ? colors.primary : colors.border} />
           {!mine ? (
             <View style={[styles.plus, { backgroundColor: colors.primary, borderColor: colors.bg }]}>
-              <Text style={styles.plusText}>+</Text>
+              <Text style={styles.plusText} allowFontScaling={false}>
+                +
+              </Text>
             </View>
           ) : null}
         </View>
-        <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
+        <Text style={[styles.name, { color: colors.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
           {t('yourStatus')}
         </Text>
       </Pressable>
       {groups.map((g) => (
         <Pressable key={g.user.id} style={styles.item} onPress={() => router.push({ pathname: '/status/view', params: { user: g.user.id } })}>
           <Avatar profile={g.user} size={62} ring={colors.primary} />
-          <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
+          <Text style={[styles.name, { color: colors.text }]} numberOfLines={1} maxFontSizeMultiplier={1.3}>
             {g.user.display_name.split(' ')[0]}
           </Text>
         </Pressable>
@@ -66,7 +69,7 @@ export function StatusRow() {
 const styles = StyleSheet.create({
   row: { paddingHorizontal: 12, paddingVertical: 10, gap: 14 },
   item: { alignItems: 'center', width: 68, gap: 4 },
-  name: { fontFamily: UI_FONT.regular, fontSize: 11 },
+  name: { fontFamily: UI_FONT.regular, fontSize: 11, maxWidth: '100%' },
   plus: { position: 'absolute', right: 0, bottom: 0, width: 22, height: 22, borderRadius: 11, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
   plusText: { color: '#fff', fontFamily: UI_FONT.bold, fontSize: 14, lineHeight: 16 },
 });

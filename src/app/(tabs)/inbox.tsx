@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, StyleSheet, View } from 'react-native';
+import { Text } from '../../components/Text';
 import { useTabBarSpace } from '../../components/TabBar';
 import { PressableScale } from '../../components/PressableScale';
 import { FadeInView } from '../../components/FadeInView';
@@ -41,7 +42,9 @@ export default function Inbox() {
             <PressableScale scaleTo={0.98} style={styles.row} onPress={() => router.push({ pathname: '/chat/[id]', params: { id: item.partner_id } })}>
               <Avatar profile={item.profile} size={52} />
               <View style={{ flex: 1 }}>
-                <Text style={[styles.name, { color: colors.text }]}>{item.profile?.display_name ?? '…'}</Text>
+                <Text style={[styles.name, { color: colors.text }]} numberOfLines={1}>
+                  {item.profile?.display_name ?? '…'}
+                </Text>
                 <Text
                   style={[styles.preview, { color: item.unread ? colors.text : colors.muted, fontFamily: item.unread ? UI_FONT.bold : UI_FONT.regular }]}
                   numberOfLines={1}

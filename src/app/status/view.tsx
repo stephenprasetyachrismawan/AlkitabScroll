@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Text } from '../../components/Text';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Avatar } from '../../components/Avatar';
@@ -75,20 +76,24 @@ export default function ViewStatus() {
         </View>
         <View style={styles.head}>
           <Avatar profile={owner} size={34} />
-          <Text style={styles.name}>{owner?.display_name}</Text>
-          <Text style={styles.time}>{timeAgo(current.created_at, lang)}</Text>
-          <View style={{ flex: 1 }} />
+          <Text style={styles.name} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+            {owner?.display_name}
+          </Text>
+          <Text style={styles.time} numberOfLines={1} maxFontSizeMultiplier={1.3}>
+            {timeAgo(current.created_at, lang)}
+          </Text>
+          <View style={{ flex: 1, minWidth: 4 }} />
           {current.user_id === me ? (
             <Pressable onPress={remove} hitSlop={10}>
-              <Text style={styles.icon}>🗑</Text>
+              <Text style={styles.icon} maxFontSizeMultiplier={1.2}>🗑</Text>
             </Pressable>
           ) : (
             <Pressable onPress={() => me && api.report(me, 'status', String(current.id)).then(() => Alert.alert('Selah', t('reported')))} hitSlop={10}>
-              <Text style={styles.icon}>⚑</Text>
+              <Text style={styles.icon} maxFontSizeMultiplier={1.2}>⚑</Text>
             </Pressable>
           )}
           <Pressable onPress={() => router.back()} hitSlop={10}>
-            <Text style={styles.icon}>✕</Text>
+            <Text style={styles.icon} maxFontSizeMultiplier={1.2}>✕</Text>
           </Pressable>
         </View>
       </View>
@@ -106,7 +111,7 @@ const styles = StyleSheet.create({
   bars: { flexDirection: 'row', gap: 4 },
   bar: { flex: 1, height: 3, borderRadius: 2 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#0004', borderRadius: 999, padding: 4, paddingRight: 12 },
-  name: { color: '#fff', fontFamily: UI_FONT.bold },
+  name: { color: '#fff', fontFamily: UI_FONT.bold, flexShrink: 1 },
   time: { color: '#fffb', fontFamily: UI_FONT.regular, fontSize: 12 },
   icon: { color: '#fff', fontSize: 18, paddingHorizontal: 6 },
   note: { position: 'absolute', left: 20, right: 20, backgroundColor: '#000a', borderRadius: 14, padding: 14 },

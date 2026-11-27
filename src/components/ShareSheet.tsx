@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ComponentRef } from 'react';
-import { ActivityIndicator, Alert, FlatList, Modal, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from './Text';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import { router } from 'expo-router';
@@ -131,7 +132,7 @@ export function ShareSheet({ verse, onClose }: Props) {
       {/* Off-screen 9:16 card used for image export */}
       <View style={styles.offscreen} pointerEvents="none">
         <View ref={shotRef} collapsable={false}>
-          <VerseCard verse={verse} width={360} height={640} translation={translation} lang={lang} dark={dark} badge="Selah" />
+          <VerseCard verse={verse} width={360} height={640} translation={translation} lang={lang} dark={dark} badge="Selah" print />
         </View>
       </View>
     </Modal>
@@ -149,10 +150,10 @@ function Item({ icon, label, onPress, color, accent }: { icon: keyof typeof Ioni
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: '#0006' },
-  sheet: { maxHeight: '70%', minHeight: 240, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
+  sheet: { maxHeight: '85%', minHeight: 240, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 20, paddingBottom: 36 },
   handle: { width: 44, height: 5, borderRadius: 3, alignSelf: 'center', marginBottom: 14 },
   item: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 52 },
-  itemText: { fontFamily: UI_FONT.semibold, fontSize: 16 },
+  itemText: { fontFamily: UI_FONT.semibold, fontSize: 16, flexShrink: 1 },
   input: { borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, fontFamily: UI_FONT.regular, marginBottom: 10 },
   friend: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 },
   friendName: { flex: 1, fontFamily: UI_FONT.semibold, fontSize: 15 },

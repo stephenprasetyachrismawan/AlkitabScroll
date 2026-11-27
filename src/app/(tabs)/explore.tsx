@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, FlatList, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, Keyboard, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../../components/Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -171,7 +172,9 @@ export default function Explore() {
                   accessibilityLabel={item.label[lang]}
                 >
                   <Ionicons name={item.icon as keyof typeof Ionicons.glyphMap} size={22} color={s.accent} style={styles.tileIcon} />
-                  <Text style={[styles.tileName, { color: s.text }]}>{item.label[lang]}</Text>
+                  <Text style={[styles.tileName, { color: s.text }]} numberOfLines={2}>
+                    {item.label[lang]}
+                  </Text>
                   <Text style={[styles.tileCount, { color: s.text }]}>
                     {counts[item.key]} {lang === 'id' ? 'ayat' : 'verses'}
                   </Text>
@@ -235,7 +238,7 @@ export default function Explore() {
                         haptic
                         style={[styles.followBtn, on ? { borderColor: colors.border, borderWidth: 1 } : { backgroundColor: colors.primary }]}
                       >
-                        <Text style={{ color: on ? colors.text : '#fff', fontFamily: UI_FONT.bold, fontSize: 13 }}>{on ? t('following') : t('follow')}</Text>
+                        <Text style={{ color: on ? colors.text : '#fff', fontFamily: UI_FONT.bold, fontSize: 13 }} numberOfLines={1}>{on ? t('following') : t('follow')}</Text>
                       </PressableScale>
                     </View>
                   );
@@ -272,7 +275,7 @@ function VerseRow({ verse }: { verse: Verse }) {
         </Text>
         <View style={styles.verseMeta}>
           <Ionicons name={c.icon as keyof typeof Ionicons.glyphMap} size={13} color={s.accent} />
-          <Text style={{ color: s.text, fontFamily: UI_FONT.bold, fontSize: 12 }}>
+          <Text style={{ color: s.text, fontFamily: UI_FONT.bold, fontSize: 12, flexShrink: 1 }}>
             {p.title} · {c.label[lang]}
           </Text>
         </View>
@@ -288,11 +291,11 @@ const styles = StyleSheet.create({
   cancel: { paddingVertical: 10 },
   h: { fontFamily: UI_FONT.title, fontSize: 28, letterSpacing: -0.6, marginBottom: 4, marginTop: 6 },
   sub: { fontFamily: UI_FONT.bold, fontSize: 13, paddingHorizontal: 16, paddingTop: 4, paddingBottom: 6 },
-  tile: { padding: 16, height: 116, justifyContent: 'flex-end' },
+  tile: { padding: 16, paddingTop: 46, minHeight: 116, justifyContent: 'flex-end' },
   tileIcon: { position: 'absolute', top: 14, left: 16 },
   tileName: { fontFamily: UI_FONT.bold, fontSize: 16 },
   tileCount: { fontFamily: UI_FONT.regular, fontSize: 12, opacity: 0.7 },
-  segRow: { flexDirection: 'row', gap: 8, padding: 12 },
+  segRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 12 },
   seg: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 16, minHeight: 40, borderRadius: 20, borderWidth: 1.5 },
   segText: { fontFamily: UI_FONT.bold, fontSize: 13 },
   person: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingVertical: 8 },
