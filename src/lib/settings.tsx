@@ -22,6 +22,8 @@ type Settings = {
   messageAlerts: boolean;
   /** we asked for notification permission once already */
   askedNotif: boolean;
+  /** animated characters (Selo and friends) on verse cards */
+  characters: boolean;
 };
 
 export type Palette = {
@@ -101,6 +103,7 @@ function load(): Settings {
     reminderMinute: 0,
     messageAlerts: true,
     askedNotif: false,
+    characters: true,
   };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

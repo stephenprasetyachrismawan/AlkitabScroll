@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -7,6 +8,7 @@ import { useDaily, type DailyEvent } from '../lib/daily';
 import { UI_FONT } from '../lib/fonts';
 import { DURATION, enter, timing } from '../lib/motion';
 import { useSettings } from '../lib/settings';
+import { Character } from './characters/CharacterStage';
 import { ChunkyButton } from './ChunkyButton';
 import { RollingNumber } from './RollingNumber';
 import { useToast } from './Toast';
@@ -38,7 +40,7 @@ export function Celebration() {
 }
 
 function MilestoneCard({ streak, onClose }: { streak: number; onClose: () => void }) {
-  const { colors, t } = useSettings();
+  const { colors, t, characters } = useSettings();
   const shade = useSharedValue(0);
   const card = useSharedValue(0);
   const [n, setN] = useState(Math.max(0, streak - 1));
@@ -62,7 +64,11 @@ function MilestoneCard({ streak, onClose }: { streak: number; onClose: () => voi
             {Array.from({ length: EMBERS }, (_, i) => (
               <Ember key={i} angle={(i / EMBERS) * Math.PI * 2} delay={300 + (i % 3) * 40} />
             ))}
-            <Ionicons name="flame" size={84} color="#D9772B" />
+            {characters ? (
+              <Character scene={{ character: 'selo', action: 'hop' }} size={104} playing />
+            ) : (
+              <Ionicons name="flame" size={84} color="#D9772B" />
+            )}
           </View>
           <RollingNumber value={n} style={[styles.big, { color: colors.text }]} />
           <Text style={[styles.label, { color: colors.text }]}>{t('streakDays')}</Text>

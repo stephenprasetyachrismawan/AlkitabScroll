@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View, type StyleProp, type TextStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type TextStyle } from 'react-native';
+import { fontScaleCap, Text } from './Text';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { DURATION, timing } from '../lib/motion';
 
@@ -7,7 +8,19 @@ import { DURATION, timing } from '../lib/motion';
  * A count that rolls instead of swapping: going up, the old figure leaves upward and the
  * new one comes in from below (down: the other way). 240ms, transform and opacity only.
  */
-export function RollingNumber({ value, style, format = String }: { value: number; style?: StyleProp<TextStyle>; format?: (n: number) => string }) {
+export function RollingNumber({
+  value,
+  style,
+  format = String,
+  maxFontSizeMultiplier,
+}: {
+  value: number;
+  style?: StyleProp<TextStyle>;
+  format?: (n: number) => string;
+  /** Cap on the phone's font size setting; defaults by font size (see Text). */
+  maxFontSizeMultiplier?: number;
+}) {
+  const cap = maxFontSizeMultiplier ?? fontScaleCap(StyleSheet.flatten(style)?.fontSize);
   const [shown, setShown] = useState({ now: value, before: value });
   const p = useSharedValue(1);
   const dir = useSharedValue(1);
@@ -35,13 +48,13 @@ export function RollingNumber({ value, style, format = String }: { value: number
   return (
     <View style={styles.wrap}>
       {shown.now !== shown.before ? (
-        <Animated.Text style={[style, styles.abs, outStyle]} accessibilityElementsHidden importantForAccessibility="no">
+        <Animated.Text maxFontSizeMultiplier={cap} style={[style, styles.abs, outStyle]} accessibilityElementsHidden importantForAccessibility="no">
           {format(shown.before)}
         </Animated.Text>
       ) : null}
-      <Animated.Text style={[style, inStyle]}>{format(shown.now)}</Animated.Text>
+      <Animated.Text maxFontSizeMultiplier={cap} style={[style, inStyle]}>{format(shown.now)}</Animated.Text>
       {/* reserves the width of the wider figure so neighbours never jump */}
-      <Text style={[style, styles.ghost]} accessibilityElementsHidden importantForAccessibility="no">
+      <Text maxFontSizeMultiplier={cap} style={[style, styles.ghost]} accessibilityElementsHidden importantForAccessibility="no">
         {format(Math.max(shown.now, shown.before))}
       </Text>
     </View>

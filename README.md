@@ -54,7 +54,7 @@ React Native + Expo (Expo Router), Supabase (Auth Google, database, realtime), R
 ### Supabase (gratis)
 
 1. Buat proyek di [supabase.com](https://supabase.com).
-2. Buka **SQL Editor**, lalu jalankan isi [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+2. Buka **SQL Editor**, lalu jalankan isi [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql), kemudian [`0002_messages_engage.sql`](supabase/migrations/0002_messages_engage.sql) (permintaan doa, balasan, reaksi pesan).
 3. Buka **Authentication → Providers → Google**, lalu isi Client ID dan Secret dari [Google Cloud Console](https://console.cloud.google.com/apis/credentials). Pakai OAuth client tipe *Web application* dengan redirect URI `https://<project>.supabase.co/auth/v1/callback`.
 4. Buka **Authentication → URL Configuration → Redirect URLs**, lalu tambahkan `selah://auth-callback`, `exp://**`, dan `http://localhost:8081/**`.
 5. Salin `.env.example` ke `.env.local`, lalu isi URL dan publishable key dari **Project Settings → API**.
@@ -73,6 +73,16 @@ npm run fetch-verses    # ambil ulang teks ayat dari sabda.org
 ```
 
 Setiap push ke `main` membangun APK di GitHub Actions dan menerbitkannya di [Releases](https://github.com/stephenprasetyachrismawan/AlkitabScroll/releases). Build manual: `npx eas-cli@latest build -p android --profile preview`.
+
+### Pencarian ayat dan Curhat
+
+Satu mesin offline (`src/lib/search.ts`) dipakai untuk kotak cari di Jelajah dan untuk Curhat. Ada tiga lapis: **kata** (BM25 di TB, BIMK dan KJV, dengan imbuhan dilipat, slang dinormalkan, dan salah ketik dikoreksi), **makna** (skor `multilingual-e5-small` yang dihitung saat build ke `data/search-semantic.ts`, jadi "pacarku selingkuh" menemukan Mazmur 147:3), dan **tema** untuk chip "Selah menangkap". Setelah mengubah katalog ayat (`scripts/catalog.txt`, lalu `npm run fetch-verses`), bangun ulang indeksnya:
+
+```bash
+pip install onnxruntime tokenizers numpy wordfreq
+python scripts/build-search-index.py /path/ke/multilingual-e5-small   # berisi model_quantized.onnx + tokenizer.json
+npm test
+```
 
 ### Struktur
 

@@ -159,7 +159,7 @@ export function CardAction({
           <PopIcon name={icon} on={!!on} color={on && onColor ? onColor : fg} motion={motion} />
         </Surface>
       </PressableScale>
-      {label !== undefined ? <RollingNumber value={label} style={[styles.actionLabel, { color: fg }]} /> : null}
+      {label !== undefined ? <RollingNumber value={label} style={[styles.actionLabel, { color: fg }]} maxFontSizeMultiplier={1.3} /> : null}
     </View>
   );
 }

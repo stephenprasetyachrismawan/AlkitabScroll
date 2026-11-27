@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { Text } from './Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -59,5 +60,5 @@ function ToastView({ toast, onDone }: { toast: Toast; onDone: () => void }) {
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 16, right: 16, alignItems: 'center' },
   pill: { flexDirection: 'row', alignItems: 'center', gap: 8, borderRadius: 14, paddingHorizontal: 16, paddingVertical: 12, maxWidth: 420 },
-  text: { fontFamily: UI_FONT.semibold, fontSize: 14 },
+  text: { fontFamily: UI_FONT.semibold, fontSize: 14, flexShrink: 1 },
 });

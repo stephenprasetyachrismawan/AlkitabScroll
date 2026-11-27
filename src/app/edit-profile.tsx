@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../components/Text';
 import { Stack, router } from 'expo-router';
 import * as api from '../lib/api';
 import { useAuth } from '../lib/auth';

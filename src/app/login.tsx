@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Text } from '../components/Text';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withDelay, withSequence, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChunkyButton } from '../components/ChunkyButton';
@@ -50,17 +51,18 @@ export default function Login() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.bg, paddingTop: insets.top + 12, paddingBottom: insets.bottom + 20 }]}>
+    // Scrolls only when a large font size makes the screen taller than the phone.
+    <ScrollView style={{ backgroundColor: colors.bg }} contentContainerStyle={[styles.root, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 20 }]}>
       <PressableScale style={[styles.lang, { borderColor: colors.border }]} onPress={() => update({ lang: lang === 'id' ? 'en' : 'id' })} accessibilityRole="button" accessibilityLabel="Language">
-        <Text style={[styles.langText, { color: colors.text }]}>{lang === 'id' ? 'English' : 'Indonesia'}</Text>
+        <Text style={[styles.langText, { color: colors.text }]} maxFontSizeMultiplier={1.3}>{lang === 'id' ? 'English' : 'Indonesia'}</Text>
       </PressableScale>
 
       <View style={styles.center}>
         <PauseMark color={colors.primary} />
-        <Animated.Text entering={rise(0)} style={[styles.logo, { color: colors.text }]}>
+        <Animated.Text entering={rise(0)} maxFontSizeMultiplier={1.05} style={[styles.logo, { color: colors.text }]}>
           Selah
         </Animated.Text>
-        <Animated.Text entering={rise(1)} style={[styles.tagline, { color: colors.muted }]}>
+        <Animated.Text entering={rise(1)} maxFontSizeMultiplier={1.3} style={[styles.tagline, { color: colors.muted }]}>
           {t('appTagline')}
         </Animated.Text>
         {stillVerse ? (
@@ -77,15 +79,15 @@ export default function Login() {
         <Text style={[styles.note, { color: colors.muted }]}>{t('signInNote')}</Text>
         <ChunkyButton icon="logo-google" label={t('signInGoogle')} onPress={go} busy={busy} />
       </Animated.View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, paddingHorizontal: 24 },
+  root: { flexGrow: 1, paddingHorizontal: 24 },
   lang: { alignSelf: 'flex-end', borderWidth: 1.5, borderRadius: 12, paddingHorizontal: 12, minHeight: 40, justifyContent: 'center' },
   langText: { fontFamily: UI_FONT.semibold, fontSize: 13 },
-  center: { flex: 1, justifyContent: 'center', gap: 10 },
+  center: { flexGrow: 1, justifyContent: 'center', gap: 10, paddingVertical: 16 },
   mark: { flexDirection: 'row', gap: 7, height: 34, marginBottom: 6 },
   bar: { width: 8, height: 34, borderRadius: 3 },
   logo: { fontFamily: UI_FONT.title, fontSize: 64, letterSpacing: -2.4, lineHeight: 70 },

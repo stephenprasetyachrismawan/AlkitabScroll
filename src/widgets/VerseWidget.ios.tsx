@@ -9,6 +9,7 @@ import {
   Gauge,
   HStack,
   Image,
+  RoundedRectangle,
   Spacer,
   Text,
   VStack,
@@ -25,6 +26,7 @@ import {
   lineLimit,
   lineSpacing,
   minimumScaleFactor,
+  offset,
   padding,
   textCase,
   widgetURL,
@@ -90,9 +92,38 @@ const VerseWidget = (props: VerseWidgetProps, env: WidgetEnvironment) => {
   // ── Home screen ────────────────────────────────────────────────────────
   const dark = env.colorScheme === 'dark';
   const tinted = env.widgetRenderingMode === 'accented';
+  // the ground warms and cools with the time of day: dawn, day, dusk, night
+  const hour = (env.date ?? new Date()).getHours();
+  const period = hour >= 5 && hour < 10 ? 0 : hour >= 10 && hour < 16 ? 1 : hour >= 16 && hour < 19 ? 2 : 3;
+  const grounds = dark ? ['#241D16', '#17140F', '#271A15', '#121620'] : ['#FCEFD9', '#FBF7F2', '#F8E3D0', '#E9ECF4'];
   const c = dark
-    ? { bg: '#17140F', ink: '#F2ECE3', muted: '#A3998E', accent: '#E2B47C' }
-    : { bg: '#FBF7F2', ink: '#1E1A16', muted: '#6F665C', accent: '#9A6A3A' };
+    ? { bg: grounds[period], ink: '#F2ECE3', muted: '#A3998E', accent: '#E2B47C' }
+    : { bg: grounds[period], ink: '#1E1A16', muted: '#6F665C', accent: '#9A6A3A' };
+
+  // Selo: face follows the streak, asleep late at night
+  const night = hour >= 22 || hour < 5;
+  const selo = props.selo;
+  const seloView = (px: number) => {
+    if (!selo) return null;
+    const S = px / 64;
+    const boxes = (night ? selo.night : selo.art).flat();
+    return (
+      <VStack spacing={2} modifiers={[frame({ width: px + 16 })]}>
+        <ZStack alignment="topLeading" modifiers={[frame({ width: px, height: px, alignment: 'topLeading' })]}>
+          {boxes.map(([x, y, w, h, r, col], i) => (
+            <RoundedRectangle
+              key={i}
+              cornerRadius={r * S}
+              modifiers={[foregroundStyle(tinted ? 'primary' : col), frame({ width: w * S, height: h * S }), offset({ x: x * S, y: y * S })]}
+            />
+          ))}
+        </ZStack>
+        <Text modifiers={[font({ size: 10 }), foregroundStyle(tinted ? 'secondary' : c.muted), lineLimit(2), minimumScaleFactor(0.8)]}>
+          {night ? `${selo.nightLine} z z` : selo.line}
+        </Text>
+      </VStack>
+    );
+  };
   const ink = tinted ? 'primary' : c.ink;
   const muted = tinted ? 'secondary' : c.muted;
   const accent = tinted ? 'primary' : c.accent;
@@ -155,7 +186,8 @@ const VerseWidget = (props: VerseWidgetProps, env: WidgetEnvironment) => {
   const large = family === 'systemLarge' || family === 'systemExtraLarge';
 
   return (
-    <VStack alignment="leading" spacing={large ? 12 : 8} modifiers={root}>
+    <HStack alignment="top" spacing={10} modifiers={root}>
+    <VStack alignment="leading" spacing={large ? 12 : 8}>
       <HStack spacing={6}>
         {label}
         <Text modifiers={[font({ size: 11 }), foregroundStyle(muted), lineLimit(1)]}>{props.date}</Text>
@@ -189,6 +221,8 @@ const VerseWidget = (props: VerseWidgetProps, env: WidgetEnvironment) => {
         {next}
       </HStack>
     </VStack>
+    {seloView(large ? 64 : 52)}
+    </HStack>
   );
 };
 
@@ -210,4 +244,5 @@ export default createWidget<VerseWidgetProps>('VerseWidget', VerseWidget, {
       body: 'Diamlah dan ketahuilah, bahwa Akulah Allah!',
     },
   ],
+  selo: null,
 });

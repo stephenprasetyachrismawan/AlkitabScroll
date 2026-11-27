@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 import type { Route, Source } from './algorithm';
 import { SOURCE_TTL_HOURS } from './algorithm';
+import { PRAYER_MARK } from './chat';
 
 export type Profile = {
   id: string;
@@ -37,7 +38,14 @@ export type Message = {
   verse_id: string | null;
   read_at: string | null;
   created_at: string;
+  /** Added in migration 0002; older rows and older databases read as 'text'. */
+  kind?: MessageKind;
+  reply_to?: number | null;
 };
+
+export type MessageKind = 'text' | 'verse' | 'prayer';
+
+export type Reaction = { message_id: number; user_id: string; emoji: string };
 
 const PROFILE_COLS = 'id, username, display_name, avatar_url, bio';
 
@@ -253,6 +261,8 @@ export type InboxRow = {
   partner_id: string;
   last_body: string | null;
   last_verse_id: string | null;
+  last_kind?: MessageKind | null;
+  last_mine?: boolean;
   last_at: string;
   unread: number;
   profile?: Profile;
@@ -275,8 +285,56 @@ export async function conversation(me: string, other: string): Promise<Message[]
   ) as Message[];
 }
 
-export async function sendMessage(me: string, to: string, body: string, verseId?: string) {
-  check(await supabase.from('messages').insert({ sender_id: me, recipient_id: to, body: body.trim(), verse_id: verseId ?? null }));
+
+export async function sendMessage(
+  me: string,
+  to: string,
+  body: string,
+  verseId?: string,
+  opts: { kind?: MessageKind; replyTo?: number | null } = {},
+): Promise<Message> {
+  const base = { sender_id: me, recipient_id: to, body: body.trim(), verse_id: verseId ?? null };
+  // A verse is known by its verse_id, so only prayer requests need the kind column.
+  const kind = opts.kind ?? 'text';
+  const extra: Record<string, unknown> = {};
+  if (kind === 'prayer') extra.kind = kind;
+  if (opts.replyTo) extra.reply_to = opts.replyTo;
+  const res = await supabase.from('messages').insert({ ...base, ...extra }).select('*').single();
+  if (res.error && Object.keys(extra).length && /column|kind|reply_to|schema cache/i.test(res.error.message)) {
+    // Database hasn't had 0002 yet: still deliver the words.
+    const body2 = kind === 'prayer' ? PRAYER_MARK + base.body : base.body;
+    return check(await supabase.from('messages').insert({ ...base, body: body2 }).select('*').single()) as Message;
+  }
+  return check(res) as Message;
+}
+
+export async function reactionsFor(ids: number[]): Promise<Reaction[]> {
+  if (!ids.length) return [];
+  const res = await supabase.from('message_reactions').select('message_id, user_id, emoji').in('message_id', ids);
+  if (res.error) return []; // table missing before migration 0002
+  return res.data as Reaction[];
+}
+
+export async function addReaction(me: string, messageId: number, emoji: string) {
+  check(await supabase.from('message_reactions').upsert({ message_id: messageId, user_id: me, emoji }, { ignoreDuplicates: true }));
+}
+
+export async function removeReaction(me: string, messageId: number, emoji: string) {
+  check(await supabase.from('message_reactions').delete().eq('message_id', messageId).eq('user_id', me).eq('emoji', emoji));
+}
+
+/** My sent and received messages (sender, recipient, time only) since `days` ago, for friend streaks. */
+export async function recentMessages(me: string, days = 60): Promise<Pick<Message, 'sender_id' | 'recipient_id' | 'created_at'>[]> {
+  const since = new Date(Date.now() - days * 86400_000).toISOString();
+  return check(
+    await supabase
+      .from('messages')
+      .select('sender_id, recipient_id, created_at')
+      .or(`sender_id.eq.${me},recipient_id.eq.${me}`)
+      .gte('created_at', since)
+      .order('created_at', { ascending: false })
+      .limit(5000),
+  ) as Pick<Message, 'sender_id' | 'recipient_id' | 'created_at'>[];
 }
 
 export async function markRead(me: string, other: string) {

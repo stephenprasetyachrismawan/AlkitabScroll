@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { Text, TextInput } from '../../components/Text';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useHeaderHeight } from 'expo-router/react-navigation';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
@@ -123,6 +124,6 @@ const styles = StyleSheet.create({
   name: { fontFamily: UI_FONT.bold, fontSize: 13 },
   body: { fontFamily: UI_FONT.regular, fontSize: 15, lineHeight: 21, marginTop: 2 },
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: 1, paddingHorizontal: 14, paddingVertical: 10, paddingBottom: 12 },
-  input: { flex: 1, fontFamily: UI_FONT.regular, fontSize: 15, maxHeight: 100 },
+  input: { flex: 1, fontFamily: UI_FONT.regular, fontSize: 15, maxHeight: 140 },
   send: { fontFamily: UI_FONT.bold, fontSize: 15 },
 });

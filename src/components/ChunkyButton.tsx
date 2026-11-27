@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Text } from './Text';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
@@ -60,7 +61,7 @@ export function ChunkyButton({ label, onPress, icon, variant = 'primary', disabl
         ) : (
           <>
             {icon ? <Ionicons name={icon} size={19} color={fg} /> : null}
-            <Text style={[styles.label, { color: fg }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+            <Text style={[styles.label, { color: fg }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} maxFontSizeMultiplier={1.3}>
               {label}
             </Text>
           </>
@@ -83,7 +84,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
-  label: { fontFamily: UI_FONT.bold, fontSize: 16, letterSpacing: 0.2 },
+  label: { fontFamily: UI_FONT.bold, fontSize: 16, letterSpacing: 0.2, flexShrink: 1 },
 });
 
 /** Any tappable tile with the same feel: a face that sinks onto a darker ledge. */

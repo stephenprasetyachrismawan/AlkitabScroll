@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type ComponentRef } from 'react';
-import { Alert, FlatList, Platform, Pressable, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
+import { Alert, FlatList, Platform, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Text, TextInput } from '../../components/Text';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { captureRef } from 'react-native-view-shot';
@@ -12,6 +13,7 @@ import { useEngagement } from '../../lib/engagement';
 import { UI_FONT } from '../../lib/fonts';
 import { cleanText } from '../../lib/moderation';
 import { useSettings } from '../../lib/settings';
+import { useSowing } from '../../lib/sowingContext';
 import { passageText, VERSE_MAP, VERSES } from '../../lib/verses';
 
 /** Status = a verse card + note, visible 24h to followers; also exportable for WhatsApp/IG. */
@@ -20,6 +22,7 @@ export default function CreateStatus() {
   const { t, colors, translation, lang, dark } = useSettings();
   const { userId } = useAuth();
   const { savedOrder, likedOrder } = useEngagement();
+  const { sowSeed } = useSowing();
   const { width } = useWindowDimensions();
 
   const choices = useMemo(() => {
@@ -42,6 +45,7 @@ export default function CreateStatus() {
     try {
       setBusy(true);
       await api.postStatus(userId, verseId, cleanText(note.trim()), variant);
+      sowSeed('status', verseId);
       Alert.alert('Selah', t('statusPosted'));
       router.back();
     } catch {
@@ -65,10 +69,12 @@ export default function CreateStatus() {
     <KeyboardAwareScrollView bottomOffset={24} style={{ backgroundColor: colors.bg }} contentContainerStyle={{ padding: 16, gap: 14, alignItems: 'center' }}>
       <Stack.Screen options={{ title: t('status') }} />
       <View ref={shotRef} collapsable={false} style={{ borderRadius: 18, overflow: 'hidden' }}>
-        <VerseCard verse={verse} width={previewW} height={previewH} translation={translation} lang={lang} dark={dark} variant={variant} badge="Selah" />
+        <VerseCard verse={verse} width={previewW} height={previewH} translation={translation} lang={lang} dark={dark} variant={variant} badge="Selah" print />
         {note.trim() ? (
           <View style={styles.noteOverlay}>
-            <Text style={styles.noteText}>{note}</Text>
+            <Text style={styles.noteText} allowFontScaling={false}>
+              {note}
+            </Text>
           </View>
         ) : null}
       </View>
@@ -76,7 +82,9 @@ export default function CreateStatus() {
       <View style={{ flexDirection: 'row', gap: 8 }}>
         {[0, 1, 2].map((v) => (
           <Pressable key={v} onPress={() => setVariant(v)} style={[styles.variant, { borderColor: variant === v ? colors.primary : colors.border }]}>
-            <Text style={{ color: colors.text, fontFamily: UI_FONT.bold }}>{['Aa', '“', '▢'][v]}</Text>
+            <Text style={{ color: colors.text, fontFamily: UI_FONT.bold }} maxFontSizeMultiplier={1.2}>
+              {['Aa', '“', '▢'][v]}
+            </Text>
           </Pressable>
         ))}
       </View>
@@ -117,9 +125,9 @@ export default function CreateStatus() {
 const styles = StyleSheet.create({
   noteOverlay: { position: 'absolute', left: 12, right: 12, bottom: 34, backgroundColor: '#0008', borderRadius: 12, padding: 10 },
   noteText: { color: '#fff', fontFamily: UI_FONT.semibold, fontSize: 13, textAlign: 'center' },
-  variant: { width: 48, height: 40, borderWidth: 1.5, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
-  chip: { borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 7 },
+  variant: { width: 48, height: 44, borderWidth: 1.5, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  chip: { borderWidth: 1.5, borderRadius: 999, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center' },
   input: { alignSelf: 'stretch', borderWidth: 1, borderRadius: 12, paddingHorizontal: 14, paddingVertical: 10, fontFamily: UI_FONT.regular },
-  btn: { alignSelf: 'stretch', borderRadius: 999, paddingVertical: 14, alignItems: 'center' },
+  btn: { alignSelf: 'stretch', borderRadius: 999, paddingVertical: 14, paddingHorizontal: 16, alignItems: 'center' },
   btnText: { color: '#fff', fontFamily: UI_FONT.bold, fontSize: 15 },
 });
