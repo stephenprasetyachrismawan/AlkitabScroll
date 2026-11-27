@@ -13,6 +13,7 @@ import { useEngagement } from '../../lib/engagement';
 import { UI_FONT } from '../../lib/fonts';
 import { cleanText } from '../../lib/moderation';
 import { useSettings } from '../../lib/settings';
+import { useSowing } from '../../lib/sowingContext';
 import { passageText, VERSE_MAP, VERSES } from '../../lib/verses';
 
 /** Status = a verse card + note, visible 24h to followers; also exportable for WhatsApp/IG. */
@@ -21,6 +22,7 @@ export default function CreateStatus() {
   const { t, colors, translation, lang, dark } = useSettings();
   const { userId } = useAuth();
   const { savedOrder, likedOrder } = useEngagement();
+  const { sowSeed } = useSowing();
   const { width } = useWindowDimensions();
 
   const choices = useMemo(() => {
@@ -43,6 +45,7 @@ export default function CreateStatus() {
     try {
       setBusy(true);
       await api.postStatus(userId, verseId, cleanText(note.trim()), variant);
+      sowSeed('status', verseId);
       Alert.alert('Selah', t('statusPosted'));
       router.back();
     } catch {
