@@ -30,6 +30,7 @@ export function useTabBarSpace() {
 
 const ICONS: Record<string, [keyof typeof Ionicons.glyphMap, keyof typeof Ionicons.glyphMap]> = {
   index: ['book', 'book-outline'],
+  journey: ['map', 'map-outline'],
   explore: ['compass', 'compass-outline'],
   inbox: ['chatbubbles', 'chatbubbles-outline'],
   profile: ['person', 'person-outline'],
