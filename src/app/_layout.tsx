@@ -11,6 +11,7 @@ import { FONT_ASSETS } from '../lib/fonts';
 import { SettingsProvider, useSettings } from '../lib/settings';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { NotificationsManager } from '../components/NotificationsManager';
+import { WidgetSync } from '../components/WidgetSync';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts(FONT_ASSETS);
@@ -62,6 +63,7 @@ function Gate() {
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style={dark ? 'light' : 'dark'} />
       {isSupabaseConfigured && Platform.OS !== 'web' ? <NotificationsManager /> : null}
+      {Platform.OS !== 'web' ? <WidgetSync /> : null}
       <Stack
         screenOptions={{
           headerShown: false,

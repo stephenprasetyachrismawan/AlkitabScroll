@@ -7,7 +7,8 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.selah.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -39,6 +40,38 @@
         {
           "color": "#9A6A3A",
           "defaultChannel": "daily-reminder"
+        }
+      ],
+      [
+        "expo-widgets",
+        {
+          "enableAndroid": true,
+          "widgets": [
+            {
+              "name": "VerseWidget",
+              "displayName": "Ayat Hari Ini",
+              "description": "Ayat hari ini dari Selah. Ketuk untuk ayat lain.",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium",
+                  "systemLarge",
+                  "accessoryRectangular",
+                  "accessoryInline",
+                  "accessoryCircular"
+                ],
+                "initialLayout": "./src/widgets/VerseWidget.ios.tsx"
+              },
+              "android": {
+                "minWidth": 250,
+                "minHeight": 110,
+                "targetCellWidth": 4,
+                "targetCellHeight": 2,
+                "resizeMode": "both",
+                "initialLayout": "./src/widgets/VerseWidget.android.tsx"
+              }
+            }
+          ]
         }
       ]
     ],
